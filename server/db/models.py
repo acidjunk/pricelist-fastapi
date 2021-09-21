@@ -40,6 +40,8 @@ from sqlalchemy.orm import backref, relationship
 from server.db.database import BaseModel, Database
 from server.settings import app_settings
 from server.utils.date_utils import nowtz
+# from server.db import db
+
 
 logger = structlog.get_logger(__name__)
 
@@ -81,13 +83,15 @@ class UtcTimestamp(TypeDecorator):
         return value
 
 
-class RolesUsersTabke(BaseModel):
+class RolesUsersTable(BaseModel):
     __tablename__ = "roles_users"
     id = Column(Integer(), primary_key=True)
-    user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("users.id"))
-    role_id = Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id"))
+    user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id"))
+    role_id = Column("role_id", UUID(as_uuid=True), ForeignKey("role.id"))
 
 
+# What RoleMixin does ?
+# class Role(BaseModel, RoleMixin):
 class RolesTable(BaseModel):
     __tablename__ = "role"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -103,6 +107,8 @@ class RolesTable(BaseModel):
         return hash(self.name)
 
 
+#Same here
+# class User(db.Model, UserMixin):
 class UsersTable(BaseModel):
     __tablename__ = "user"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -171,7 +177,7 @@ class Table(BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String(255))
     shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"), index=True)
-    shop = db.relationship("Shop", lazy=True)
+    shop = relationship("Shop", lazy=True)
 
     def __repr__(self):
         return f"{self.shop.name}: {self.name}"
@@ -185,7 +191,7 @@ class MainCategory(BaseModel):
     icon = Column(String(60), nullable=True)
     description = Column(String(255), unique=True, index=True)
     shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"), index=True)
-    shop = db.relationship("Shop", lazy=True)
+    shop = relationship("Shop", lazy=True)
     order_number = Column(Integer, default=0)
 
     def __repr__(self):
@@ -198,14 +204,14 @@ class Category(BaseModel):
     main_category_id = Column(
         "main_category_id", UUID(as_uuid=True), ForeignKey("main_categories.id"), nullable=True, index=True
     )
-    main_category = db.relationship("MainCategory", lazy=True)
+    main_category = relationship("MainCategory", lazy=True)
     color = Column(String(20), default="#376E1A")
     name = Column(String(255))
     name_en = Column(String(255), nullable=True)
     icon = Column(String(60), nullable=True)
     description = Column(String(255), unique=True, index=True)
     shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"), index=True)
-    shop = db.relationship("Shop", lazy=True)
+    shop = relationship("Shop", lazy=True)
     order_number = Column(Integer, default=0)
     cannabis = Column(Boolean, default=False)
     image_1 = Column(String(255), unique=True, index=True)
@@ -286,9 +292,9 @@ class Order(BaseModel):
     completed_by = Column("completed_by", UUID(as_uuid=True), ForeignKey("user.id"), nullable=True)
     completed_at = Column(DateTime, nullable=True)
 
-    shop = db.relationship("Shop", lazy=True)
-    user = db.relationship("User", backref=backref("orders", uselist=False))
-    table = db.relationship("Table", backref=backref("shop_tables", uselist=False))
+    shop = relationship("Shop", lazy=True)
+    user = relationship("User", backref=backref("orders", uselist=False))
+    table = relationship("Table", backref=backref("shop_tables", uselist=False))
 
     def __repr__(self):
         return "<Order for shop: %s with total: %s>" % (self.shop.name, self.total)
@@ -301,8 +307,8 @@ class KindToTag(BaseModel):
     amount = Column("amount", Integer(), default=0)
     kind_id = Column("kind_id", UUID(as_uuid=True), ForeignKey("kinds.id"), index=True)
     tag_id = Column("tag_id", UUID(as_uuid=True), ForeignKey("tags.id"), index=True)
-    kind = db.relationship("Kind", lazy=True)
-    tag = db.relationship("Tag", lazy=True)
+    kind = relationship("Kind", lazy=True)
+    tag = relationship("Tag", lazy=True)
 
 
 # Flavor many to many relation
@@ -311,8 +317,8 @@ class KindToFlavor(BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     kind_id = Column("kind_id", UUID(as_uuid=True), ForeignKey("kinds.id"), index=True)
     flavor_id = Column("flavor_id", UUID(as_uuid=True), ForeignKey("flavors.id"), index=True)
-    kind = db.relationship("Kind", lazy=True)
-    flavor = db.relationship("Flavor", lazy=True)
+    kind = relationship("Kind", lazy=True)
+    flavor = relationship("Flavor", lazy=True)
 
     def __repr__(self):
         return f"{self.flavor.name}: {self.kind.name}"
@@ -323,8 +329,8 @@ class KindToStrain(BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     kind_id = Column("kind_id", UUID(as_uuid=True), ForeignKey("kinds.id"), index=True)
     strain_id = Column("strain_id", UUID(as_uuid=True), ForeignKey("strains.id"), index=True)
-    kind = db.relationship("Kind", lazy=True)
-    strain = db.relationship("Strain", lazy=True)
+    kind = relationship("Kind", lazy=True)
+    strain = relationship("Strain", lazy=True)
 
     def __repr__(self):
         return f"{self.strain.name}: {self.kind.name}"
@@ -360,15 +366,15 @@ class ShopToPrice(BaseModel):
     active = Column("active", Boolean(), default=True)
     new = Column("new", Boolean(), default=False)
     shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"), index=True)
-    shop = db.relationship("Shop", lazy=True)
+    shop = relationship("Shop", lazy=True)
     category_id = Column("category_id", UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True, index=True)
-    category = db.relationship("Category", lazy=True)
+    category = relationship("Category", lazy=True)
     kind_id = Column("kind_id", UUID(as_uuid=True), ForeignKey("kinds.id"), index=True, nullable=True)
-    kind = db.relationship("Kind", lazy=True)
+    kind = relationship("Kind", lazy=True)
     product_id = Column("product_id", UUID(as_uuid=True), ForeignKey("products.id"), index=True, nullable=True)
-    product = db.relationship("Product", lazy=True)
+    product = relationship("Product", lazy=True)
     price_id = Column("price_id", UUID(as_uuid=True), ForeignKey("prices.id"), index=True)
-    price = db.relationship("Price", lazy=True)
+    price = relationship("Price", lazy=True)
     use_half = Column("use_half", Boolean(), default=True)
     use_one = Column("use_one", Boolean(), default=True)
     use_two_five = Column("two_five", Boolean(), default=True)
@@ -379,7 +385,7 @@ class ShopToPrice(BaseModel):
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class Strain(db.Model):
+class Strain(BaseModel):
     __tablename__ = "strains"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String(255), unique=True, index=True)
@@ -389,7 +395,6 @@ class Strain(db.Model):
 
 
 # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
-
 
 
 class ProductTypesTable(BaseModel):

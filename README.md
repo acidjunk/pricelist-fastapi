@@ -7,7 +7,7 @@ This project only works with Python 3.8, 3.9 and 3.10.
 If you want to use a virtual environment first create the environment:
 
 ```bash
-    python3 -m venv .venv
+python3 -m venv .venv
 source venv/bin/activate
 ```
 
