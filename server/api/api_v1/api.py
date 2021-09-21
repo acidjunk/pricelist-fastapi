@@ -25,6 +25,7 @@ from server.api.api_v1.endpoints import (
     settings,
     users,
 )
+from server.apis.v1 import strains
 
 # Todo: add security depends here or in endpoints
 
@@ -40,5 +41,5 @@ api_router.include_router(
 )
 api_router.include_router(settings.router, prefix="/settings", tags=["system"])
 api_router.include_router(health.router, prefix="/health", tags=["system"])
-
 api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(strains.router, prefix="/strains", tags=["strains"])

@@ -19,6 +19,7 @@ from server.db.models import (  # noqa: F401
     MapsTable,
     UtcTimestamp,
     UtcTimestampException,
+    Strain,
 )
 from server.settings import app_settings
 
@@ -28,7 +29,8 @@ __all__ = [
     "transactional",
     "ProductsTable",
     "ProductTypesTable",
-    "MapsTable" "UtcTimestamp",
+    "UtcTimestamp",
+    "Strain",
     "UtcTimestampException",
     "db",
 ]

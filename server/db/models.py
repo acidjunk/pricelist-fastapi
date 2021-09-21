@@ -121,7 +121,7 @@ class UsersTable(BaseModel):
     fs_uniquifier = Column(String(255))
     created_at = Column(DateTime, default=datetime.utcnow)
     confirmed_at = Column(DateTime())
-    roles = relationship("Role", secondary="roles_users", backref=backref("users", lazy="dynamic"))
+    roles = relationship("RolesTable", secondary="roles_users", backref=backref("users", lazy="dynamic"))
 
     mail_offers = Column(Boolean, default=False)
 
@@ -293,7 +293,7 @@ class Order(BaseModel):
     completed_at = Column(DateTime, nullable=True)
 
     shop = relationship("Shop", lazy=True)
-    user = relationship("User", backref=backref("orders", uselist=False))
+    user = relationship("UsersTable", backref=backref("orders", uselist=False))
     table = relationship("Table", backref=backref("shop_tables", uselist=False))
 
     def __repr__(self):
@@ -372,7 +372,7 @@ class ShopToPrice(BaseModel):
     kind_id = Column("kind_id", UUID(as_uuid=True), ForeignKey("kinds.id"), index=True, nullable=True)
     kind = relationship("Kind", lazy=True)
     product_id = Column("product_id", UUID(as_uuid=True), ForeignKey("products.id"), index=True, nullable=True)
-    product = relationship("Product", lazy=True)
+    product = relationship("ProductsTable", lazy=True)
     price_id = Column("price_id", UUID(as_uuid=True), ForeignKey("prices.id"), index=True)
     price = relationship("Price", lazy=True)
     use_half = Column("use_half", Boolean(), default=True)
