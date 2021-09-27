@@ -35,7 +35,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     def get(self, id: str) -> Optional[ModelType]:
-        return db.query(self.model).get(id)
+        return db.session.query(self.model).get(id)
 
     def get_multi(
         self,
@@ -123,9 +123,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        db.session.add(db_obj)
+        db.session.commit()
+        db.session.refresh(db_obj)
         return db_obj
 
     def update(self, *, db_obj: ModelType, obj_in: UpdateSchemaType) -> ModelType:
@@ -141,15 +141,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field != "id" and field in update_data:
                 setattr(db_obj, field, update_data[field])
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        db.session.add(db_obj)
+        db.session.commit()
+        db.session.refresh(db_obj)
         return db_obj
 
-    def delete(self, db_session: Session, *, id: str) -> ModelType:
-        obj = db_session.query(self.model).get(id)
+    def delete(self, *, id: str) -> ModelType:
+        obj = db.session.query(self.model).get(id)
         if obj is None:
             raise NotFound
-        db_session.delete(obj)
-        db_session.commit()
+        db.session.delete(obj)
+        db.session.commit()
         return obj

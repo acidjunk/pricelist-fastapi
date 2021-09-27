@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 class StrainBase(BoilerplateBaseModel):
     name: str
-    # product_type: str
 
     class Config:
         orm_mode = True
@@ -30,7 +29,5 @@ class StrainInDBBase(StrainBase):
 
 
 # Additional properties to return via API
-
-#TODO change the name of this
 class StrainSchema(StrainInDBBase):
     pass

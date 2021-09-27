@@ -212,11 +212,11 @@ def product_1():
 @pytest.fixture()
 def strain_1():
     strain = Strain(
-        name="Strain 1"
+        name="Strain 1",
+        id="63b21ceb-23ce-494b-8767-9b0b2a81f1b4"
     )
     db.session.add(strain)
     db.session.commit()
-    logger.info(str(strain.id))
     return str(strain.id)
 
 
@@ -224,16 +224,6 @@ def strain_1():
 def strain_2():
     strain = Strain(
         name="Strain 2"
-    )
-    db.session.add(strain)
-    db.session.commit()
-    return str(strain.id)
-
-
-@pytest.fixture()
-def strain_3():
-    strain = Strain(
-        name="Strain 3"
     )
     db.session.add(strain)
     db.session.commit()
