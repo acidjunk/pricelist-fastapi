@@ -65,6 +65,18 @@ def upgrade() -> None:
         sa.UniqueConstraint("product_type"),
     )
     op.create_table(
+        "strains",
+        sa.Column(
+            "id",
+            sqlalchemy_utils.types.uuid.UUIDType(),
+            server_default=sa.text("uuid_generate_v4()"),
+            nullable=False,
+        ),
+        sa.Column("name", sa.String(length=510), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("name"),
+    )
+    op.create_table(
         "products",
         sa.Column(
             "id",
@@ -163,4 +175,5 @@ def downgrade() -> None:
     op.drop_table("products")
     op.drop_table("product_types")
     op.drop_table("maps")
+    op.drop_table("users")
     # ### end Alembic commands ###

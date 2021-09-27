@@ -22,7 +22,7 @@ from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import (
     ProductsTable,
-    db,
+    db, Strain,
 )
 from server.db.database import (
     ENGINE_ARGUMENTS,
@@ -91,7 +91,7 @@ def db_uri(worker_id):
     """
     database_uri = os.environ.get(
         "DATABASE_URI",
-        "postgresql://boilerplate:boilerplate@localhost/boilerplate-test",
+        "postgresql://boilerplate:boilerplate@localhost/pricelistpoc-test",
     )
     if worker_id == "master":
         # pytest is being run without any workers
@@ -207,3 +207,34 @@ def product_1():
     db.session.add(product)
     db.session.commit()
     return str(product.id)
+
+
+@pytest.fixture()
+def strain_1():
+    strain = Strain(
+        name="Strain 1"
+    )
+    db.session.add(strain)
+    db.session.commit()
+    logger.info(str(strain.id))
+    return str(strain.id)
+
+
+@pytest.fixture()
+def strain_2():
+    strain = Strain(
+        name="Strain 2"
+    )
+    db.session.add(strain)
+    db.session.commit()
+    return str(strain.id)
+
+
+@pytest.fixture()
+def strain_3():
+    strain = Strain(
+        name="Strain 3"
+    )
+    db.session.add(strain)
+    db.session.commit()
+    return str(strain.id)
