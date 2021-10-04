@@ -9,6 +9,7 @@ from sqlalchemy.inspection import inspect as sa_inspect
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import expression
 
+from server.api.models import transform_json
 from server.db import db
 from server.db.database import BaseModel
 
@@ -121,7 +122,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             return query.offset(skip).all(), response_range
 
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
+        obj_in_data = transform_json(obj_in.dict())
         db_obj = self.model(**obj_in_data)
         db.session.add(db_obj)
         db.session.commit()
