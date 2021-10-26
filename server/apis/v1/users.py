@@ -5,8 +5,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from starlette.responses import Response
 
-from server.api import deps
-from server.api.deps import common_parameters
+from server.apis import deps
+from server.apis.deps import common_parameters
 from server.crud import user_crud
 from server.db import db
 from server.db.models import UsersTable

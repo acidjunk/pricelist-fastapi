@@ -108,8 +108,7 @@ class RolesTable(BaseModel):
 
 
 #Same here
-# class User(db.Model, UserMixin):
-class UsersTable(BaseModel):
+class OldUsersTable(BaseModel):
     __tablename__ = "user"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     email = Column(String(255), unique=True)
@@ -132,6 +131,26 @@ class UsersTable(BaseModel):
     # __hash__ is required to avoid the exception TypeError: unhashable type: 'Role' when saving a User
     def __hash__(self):
         return hash(self.email)
+
+
+class UsersTable(BaseModel):
+    __tablename__ = "users"
+
+    id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
+    username = Column(String(32), nullable=False, unique=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    is_superuser = Column(Boolean, nullable=False, default=False)
+    created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
+    updated_at = Column(
+        UtcTimestamp,
+        server_default=text("current_timestamp()"),
+        onupdate=nowtz,
+        nullable=False,
+    )
+    roles = relationship("RolesTable", secondary="roles_users", lazy="joined")
+
 
 
 class Tag(BaseModel):

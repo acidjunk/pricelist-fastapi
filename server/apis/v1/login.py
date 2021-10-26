@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from server import schemas, security
-from server.api import deps
+from server.apis import deps
 from server.crud import user_crud
 from server.db import db
 from server.db.models import UsersTable

@@ -3,7 +3,7 @@ from datetime import datetime
 from server.schemas.base import BoilerplateBaseModel
 
 
-class PriceBase(BoilerplateBaseModel):
+class ShopBase(BoilerplateBaseModel):
     id: UUID
     name: str
     description: str
@@ -13,21 +13,21 @@ class PriceBase(BoilerplateBaseModel):
 
 
 # Properties to receive via API on creation
-class PriceCreate(PriceBase):
+class ShopCreate(ShopBase):
     pass
 
 
 # Properties to receive via API on update
-class PriceUpdate(PriceBase):
+class ShopUpdate(ShopBase):
     pass
 
 
-class PriceInDBBase(PriceBase):
+class ShopInDBBase(ShopBase):
 
     class Config:
         orm_mode = True
 
 
 # Additional properties to return via API
-class PriceSchema(PriceInDBBase):
+class ShopSchema(ShopInDBBase):
     pass
