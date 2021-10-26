@@ -38,7 +38,8 @@ class AppSettings(BaseSettings):
     PROJECT_NAME: str = "Boilerplate webservice"
     TESTING: bool = True
     EMAILS_ENABLED: bool = False
-    SESSION_SECRET: str = "".join(secrets.choice(string.ascii_letters) for i in range(16))  # noqa: S311
+    # SESSION_SECRET: str = "".join(secrets.choice(string.ascii_letters) for i in range(16))  # noqa: S311
+    SESSION_SECRET: str = "CHANGEME"
     # OAUTH settings
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_ALGORITHM = "HS256"
@@ -75,7 +76,7 @@ class AppSettings(BaseSettings):
     SWAGGER_HOST: str = "localhost"
     GUI_URI: str = "http://localhost:3000"
     # DB (probably only postgres for now; we use UUID postgres dialect for the ID's)
-    DATABASE_URI: str = "postgresql://boilerplate:boilerplate@localhost/boilerplate"
+    DATABASE_URI: str = "postgresql://pricelist:pricelist@localhost/pricelist"
 
     @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:

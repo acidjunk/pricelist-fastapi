@@ -1,5 +1,6 @@
 from typing import Optional
 
+import structlog
 from fastapi.encoders import jsonable_encoder
 
 from server.crud.base import CRUDBase
@@ -8,6 +9,7 @@ from server.db.models import UsersTable
 from server.schemas.user import UserCreate, UserUpdate
 from server.security import get_password_hash, verify_password
 
+logger = structlog.get_logger(__name__)
 
 class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
     def get_by_email(self, *, email: str) -> Optional[UsersTable]:
@@ -23,9 +25,9 @@ class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
     def create(self, *, obj_in: UserCreate) -> UsersTable:
         db_obj = UsersTable(
             email=obj_in.email,
-            hashed_password=get_password_hash(obj_in.password),
+            password=get_password_hash(obj_in.password),
             username=obj_in.username,
-            is_superuser=obj_in.is_superuser,
+            active=obj_in.is_active
         )
         db.session.add(db_obj)
         db.session.commit()
@@ -38,7 +40,7 @@ class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
         if update_data.get("password"):
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
-            update_data["hashed_password"] = hashed_password
+            update_data["password"] = hashed_password
         for field in obj_data:
             if field != "id" and field in update_data:
                 setattr(db_obj, field, update_data[field])
@@ -48,15 +50,16 @@ class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
         return db_obj
 
     def authenticate(self, *, username: str, password: str) -> Optional[UsersTable]:
+        # logger.log("AUth requested", username=username)
         user = self.get_by_username(username=username)
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
+        if not verify_password(password, user.password):
             return None
         return user
 
     def is_active(self, user: UsersTable) -> bool:
-        return user.is_active
+        return user.active
 
     def is_superuser(self, user: UsersTable) -> bool:
         return user.is_superuser

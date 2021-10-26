@@ -27,7 +27,7 @@ class UserUpdate(UserBase):
 class UserInDBBase(UserBase):
     id: UUID
     created_at: datetime
-    updated_at: datetime
+    # updated_at: datetime
 
     class Config:
         orm_mode = True
@@ -36,7 +36,7 @@ class UserInDBBase(UserBase):
 # Additional properties to return via API
 class User(UserInDBBase):
     created_at: datetime
-    updated_at: datetime
+    # updated_at: datetime
 
 
 # Additional properties stored in DB

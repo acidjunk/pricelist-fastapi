@@ -65,10 +65,6 @@ app = FastAPI(
         {
             "url": "https://api.prijslijst.info",
             "description": "Prod environment",
-        },
-        {
-            "url": "https://api-staging.prijslijst.info",
-            "description": "Prod environment",
         }
         if os.getenv("ENVIRONMENT") == "production"
         else {"url": "/", "description": "Local environment"},

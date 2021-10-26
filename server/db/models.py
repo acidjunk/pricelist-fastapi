@@ -103,7 +103,7 @@ class RolesTable(BaseModel):
 
 
 # Same here
-class OldUsersTable(BaseModel):
+class UsersTable(BaseModel):
     __tablename__ = "user"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     email = Column(String(255), unique=True)
@@ -127,24 +127,38 @@ class OldUsersTable(BaseModel):
     def __hash__(self):
         return hash(self.email)
 
+    @property
+    def is_active(self):
+        """Returns `True` if the user is active."""
+        return self.active
 
-class UsersTable(BaseModel):
-    __tablename__ = "users"
+    @property
+    def is_superuser(self):
+        """Returns `True` if the user is a member of the admin role."""
+        print(self.roles)
+        for role in self.roles:
+            if role.name == "admin":
+                return True
+        return False
 
-    id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
-    username = Column(String(32), nullable=False, unique=True)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
-    is_active = Column(Boolean, nullable=False, default=True)
-    is_superuser = Column(Boolean, nullable=False, default=False)
-    created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
-    updated_at = Column(
-        UtcTimestamp,
-        server_default=text("current_timestamp()"),
-        onupdate=nowtz,
-        nullable=False,
-    )
-    roles = relationship("RolesTable", secondary="roles_users", lazy="joined")
+
+# class UsersTable(BaseModel):
+#     __tablename__ = "users"
+#
+#     id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
+#     username = Column(String(32), nullable=False, unique=True)
+#     email = Column(String(255), unique=True, index=True, nullable=False)
+#     hashed_password = Column(String(255), nullable=False)
+#     is_active = Column(Boolean, nullable=False, default=True)
+#     is_superuser = Column(Boolean, nullable=False, default=False)
+#     created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
+#     updated_at = Column(
+#         UtcTimestamp,
+#         server_default=text("current_timestamp()"),
+#         onupdate=nowtz,
+#         nullable=False,
+#     )
+#     roles = relationship("RolesTable", secondary="roles_users", lazy="joined")
 
 
 class Tag(BaseModel):
