@@ -23,7 +23,6 @@ class PriceUpdate(PriceBase):
 
 
 class PriceInDBBase(PriceBase):
-
     class Config:
         orm_mode = True
 

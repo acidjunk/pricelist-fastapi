@@ -23,7 +23,6 @@ class ShopUpdate(ShopBase):
 
 
 class ShopInDBBase(ShopBase):
-
     class Config:
         orm_mode = True
 

@@ -22,7 +22,8 @@ from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import (
     ProductsTable,
-    db, Strain,
+    db,
+    Strain,
 )
 from server.db.database import (
     ENGINE_ARGUMENTS,
@@ -64,9 +65,7 @@ def run_migrations(db_uri: str) -> None:
     os.environ["DATABASE_URI"] = db_uri
     app_settings.DATABASE_URI = db_uri
     alembic_cfg = Config(file_=os.path.join(path, "../../alembic.ini"))
-    alembic_cfg.set_main_option(
-        "script_location", os.path.join(path, "../../migrations")
-    )
+    alembic_cfg.set_main_option("script_location", os.path.join(path, "../../migrations"))
     alembic_cfg.set_main_option(
         "version_locations",
         f"{os.path.join(path, '../../migrations/versions/schema')} {os.path.join(path, '../../migrations/versions/general')}",
@@ -201,9 +200,7 @@ def mocked_api():
 
 @pytest.fixture()
 def product_1():
-    product = ProductsTable(
-        name="Product 1", description="Product 1 description", created_at=nowtz()
-    )
+    product = ProductsTable(name="Product 1", description="Product 1 description", created_at=nowtz())
     db.session.add(product)
     db.session.commit()
     return str(product.id)
@@ -211,10 +208,7 @@ def product_1():
 
 @pytest.fixture()
 def strain_1():
-    strain = Strain(
-        name="Strain 1",
-        id="63b21ceb-23ce-494b-8767-9b0b2a81f1b4"
-    )
+    strain = Strain(name="Strain 1", id="63b21ceb-23ce-494b-8767-9b0b2a81f1b4")
     db.session.add(strain)
     db.session.commit()
     return str(strain.id)
@@ -222,9 +216,7 @@ def strain_1():
 
 @pytest.fixture()
 def strain_2():
-    strain = Strain(
-        name="Strain 2"
-    )
+    strain = Strain(name="Strain 2")
     db.session.add(strain)
     db.session.commit()
     return str(strain.id)

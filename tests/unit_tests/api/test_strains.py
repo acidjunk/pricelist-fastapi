@@ -3,7 +3,9 @@ from uuid import uuid4
 import structlog
 from server.db import Strain
 from server.utils.json import json_dumps
+
 logger = structlog.getLogger(__name__)
+
 
 def test_strains_get_multi(strain_1, strain_2, test_client):
     response = test_client.get("/api/strains")

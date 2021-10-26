@@ -40,6 +40,7 @@ from sqlalchemy.orm import backref, relationship
 from server.db.database import BaseModel, Database
 from server.settings import app_settings
 from server.utils.date_utils import nowtz
+
 # from server.db import db
 
 
@@ -65,19 +66,13 @@ class UtcTimestamp(TypeDecorator):
 
     impl = sqlalchemy.types.TIMESTAMP(timezone=True)
 
-    def process_bind_param(
-        self, value: Optional[datetime], dialect: Dialect
-    ) -> Optional[datetime]:
+    def process_bind_param(self, value: Optional[datetime], dialect: Dialect) -> Optional[datetime]:
         if value is not None:
             if value.tzinfo is None:
-                raise UtcTimestampException(
-                    f"Expected timestamp with tzinfo. Got naive timestamp {value!r} instead"
-                )
+                raise UtcTimestampException(f"Expected timestamp with tzinfo. Got naive timestamp {value!r} instead")
         return value
 
-    def process_result_value(
-        self, value: Optional[datetime], dialect: Dialect
-    ) -> Optional[datetime]:
+    def process_result_value(self, value: Optional[datetime], dialect: Dialect) -> Optional[datetime]:
         if value is not None:
             return value.astimezone(timezone.utc)
         return value
@@ -107,7 +102,7 @@ class RolesTable(BaseModel):
         return hash(self.name)
 
 
-#Same here
+# Same here
 class OldUsersTable(BaseModel):
     __tablename__ = "user"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -150,7 +145,6 @@ class UsersTable(BaseModel):
         nullable=False,
     )
     roles = relationship("RolesTable", secondary="roles_users", lazy="joined")
-
 
 
 class Tag(BaseModel):
@@ -379,6 +373,7 @@ class ProductsTable(BaseModel):
 
     shop_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
 
+
 class ShopToPrice(BaseModel):
     __tablename__ = "shops_to_price"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -432,9 +427,7 @@ class MapsTable(BaseModel):
     size_x = Column(Integer, default=100)
     size_y = Column(Integer, default=100)
     status = Column(String(255), nullable=False, default="new")
-    created_at = Column(
-        UtcTimestamp, nullable=False, server_default=text("current_timestamp()")
-    )
+    created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
     updated_at = Column(
         UtcTimestamp,
         server_default=text("current_timestamp()"),

@@ -21,7 +21,10 @@ router = APIRouter()
 @router.get("/", response_model=List[ShopBase])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopBase]:
     shops, header_range = shop_crud.get_multi(
-        skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
     )
     response.headers["Content-Range"] = header_range
     return shops

@@ -63,23 +63,15 @@ app = FastAPI(
     # root_path="/prod",
     servers=[
         {
-            "url": "https://postgres-boilerplate.renedohmen.nl",
-            "description": "Test environment",
+            "url": "https://api.prijslijst.info",
+            "description": "Prod environment",
+        },
+        {
+            "url": "https://api-staging.prijslijst.info",
+            "description": "Prod environment",
         }
         if os.getenv("ENVIRONMENT") == "production"
-        else {"url": "http://localhost:8080", "description": "Local environment"},
-        {
-            "url": "https://boilerplate.dev.banaan.org",
-            "description": "Development environment",
-        },
-        {
-            "url": "https://boilerplate.staging.banaan.org",
-            "description": "Staging environment",
-        },
-        {
-            "url": "https://boilerplate.banaan.org",
-            "description": "Production environment",
-        },
+        else {"url": "/", "description": "Local environment"},
     ],
 )
 
@@ -100,9 +92,7 @@ app.add_exception_handler(FormException, form_error_handler)
 app.add_exception_handler(ProblemDetailException, problem_detail_handler)
 
 
-@app.router.get(
-    "/", response_model=str, response_class=JSONResponse, include_in_schema=False
-)
+@app.router.get("/", response_model=str, response_class=JSONResponse, include_in_schema=False)
 def index() -> str:
     return "FastAPI boilerplate backend root"
 

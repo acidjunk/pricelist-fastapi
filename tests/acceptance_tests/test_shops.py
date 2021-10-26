@@ -9,5 +9,3 @@ def test_shops():
     response_fastapi = requests.get(ACC_BACKEND_URI + "shops")
 
     assert response_fastapi == response_flask
-
-

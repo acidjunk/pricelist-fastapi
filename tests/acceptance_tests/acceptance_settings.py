@@ -15,9 +15,10 @@ class AcceptanceSettings(BaseSettings):
 
     @validator("BASE_ACC_BACKEND_URI", pre=False)
     def validate_url(cls, v: str):
-        if v.count('/') > 2:
+        if v.count("/") > 2:
             raise ValueError("please dont use suffixes")
         return v
+
 
 if __name__ == "__main__":
     settings = AcceptanceSettings(BASE_ACC_BACKEND_URI="https://api.staging.prijslijst.info//")

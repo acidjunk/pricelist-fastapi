@@ -5,7 +5,7 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import Dict, List, Optional
 
-#Add to requirments
+# Add to requirments
 import boto3
 import structlog
 
@@ -32,7 +32,10 @@ def get_range_from_args(args):
             logger.info("Query parameters set to custom range", range=range)
             return range
         except:  # noqa: E722
-            logger.warning("Query parameters not parsable", args=args.get(["range"], "No range provided"))
+            logger.warning(
+                "Query parameters not parsable",
+                args=args.get(["range"], "No range provided"),
+            )
     range = [0, 19]  # Default range
     logger.info("Query parameters set to default range", range=range)
     return range
@@ -48,7 +51,10 @@ def get_sort_from_args(args, default_sort="name", default_sort_order="ASC"):
             logger.info("Query parameters set to custom sort", sort=sort)
             return sort
         except:  # noqa: E722
-            logger.warning("Query parameters not parsable", args=args.get(["sort"], "No sort provided"))
+            logger.warning(
+                "Query parameters not parsable",
+                args=args.get(["sort"], "No sort provided"),
+            )
     sort = [default_sort, default_sort_order]  # Default sort
     logger.info("Query parameters set to default sort", sort=sort)
     return sort
@@ -62,7 +68,10 @@ def get_filter_from_args(args, default_filter={}):
             logger.info("Query parameters set to custom filter", filter=filter)
             return filter
         except:  # noqa: E722
-            logger.warning("Query parameters not parsable", args=args.get(["filter"], "No filter provided"))
+            logger.warning(
+                "Query parameters not parsable",
+                args=args.get(["filter"], "No filter provided"),
+            )
     logger.info("Query parameters set to default filter", filter=default_filter)
     return default_filter
 
@@ -97,7 +106,7 @@ def update(item, payload):
             setattr(item, column, value)
         save(item)
     except Exception as e:
-        raise_status(HTTPStatus.INTERNAL_SERVER_ERROR,  f"Error: {e}")
+        raise_status(HTTPStatus.INTERNAL_SERVER_ERROR, f"Error: {e}")
     return item
 
 
@@ -123,7 +132,9 @@ def query_with_filters(
         for column, searchPhrase in filters.items():
             if isinstance(searchPhrase, list):
                 logger.info(
-                    "Query parameters set to GET_MANY, ID column only", column=column, searchPhrase=searchPhrase
+                    "Query parameters set to GET_MANY, ID column only",
+                    column=column,
+                    searchPhrase=searchPhrase,
                 )
                 conditions = []
                 for item in searchPhrase:
@@ -131,7 +142,9 @@ def query_with_filters(
                 query = query.filter(or_(*conditions))
             elif searchPhrase is not None:
                 logger.info(
-                    "Query parameters set to custom filter for column", column=column, searchPhrase=searchPhrase
+                    "Query parameters set to custom filter for column",
+                    column=column,
+                    searchPhrase=searchPhrase,
                 )
                 if type(searchPhrase) == bool:
                     query = query.filter(model.__dict__[column].is_(searchPhrase))
@@ -149,7 +162,9 @@ def query_with_filters(
                     query = query.filter_by(id=searchPhrase)
                 elif column == "q":
                     logger.debug(
-                        "Activating multi kolom filter", column=column, quick_search_columns=quick_search_columns
+                        "Activating multi kolom filter",
+                        column=column,
+                        quick_search_columns=quick_search_columns,
                     )
                     conditions = []
                     for item in quick_search_columns:
