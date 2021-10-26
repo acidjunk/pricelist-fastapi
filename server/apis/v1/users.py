@@ -3,10 +3,12 @@ from typing import Any, List
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
+from starlette.responses import Response
 
-from server.db import db
 from server.api import deps
+from server.api.deps import common_parameters
 from server.crud import user_crud
+from server.db import db
 from server.db.models import UsersTable
 from server.schemas import User, UserCreate, UserUpdate
 from server.settings import app_settings
@@ -15,21 +17,27 @@ from server.utils.auth import send_new_account_email
 router = APIRouter()
 
 
-@router.get("/", response_model=List[User])
-def read_users(
-    skip: int = 0,
-    limit: int = 100,
+@router.get("/")
+def get_multi(
+    response: Response,
+    common: dict = Depends(common_parameters),
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     Retrieve users.
     """
-    users = user_crud.get_multi(db, skip=skip, limit=limit)
+    users, header_range = user_crud.get_multi(
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
+    )
+    response.headers["Content-Range"] = header_range
     return users
 
 
 @router.post("/", response_model=User)
-def create_user(
+def create(
     *,
     user_in: UserCreate,
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
@@ -45,9 +53,7 @@ def create_user(
         )
     user = user_crud.create(obj_in=user_in)
     if app_settings.EMAILS_ENABLED and user_in.email:
-        send_new_account_email(
-            email_to=user_in.email, username=user_in.email, password=user_in.password
-        )
+        send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
     return user
 
 
@@ -76,7 +82,7 @@ def update_user_me(
 
 # @router.get("/me", response_model=UsersTable)
 @router.get("/me", response_model=User)
-def read_user_me(
+def get_user_me(
     current_user: UsersTable = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -113,7 +119,7 @@ def read_user_me(
 
 
 @router.get("/{user_id}", response_model=User)
-def read_user_by_id(
+def get_by_id(
     user_id: int,
     current_user: UsersTable = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -124,14 +130,12 @@ def read_user_by_id(
     if user == current_user:
         return user
     if not user_crud.is_superuser(current_user):
-        raise HTTPException(
-            status_code=400, detail="The user doesn't have enough privileges"
-        )
+        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
     return user
 
 
 @router.put("/{user_id}", response_model=User)
-def update_user(
+def update(
     *,
     user_id: int,
     user_in: UserUpdate,

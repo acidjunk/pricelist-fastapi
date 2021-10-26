@@ -1,19 +1,18 @@
-from typing import Generator, Dict, Union, List
+from typing import Dict, List, Union
 
 from fastapi import Depends, HTTPException, status
+from fastapi.param_functions import Query
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 
-from fastapi.param_functions import Query
-
 from server.crud import user_crud
 from server.db import db
 from server.db.models import UsersTable
-from server.schemas import TokenPayload, User
+from server.schemas import TokenPayload
 from server.settings import app_settings
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"/api/login/access-token")
+reusable_oauth = OAuth2PasswordBearer(tokenUrl=f"/api/login/access-token")
 
 
 async def common_parameters(
@@ -33,18 +32,17 @@ async def common_parameters(
     return {"skip": skip, "limit": limit, "filter": filter, "sort": sort}
 
 
-def get_current_user(token: str = Depends(reusable_oauth2)) -> UsersTable:
+def get_current_user(token: str = Depends(reusable_oauth)) -> UsersTable:
     try:
-        payload = jwt.decode(
-            token, app_settings.SESSION_SECRET, algorithms=[app_settings.JWT_ALGORITHM]
-        )
-        token_data = TokenPayload(**payload)
+        payload = jwt.decode(token, app_settings.SESSION_SECRET, algorithms=[app_settings.JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = user_crud.get(db, id=token_data.sub)
+    user = user_crud.get(id=user_id)
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
@@ -54,7 +52,7 @@ def get_current_active_user(
     current_user: UsersTable = Depends(get_current_user),
 ) -> UsersTable:
     if not user_crud.is_active(current_user):
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=403, detail="Inactive user")
     return current_user
 
 
@@ -62,7 +60,5 @@ def get_current_active_superuser(
     current_user: UsersTable = Depends(get_current_user),
 ) -> UsersTable:
     if not user_crud.is_superuser(current_user):
-        raise HTTPException(
-            status_code=400, detail="The user doesn't have enough privileges"
-        )
+        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
     return current_user
