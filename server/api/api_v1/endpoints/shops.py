@@ -6,7 +6,7 @@ from fastapi.routing import APIRouter
 from fastapi.param_functions import Body, Depends
 from fastapi import HTTPException
 from starlette.responses import Response
-from server.apis.deps import common_parameters
+from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_shop import shop_crud
 import structlog

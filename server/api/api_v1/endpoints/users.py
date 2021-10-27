@@ -1,12 +1,12 @@
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from starlette.responses import Response
 
-from server.apis import deps
-from server.apis.deps import common_parameters
+from server.api import deps
+from server.api.deps import common_parameters
 from server.crud import user_crud
 from server.db.models import UsersTable
 from server.schemas import User, UserCreate, UserUpdate
@@ -44,7 +44,7 @@ def create(
     """
     Create new user.
     """
-    user = user_crud.user.get_by_email(email=user_in.email)
+    user = user_crud.get_by_email(email=user_in.email)
     if user:
         raise HTTPException(
             status_code=400,

@@ -16,23 +16,14 @@
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 
-from server.api.api_v1.endpoints import health, login, users, strains, maps, products, product_types, settings
+from server.api.api_v1.endpoints import health, login, users, strains, settings, shops
 # from server.apis.v1 import strains, shops, users, login
 
 # Todo: add security depends here or in endpoints
 
 api_router = APIRouter()
 api_router.include_router(login.router, tags=["login"])
-
-# api_router.include_router(maps.router, prefix="/maps", tags=["maps"])
-# api_router.include_router(products.router, prefix="/products", tags=["products"])
-# api_router.include_router(
-#     product_types.router,
-#     prefix="/product_types",
-#     tags=["products"],
-# )
-# api_router.include_router(settings.router, prefix="/settings", tags=["system"])
 api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(strains.router, prefix="/strains", tags=["strains"])
-# api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
+api_router.include_router(shops.router, prefix="/shops", tags=["shops"])

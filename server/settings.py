@@ -76,7 +76,7 @@ class AppSettings(BaseSettings):
     SWAGGER_HOST: str = "localhost"
     GUI_URI: str = "http://localhost:3000"
     # DB (probably only postgres for now; we use UUID postgres dialect for the ID's)
-    DATABASE_URI: str = "postgresql://pricelist:pricelist@localhost/pricelist"
+    DATABASE_URI: str = "postgresql://boilerplate:boilerplate@localhost/pricelistpoc"
 
     @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
@@ -109,6 +109,8 @@ class AppSettings(BaseSettings):
 
     FIRST_SUPERUSER = "admin@banaan.org"
     FIRST_SUPERUSER_PASSWORD = "CHANGEME"
+    FIRST_SUPERUSER_ROLE = "admin"
+    FIRST_SUPERUSER_ROLE_DESCRIPTION = "God Mode!"
 
     @validator("EMAILS_FROM_NAME")
     def get_project_name(cls, v: Optional[str], values: Dict[str, Any]) -> str:

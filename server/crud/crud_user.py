@@ -11,6 +11,7 @@ from server.security import get_password_hash, verify_password
 
 logger = structlog.get_logger(__name__)
 
+
 class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
     def get_by_email(self, *, email: str) -> Optional[UsersTable]:
         return UsersTable.query.filter(UsersTable.email == email).first()

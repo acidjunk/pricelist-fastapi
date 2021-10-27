@@ -14,6 +14,7 @@
 from server.schemas.token import Token, TokenPayload
 from server.schemas.map import Map, MapCreate, MapUpdate
 from server.schemas.product import Product, ProductCreate, ProductUpdate
+from server.schemas.role import RoleCreate, RoleUpdate, RoleSchema
 from server.schemas.product_type import (
     ProductType,
     ProductTypeCreate,
@@ -38,4 +39,7 @@ __all__ = (
     "MapCreate",
     "MapUpdate",
     "Msg",
+    "RoleCreate",
+    "RoleUpdate",
+    "RoleSchema"
 )
