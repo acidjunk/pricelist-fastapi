@@ -1,26 +1,27 @@
+from datetime import datetime
 from unittest import mock
 
 import pytest
 from sqlalchemy.orm.exc import NoResultFound
 
-from server.db import ProductsTable, db, transactional
+from server.db import Shop, db, transactional
 from server.utils.date_utils import nowtz
 
 
 def test_transactional():
     def insert_p(state):
-        p = ProductsTable(
+        p = Shop(
             name="Test transactional",
             description="Testing 1, 2, 3!",
-            created_at=nowtz(),
+            modified_at=datetime.utcnow(),
         )
         db.session.add(p)
 
     def insert_p_error(state):
-        p = ProductsTable(
+        p = Shop(
             name="Test transactional [ERROR]",
             description="Testing 1, 2, 3! BOOM!",
-            created_at=nowtz(),
+            modified_at=datetime.utcnow(),
         )
         db.session.add(p)
         raise Exception("Let's wreck some havoc!")
@@ -53,10 +54,10 @@ def test_transactional():
 
 def test_transactional_no_commit():
     def insert_p(state):
-        p = ProductsTable(
+        p = Shop(
             name="Test transactional should not be committed",
             description="Testing 1, 2, 3!",
-            created_at=nowtz(),
+            modified_at=nowtz(),
         )
         db.session.add(p)
         db.session.commit()
@@ -70,7 +71,7 @@ def test_transactional_no_commit():
             insert_p({})
 
     assert (
-        db.session.query(ProductsTable).filter(ProductsTable.name == "Test transactional should not be committed").all()
+        db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all()
         == []
     )
     logger.assert_has_calls(
@@ -84,10 +85,10 @@ def test_transactional_no_commit():
 
 def test_transactional_no_commit_second_thread():
     def insert_p(state):
-        p = ProductsTable(
+        p = Shop(
             name="Test transactional should not be committed",
             description="Testing 1, 2, 3!",
-            created_at=nowtz(),
+            modified_at=nowtz(),
         )
         db.session.add(p)
         db.session.commit()
@@ -97,10 +98,10 @@ def test_transactional_no_commit_second_thread():
         # someone is fucking around if you see `with db.database_scope():` in actual production code
 
         with db.database_scope():
-            p2 = ProductsTable(
+            p2 = Shop(
                 name="Test transactional should be committed",
                 description="Testing 1, 2, 3!",
-                created_at=nowtz(),
+                modified_at=nowtz(),
             )
             db.session.add(p2)
             db.session.commit()
@@ -113,9 +114,9 @@ def test_transactional_no_commit_second_thread():
         with transactional(db, logger):
             insert_p({})
 
-    assert db.session.query(ProductsTable).filter(ProductsTable.name == "Test transactional should be committed").one()
+    assert db.session.query(Shop).filter(Shop.name == "Test transactional should be committed").one()
     assert (
-        db.session.query(ProductsTable).filter(ProductsTable.name == "Test transactional should not be committed").all()
+        db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all()
         == []
     )
     logger.assert_has_calls(
@@ -138,13 +139,13 @@ def test_autouse_fixture_rolls_back_aaa():
     # one that runs after the other) finds the change the other has committed our fixtures don't work properly.
 
     # Using Products as it's a simple model that doesn't require foreign keys.
-    p = ProductsTable(name="aaa", description="aaa", created_at=nowtz())
+    p = Shop(name="aaa", description="aaa", modified_at=nowtz())
 
     db.session.add(p)
     db.session.commit()
 
     with pytest.raises(NoResultFound):
-        ProductsTable.query.filter(ProductsTable.name == "bbb").one()
+        Shop.query.filter(Shop.name == "bbb").one()
 
 
 def test_autouse_fixture_rolls_back_bbb():
@@ -158,13 +159,13 @@ def test_autouse_fixture_rolls_back_bbb():
     # one that runs after the other) finds the change the other has committed our fixtures don't work properly.
 
     # Using ResourceTypeTable as it's a simple model than doesn't require foreign keys.
-    p = ProductsTable(name="bbb", description="bbb", created_at=nowtz())
+    p = Shop(name="bbb", description="bbb", modified_at=nowtz())
     db.session.add(p)
     db.session.commit()
 
     with pytest.raises(NoResultFound):
-        ProductsTable.query.filter(ProductsTable.name == "aaa").one()
+        Shop.query.filter(Shop.name == "aaa").one()
 
 
 def test_str_method():
-    assert str(ProductsTable()) == "ProductsTable(id=None, name=None, description=None, created_at=None)"
+    assert str(Shop()) == "Shop(id=None, name=None, description=None, created_at=None)"

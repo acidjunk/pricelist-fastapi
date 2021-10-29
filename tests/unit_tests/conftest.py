@@ -90,7 +90,7 @@ def db_uri(worker_id):
     """
     database_uri = os.environ.get(
         "DATABASE_URI",
-        "postgresql://boilerplate:boilerplate@localhost/pricelistpoc-test",
+        "postgresql://boilerplate:boilerplate@localhost/pricelist-test",
     )
     if worker_id == "master":
         # pytest is being run without any workers

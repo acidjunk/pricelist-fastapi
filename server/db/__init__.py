@@ -20,6 +20,7 @@ from server.db.models import (  # noqa: F401
     UtcTimestamp,
     UtcTimestampException,
     Strain,
+    Shop
 )
 from server.settings import app_settings
 
@@ -31,6 +32,7 @@ __all__ = [
     "ProductTypesTable",
     "UtcTimestamp",
     "Strain",
+    "Shop",
     "UtcTimestampException",
     "db",
 ]

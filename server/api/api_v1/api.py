@@ -13,11 +13,9 @@
 
 """Module that implements process related API endpoints."""
 
-from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 
-from server.api.api_v1.endpoints import health, login, users, strains, settings
-from server.apis.v1 import shops
+from server.api.api_v1.endpoints import health, login, users, strains, shops
 
 # Todo: add security depends here or in endpoints
 
