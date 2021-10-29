@@ -142,25 +142,6 @@ class UsersTable(BaseModel):
         return False
 
 
-# class UsersTable(BaseModel):
-#     __tablename__ = "users"
-#
-#     id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
-#     username = Column(String(32), nullable=False, unique=True)
-#     email = Column(String(255), unique=True, index=True, nullable=False)
-#     hashed_password = Column(String(255), nullable=False)
-#     is_active = Column(Boolean, nullable=False, default=True)
-#     is_superuser = Column(Boolean, nullable=False, default=False)
-#     created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
-#     updated_at = Column(
-#         UtcTimestamp,
-#         server_default=text("current_timestamp()"),
-#         onupdate=nowtz,
-#         nullable=False,
-#     )
-#     roles = relationship("RolesTable", secondary="roles_users", lazy="joined")
-
-
 class Tag(BaseModel):
     __tablename__ = "tags"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -423,28 +404,3 @@ class Strain(BaseModel):
 
 
 # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
-
-
-class ProductTypesTable(BaseModel):
-    __tablename__ = "product_types"
-
-    id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
-    product_type = Column(String(510), nullable=False, unique=True)
-    description = Column(Text())
-
-
-class MapsTable(BaseModel):
-    __tablename__ = "maps"
-    id = Column(UUIDType, server_default=text("uuid_generate_v4()"), primary_key=True)
-    name = Column(String(510), nullable=False, unique=True)
-    description = Column(Text())
-    size_x = Column(Integer, default=100)
-    size_y = Column(Integer, default=100)
-    status = Column(String(255), nullable=False, default="new")
-    created_at = Column(UtcTimestamp, nullable=False, server_default=text("current_timestamp()"))
-    updated_at = Column(
-        UtcTimestamp,
-        server_default=text("current_timestamp()"),
-        onupdate=nowtz,
-        nullable=False,
-    )

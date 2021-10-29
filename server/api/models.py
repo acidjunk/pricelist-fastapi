@@ -25,7 +25,6 @@ from pydantic import BaseModel
 from server.api.error_handling import raise_status
 from server.db import (
     ProductsTable,
-    ProductTypesTable,
     db,
 )
 
@@ -94,7 +93,6 @@ def delete(cls: Type, primary_key: UUID) -> None:
 
 
 deserialization_mapping = {
-    "product_types": ProductTypesTable,
     "products": ProductsTable,
 }
 

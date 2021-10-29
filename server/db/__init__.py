@@ -15,8 +15,6 @@
 from server.db.database import Database, transactional
 from server.db.models import (  # noqa: F401
     ProductsTable,
-    ProductTypesTable,
-    MapsTable,
     UtcTimestamp,
     UtcTimestampException,
     Strain,
@@ -29,7 +27,6 @@ db = Database(app_settings.DATABASE_URI)
 __all__ = [
     "transactional",
     "ProductsTable",
-    "ProductTypesTable",
     "UtcTimestamp",
     "Strain",
     "Shop",
