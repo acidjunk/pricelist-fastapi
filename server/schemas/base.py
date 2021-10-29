@@ -18,7 +18,9 @@ from pydantic import BaseModel
 
 class BoilerplateBaseModel(BaseModel):
     class Config:
-        json_encoders = {
-            # Add custom decoders that you need here
-            datetime: lambda dt: dt.timestamp(),
-        }
+        pass
+        # Commented because returns Float for shop.modified_at. Needed datetime
+        # json_encoders = {
+        #     # Add custom decoders that you need here
+        #     datetime: lambda dt: dt.timestamp(),
+        # }

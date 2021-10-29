@@ -1,12 +1,20 @@
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 from server.schemas.base import BoilerplateBaseModel
 
 
 class ShopBase(BoilerplateBaseModel):
-    id: UUID
+    id: Optional[UUID]
     name: str
     description: str
+
+    class Config:
+        orm_mode = True
+
+
+class ShopCacheStatus(BoilerplateBaseModel):
+    modified_at: Optional[datetime]
 
     class Config:
         orm_mode = True

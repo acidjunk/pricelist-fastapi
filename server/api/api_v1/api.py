@@ -16,8 +16,8 @@
 from fastapi.param_functions import Depends
 from fastapi.routing import APIRouter
 
-from server.api.api_v1.endpoints import health, login, users, strains, settings, shops
-# from server.apis.v1 import strains, shops, users, login
+from server.api.api_v1.endpoints import health, login, users, strains, settings
+from server.apis.v1 import shops
 
 # Todo: add security depends here or in endpoints
 

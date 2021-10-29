@@ -6,7 +6,7 @@ from http import HTTPStatus
 from typing import Dict, List, Optional
 
 # Add to requirments
-import boto3
+# import boto3
 import structlog
 
 from server.api.error_handling import raise_status
@@ -14,11 +14,11 @@ from server.db import db
 from sqlalchemy import String, cast, or_
 from sqlalchemy.sql import expression
 
-s3 = boto3.resource(
-    "s3",
-    aws_access_key_id=os.getenv("IMAGE_S3_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("IMAGE_S3_SECRET_ACCESS_KEY"),
-)
+# s3 = boto3.resource(
+#     "s3",
+#     aws_access_key_id=os.getenv("IMAGE_S3_ACCESS_KEY_ID"),
+#     aws_secret_access_key=os.getenv("IMAGE_S3_SECRET_ACCESS_KEY"),
+# )
 logger = structlog.get_logger(__name__)
 
 
