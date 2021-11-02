@@ -169,7 +169,7 @@ class Flavor(BaseModel):
 class Shop(BaseModel):
     __tablename__ = "shops"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String(255), unique=True, index=True)
+    name = Column(String(255), nullable=False, unique=True, index=True)
     description = Column(String(255), unique=True)
 
     shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
@@ -397,7 +397,7 @@ class ShopToPrice(BaseModel):
 class Strain(BaseModel):
     __tablename__ = "strains"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String(255), unique=True, index=True)
+    name = Column(String(255),nullable=False ,unique=True, index=True)
 
     def __repr__(self):
         return self.name

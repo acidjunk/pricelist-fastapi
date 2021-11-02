@@ -17,11 +17,11 @@ def test_strains_get_multi(strain_1, strain_2, test_client):
 
 
 def test_strain_get_by_id(strain_1, test_client):
-    response = test_client.get(f"/api/strains/{strain_1}")
+    response = test_client.get(f"/api/strains/{strain_1.id}")
     print(response.__dict__)
     assert HTTPStatus.OK == response.status_code
     strain = response.json()
-    assert strain["id"] == "63b21ceb-23ce-494b-8767-9b0b2a81f1b4"
+    assert strain["name"] == "Haze"
 
 
 def test_strain_get_by_id_404(strain_1, test_client):
@@ -45,18 +45,18 @@ def test_strain_save(test_client):
 def test_strain_update(strain_1, test_client):
     body = {"id": strain_1, "name": "Updated Strain"}
     response = test_client.put(
-        f"/api/strains/{strain_1}",
+        f"/api/strains/{strain_1.id}",
         data=json_dumps(body),
         headers={"Content_Type": "application/json"},
     )
     assert HTTPStatus.NO_CONTENT == response.status_code
 
-    response_updated = test_client.get(f"/api/strains/{strain_1}")
+    response_updated = test_client.get(f"/api/strains/{strain_1.id}")
     strain = response_updated.json()
     assert strain["name"] == "Updated Strain"
 
 
 def test_strain_delete(strain_1, test_client):
-    response = test_client.delete(f"/api/strains/{strain_1}")
+    response = test_client.delete(f"/api/strains/{strain_1.id}")
     assert HTTPStatus.NO_CONTENT == response.status_code
     assert len(Strain.query.all()) == 0
