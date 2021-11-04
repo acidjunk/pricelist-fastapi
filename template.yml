@@ -10,11 +10,11 @@ Resources:
                 ApiEvent:
                     Properties:
                         RestApiId:
-                            Ref: FastapiPostgresBoilerplate
+                            Ref: FastapiPricelistBackend
                         Path: /{proxy+}
                         Method: ANY
                     Type: Api
-            FunctionName: fastapi-postgres-boilerplate
+            FunctionName: fastapi-pricelist-backend
             CodeUri: ./
             Handler: server.main.handler
             Runtime: python3.8

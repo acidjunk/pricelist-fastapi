@@ -112,6 +112,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+sam/
+.aws-sam/
+out.yml
 
 # Spyder project settings
 .spyderproject
