@@ -71,7 +71,7 @@ app = FastAPI(
     ],
 )
 
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="/v1")
 
 app.add_middleware(SessionMiddleware, secret_key=app_settings.SESSION_SECRET)
 app.add_middleware(DBSessionMiddleware, database=db)

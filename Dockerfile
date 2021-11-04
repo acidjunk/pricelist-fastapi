@@ -1,5 +1,5 @@
 
-FROM python:3.8
+FROM python:3.8-slim
 
 COPY ./requirements /tmp/requirements
 RUN pip install -r /tmp/requirements/deploy.txt
