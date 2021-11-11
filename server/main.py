@@ -60,7 +60,7 @@ app = FastAPI(
     redoc_url="/api/redoc",
     version=GIT_COMMIT_HASH if GIT_COMMIT_HASH else "0.1.0",
     default_response_class=JSONResponse,
-    # root_path="/prod",
+    root_path="/prod",
     servers=[
         {
             "url": "https://api.prijslijst.info",
