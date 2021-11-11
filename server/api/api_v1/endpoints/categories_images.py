@@ -53,39 +53,31 @@ router = APIRouter()
 #     return item, 200
 
 
-@router.put("/{id}")
+@router.put("/{id}", status_code=HTTPStatus.CREATED)
 def put(*, id: UUID, item_in: CategoryUpdate):
-    # args = file_upload.parse_args()
-    # logger.warning("Ignoring files via args! (using JSON body)", args=args)
     item = category_crud.get(id=id)
     # todo: raise 404 o abort
 
     data = dict(item_in)
 
-    category_update = [None, None]
+    category_update = False
     image_cols = ["image_1", "image_2"]
-    for i in range(len(image_cols)):
-        if data.get(image_cols[i]) and type(data[image_cols[i]]) == dict:
-            name = name_file(image_cols[i], item.name, getattr(item, image_cols[i]))
+    for image_col in image_cols:
+        if data.get(image_col) and type(data[image_col]) == dict:
+            name = name_file(image_col, item.name, getattr(item, image_col))
             # upload_file(data[image_col]["src"], name)  # todo: use mime-type in first part of
-            category_update[i] = name
-            # item_in.__setattr__(image_cols[i], name)
-
-    # if category_update:
-    #     category_update["shop_id"] = item.shop_id
-    #     item = update(item, category_update)
-
-    for i in range(len(image_cols)):
-        item_in.__setattr__(image_cols[i], category_update[i])
+            category_update = True
+            item_in.__setattr__(image_col, name)
+        else:
+            item_in.__setattr__(image_col, None)
 
     if category_update:
-        # category_update["shop_id"] = item.shop_id
         item = category_crud.update(
             db_obj=item,
             obj_in=item_in,
         )
 
-    return item, 201
+    return item
 
 
 # @api.route("/delete/<id>")
