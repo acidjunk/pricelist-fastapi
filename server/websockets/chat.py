@@ -29,7 +29,7 @@ html = """
         <script>
             var client_id = Date.now()
             document.querySelector("#ws-id").textContent = client_id;
-            var ws = new WebSocket(`ws://https://eez3q7eyn8.execute-api.eu-central-1.amazonaws.com/prod/api/chat/ws/${client_id}`);
+            var ws = new WebSocket(`ws://eez3q7eyn8.execute-api.eu-central-1.amazonaws.com/prod/api/chat/ws/${client_id}`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
