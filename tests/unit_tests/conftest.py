@@ -8,6 +8,7 @@ from typing import Dict, cast
 import pytest
 import respx
 import structlog
+
 from alembic import command
 from alembic.config import Config
 from fastapi.applications import FastAPI
@@ -38,7 +39,7 @@ from server.db.models import (
     KindToFlavor,
     KindToStrain,
     Strain,
-    Order
+    Order,
 )
 
 from server.db.database import (
@@ -53,6 +54,7 @@ from server.exception_handlers.generic_exception_handlers import (
     problem_detail_handler,
 )
 from server.forms import FormException
+from server.security import get_password_hash
 from server.settings import app_settings
 from server.types import UUIDstr
 from server.utils.date_utils import nowtz
@@ -61,7 +63,6 @@ logger = structlog.getLogger(__name__)
 
 CWI: UUIDstr = "2f47f65a-0911-e511-80d0-005056956c1a"
 SURFNET: UUIDstr = "4c237817-e64b-47a3-ba0d-0d57bf263266"
-
 
 ADMIN_EMAIL = "admin@example.com"
 ADMIN_PASSWORD = "Adminnetje"
@@ -229,37 +230,32 @@ def user_roles():
     db.session.commit()
 
 
-# @pytest.fixture
-# def customer_unconfirmed(user_roles):
-#     user = user_datastore.create_user(username="customer", password=CUSTOMER_PASSWORD, email=CUSTOMER_EMAIL)
-#     user_datastore.add_role_to_user(user, "customer")
-#     db.session.commit()
-#     return user
+@pytest.fixture
+def user_admin():
+    admin = UsersTable(
+        username="Admin",
+        email="admin@admin",
+        password=get_password_hash("admin"),
+        active=True,
+        roles=[RolesTable(name="admin", description="Admin Role")],
+    )
+
+    db.session.add(admin)
+    db.session.commit()
+    return admin
 
 
 @pytest.fixture
-def customer(customer_unconfirmed):
-    user = UsersTable.query.filter(UsersTable.email == CUSTOMER_EMAIL).first()
-    user.confirmed_at = datetime.datetime.utcnow()
-    db.session.commit()
-    return user
-
-
-# @pytest.fixture
-# def admin(user_roles):
-#     user = user_datastore.create_user(username="admin", password=ADMIN_PASSWORD, email=ADMIN_EMAIL)
-#     user_datastore.add_role_to_user(user, "admin")
-#     user.confirmed_at = datetime.datetime.utcnow()
-#     db.session.commit()
-#     return user
-
-
-@pytest.fixture
-def admin_logged_in(admin):
-    user = UsersTable.query.filter(UsersTable.email == ADMIN_EMAIL).first()
-    # Todo: actually login/handle cookie
-    db.session.commit()
-    return user
+def superuser_token_headers(test_client, user_admin) -> Dict[str, str]:
+    login_data = {
+        "username": "Admin",
+        "password": "admin",
+    }
+    r = test_client.post("/api/login/access-token", data=login_data)
+    tokens = r.json()
+    a_token = tokens["access_token"]
+    headers = {"Authorization": f"Bearer {a_token}"}
+    return headers
 
 
 @pytest.fixture
@@ -288,7 +284,7 @@ def employee(employee_unconfirmed):
 
 @pytest.fixture
 def price_1():
-    fixture = Price(id=str(uuid.uuid4()), internal_product_id="01", half="5.50", one="10.0", five="45.0", joint="4.50")
+    fixture = Price(id=str(uuid.uuid4()), internal_product_id="01", half=5.50, one=10.0, five=45.0, joint=4.50)
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -296,7 +292,7 @@ def price_1():
 
 @pytest.fixture
 def price_2():
-    fixture = Price(id=str(uuid.uuid4()), internal_product_id="02", one="7.50", five="35.0", joint="4.00")
+    fixture = Price(id=str(uuid.uuid4()), internal_product_id="02", one=7.50, five=35.0, joint=4.00)
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -304,7 +300,7 @@ def price_2():
 
 @pytest.fixture
 def price_3():
-    fixture = Price(id=str(uuid.uuid4()), internal_product_id="03", piece="2.50")
+    fixture = Price(id=str(uuid.uuid4()), internal_product_id="03", piece=2.50)
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -360,7 +356,7 @@ def tag_2():
 
 @pytest.fixture
 def flavor_1():
-    fixture = Flavor(id=str(uuid.uuid4()), name="Lemon", icon="lemon", color="ff0000")
+    fixture = Flavor(name="Moon", icon="moon", color="00fff0")
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -368,7 +364,7 @@ def flavor_1():
 
 @pytest.fixture
 def flavor_2():
-    fixture = Flavor(id=str(uuid.uuid4()), name="Earth", icon="earth", color="00ff00")
+    fixture = Flavor(name="Earth", icon="earth", color="00ff00")
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -402,12 +398,12 @@ def kind_1(tag_1, flavor_1, strain_1):
         s=False,
         short_description_nl="Cinderela 99 x Jack Herrer",
         description_nl="Amnesia is typisch een sativa-dominant cannabis strain, met wat variaites tussen de kwekers. "
-        "Cinderela 99 x Jack Herrer in de volksmond ook wel bekend als Haze knalt.",
+                       "Cinderela 99 x Jack Herrer in de volksmond ook wel bekend als Haze knalt.",
         short_description_en="Amnesia is typically a sativa-dominant cannabis strain",
         description_en="Amnesia is typically a sativa-dominant cannabis strain with some variation between breeders. "
-        "Skunk, Cinderella 99, and Jack Herer are some of Amnesia’s genetic forerunners, passing on "
-        "uplifting, creative, and euphoric effects. This strain normally has a high THC and low CBD "
-        "profile and produces intense psychotropic effects that new consumers should be wary of.",
+                       "Skunk, Cinderella 99, and Jack Herer are some of Amnesia’s genetic forerunners, passing on "
+                       "uplifting, creative, and euphoric effects. This strain normally has a high THC and low CBD "
+                       "profile and produces intense psychotropic effects that new consumers should be wary of.",
     )
     db.session.add(fixture)
     record = KindToTag(id=str(uuid.uuid4()), kind_id=fixture_id, tag=tag_1, amount=90)
@@ -559,18 +555,3 @@ def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2,
     db.session.commit()
     return shop_1
 
-
-# @pytest.fixture()
-# def strain_1():
-#     strain = Strain(name="Strain 1", id="63b21ceb-23ce-494b-8767-9b0b2a81f1b4")
-#     db.session.add(strain)
-#     db.session.commit()
-#     return str(strain.id)
-#
-#
-# @pytest.fixture()
-# def strain_2():
-#     strain = Strain(name="Strain 2")
-#     db.session.add(strain)
-#     db.session.commit()
-#     return str(strain.id)

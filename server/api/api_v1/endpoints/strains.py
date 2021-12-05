@@ -11,15 +11,15 @@ from server.api.error_handling import raise_status
 from server.crud.crud_strain import strain_crud
 import structlog
 
-from server.schemas.strain import StrainCreate, StrainSchema, StrainUpdate
+from server.schemas.strain import StrainCreate, StrainSchema, StrainUpdate, StrainBase
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/")
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[StrainSchema]:
+@router.get("/", response_model=List[StrainBase])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[StrainBase]:
     strains, header_range = strain_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )
