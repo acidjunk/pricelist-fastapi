@@ -29,6 +29,7 @@ def db_uri(new_db_name):
         url = make_url(database_uri)
         return url
     except TypeError as e:
+        print("Try checking you env variables.")
         logging.error(e)
 
 
