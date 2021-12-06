@@ -28,5 +28,5 @@ Resources:
     FastapiPricelistBackendStaging:
         Type: AWS::Serverless::Api
         Properties:
-            StageName: acc
+            StageName: stg
             OpenApiVersion: '3.0.1'
