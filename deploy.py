@@ -108,7 +108,6 @@ def main(environment_name):
     for bucket in existing_buckets['Buckets']:
         if bucket['Name'] == new_bucket_name:
             create_new_s3_bucket = False
-        print(bucket['Name'])
 
     if create_new_s3_bucket:
         create_bucket(client, new_bucket_name, REGION_NAME)
