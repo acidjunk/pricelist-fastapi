@@ -13,10 +13,8 @@ from sqlalchemy_utils import create_database, database_exists
 from pydantic.networks import PostgresDsn
 from contextlib import closing
 
-
 REGION_NAME = 'eu-central-1'
 S3_BUCKET_PREFIX = 'formatics'
-URL = "https://1n1v00okbh.execute-api.eu-central-1.amazonaws.com/prod"
 
 
 def db_uri(new_db_name):
@@ -33,6 +31,7 @@ def db_uri(new_db_name):
     except TypeError as e:
         logging.error(e)
 
+
 def create_db(new_db_name):
     url = db_uri(new_db_name)
     db_to_create = url.database
@@ -45,12 +44,9 @@ def create_db(new_db_name):
             print("Skipping database creation: Database with this name already exists.")
         else:
             print(f"Database {db_to_create} created successfully.")
-        # conn.execute(f'DROP DATABASE IF EXISTS "{db_to_create}";')
         # conn.execute("COMMIT;")
         # conn.execute(f'CREATE DATABASE "{db_to_create}";')
-
     return 0
-
 
 
 def create_bucket(s3_client, new_bucket_name, region):
@@ -78,6 +74,27 @@ def create_bucket(s3_client, new_bucket_name, region):
     return True
 
 
+def deploy(new_bucket_name, environment_name):
+    try:
+        BASE_PATH = "."
+        BUILD_DIR = "%s/%s" % (BASE_PATH, ".aws-sam/build")
+
+        if not os.path.exists(BUILD_DIR):
+            os.mkdir(BUILD_DIR)
+
+        os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
+        os.system(
+            "cd %s && sam package --template-file %s/template.yml --output-template-file out.yml --s3-bucket %s --region %s" % (
+            BASE_PATH, BUILD_DIR, new_bucket_name, REGION_NAME))
+        os.system(
+            "cd %s && sam deploy --template-file out.yml --stack-name %s --capabilities CAPABILITY_IAM --region %s" % (
+            BASE_PATH, environment_name, REGION_NAME))
+
+    except Exception as e:
+        print(e)
+        exit(1)
+
+
 def main(environment_name):
     client = boto3.client('s3', aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
                           aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
@@ -98,36 +115,13 @@ def main(environment_name):
     else:
         print("Skipping S3 Bucket creation: S3 bucket with this name already exists.")
 
-
-def deploy():
-    try:
-        LAMBDA_S3_BUCKET = "fastapi-pricelist-backend-staging"
-        API_NAME = "FastapiPricelistBackendStaging"
-        BASE_PATH = "."
-        STACK_NAME = "fastapi-pricelist-backend-staging"
-        BUILD_DIR = "%s" % (BASE_PATH)
-
-        if not os.path.exists(BUILD_DIR):
-            os.mkdir(BUILD_DIR)
-
-        os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
-        os.system(
-            "cd %s && sam package --template-file %s/template.yml --output-template-file out.yml --s3-bucket %s --region %s" % (
-            BASE_PATH, BUILD_DIR, LAMBDA_S3_BUCKET, REGION_NAME))
-        os.system(
-            "cd %s && sam deploy --template-file out.yml --stack-name %s --capabilities CAPABILITY_IAM --region %s" % (
-            BASE_PATH, STACK_NAME, REGION_NAME))
-
-    except Exception as e:
-        print(e)
-        exit(1)
-
+    create_db(environment_name)
+    deploy(new_bucket_name, environment_name)
 
 
 if __name__ == "__main__":
     load_dotenv()
     args = sys.argv
-    # main(environment_name=args[1])
-    # db_uri("api-staging")
-    # create_db("priceliststaging")
-    deploy()
+    main(environment_name=args[1])
+
+
