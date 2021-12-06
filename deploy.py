@@ -78,17 +78,17 @@ def create_bucket(s3_client, new_bucket_name, region):
 def deploy(new_bucket_name, environment_name):
     try:
         BASE_PATH = "."
-        BUILD_DIR = "%s/%s" % (BASE_PATH, ".aws-sam/build")
-
-        if not os.path.exists(BUILD_DIR):
-            os.mkdir(BUILD_DIR)
+        # BUILD_DIR = "%s/%s" % (BASE_PATH, ".aws-sam/build")
+        #
+        # if not os.path.exists(BUILD_DIR):
+        #     os.mkdir(BUILD_DIR)
 
         os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
         os.system(
-            "cd %s && sam package --template-file %s/template.yml --output-template-file out.yml --s3-bucket %s --region %s" % (
-            BASE_PATH, BUILD_DIR, new_bucket_name, REGION_NAME))
+            "cd %s && sam package --s3-bucket %s --output-template-file out.yml --region %s" % (
+            BASE_PATH, new_bucket_name, REGION_NAME))
         os.system(
-            "cd %s && sam deploy --template-file out.yml --stack-name %s --capabilities CAPABILITY_IAM --region %s" % (
+            "cd %s && sam deploy --template-file out.yml --stack-name %s --region %s --no-fail-on-empty-changeset --capabilities CAPABILITY_IAM" % (
             BASE_PATH, environment_name, REGION_NAME))
 
     except Exception as e:
