@@ -2,9 +2,9 @@ from http import HTTPStatus
 from typing import List, Any
 from uuid import UUID
 
-from fastapi.routing import APIRouter
 from fastapi.param_functions import Body, Depends
 from fastapi import HTTPException
+from server.api.api_v1.router_fix import APIRouter
 from starlette.responses import Response
 from server.api.error_handling import raise_status
 

@@ -13,7 +13,7 @@
 
 """Module that implements process related API endpoints."""
 
-from fastapi.routing import APIRouter
+from server.api.api_v1.router_fix import APIRouter
 
 from server.api.api_v1.endpoints import health, login, users, strains, shops, categories_images, flavors, prices, shops_to_prices
 from server.websockets import chat
@@ -24,6 +24,7 @@ from server.api import deps
 # Todo: add security depends here or in endpoints
 
 api_router = APIRouter()
+
 api_router.include_router(login.router, tags=["login"])
 api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])

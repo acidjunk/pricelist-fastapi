@@ -14,7 +14,7 @@
 from http import HTTPStatus
 
 import structlog
-from fastapi.routing import APIRouter
+from server.api.api_v1.router_fix import APIRouter
 from sqlalchemy.exc import OperationalError
 
 from server.api.error_handling import raise_status
