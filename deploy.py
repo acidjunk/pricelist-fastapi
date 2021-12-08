@@ -93,10 +93,10 @@ def deploy(new_bucket_name, environment_name, db_conn_str):
         # if not os.path.exists(BUILD_DIR):
         #     os.mkdir(BUILD_DIR)
 
-        os.system("cd %s && sam validate --template template-staging.yml" % (BASE_PATH))
-        os.system("cd %s && sam build --template template-staging.yml --use-container --debug" % (BASE_PATH))
+        os.system("cd %s && sam validate" % (BASE_PATH))
+        os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
         os.system(
-            "cd %s && sam package --template template-staging.yml --s3-bucket %s --output-template-file out.yml --region %s" % (
+            "cd %s && sam package --s3-bucket %s --output-template-file out.yml --region %s" % (
                 BASE_PATH, new_bucket_name, REGION_NAME))
         os.system(
             "cd %s && sam deploy --template-file out.yml --stack-name %s --region %s --no-fail-on-empty-changeset "
