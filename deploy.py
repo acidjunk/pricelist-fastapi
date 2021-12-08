@@ -15,7 +15,7 @@ from contextlib import closing
 
 REGION_NAME = 'eu-central-1'
 ENV_PREFIX = 'api-'
-ENV_SUFFIX = '-prijslist-info'
+ENV_SUFFIX = '-prijslijst-info'
 
 
 def env_database_uri():
