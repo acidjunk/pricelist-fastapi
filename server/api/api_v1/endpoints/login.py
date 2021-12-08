@@ -29,8 +29,7 @@ def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    # logger.log("Reached endpont requested", )
-
+    logger.info("Form:", form_data=form_data)
     user = user_crud.authenticate(username=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
