@@ -2,16 +2,16 @@ from http import HTTPStatus
 from typing import List, Any
 from uuid import UUID
 
-from fastapi.routing import APIRouter
+from server.api.api_v1.router_fix import APIRouter
 from fastapi.param_functions import Body, Depends
 from fastapi import HTTPException
 from starlette.responses import Response
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
-from server.crud.crud_shop import shop_crud
+from server.crud.crud_price import price_crud
 import structlog
 
-from server.schemas.shop import ShopCreate, ShopUpdate, ShopBase
+from server.schemas.price import PriceCreate, PriceUpdate, PriceBase
 
 logger = structlog.get_logger(__name__)
 
@@ -19,45 +19,45 @@ router = APIRouter()
 
 
 @router.get("/")
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopBase]:
-    shops, header_range = shop_crud.get_multi(
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[PriceBase]:
+    prices, header_range = price_crud.get_multi(
         skip=common["skip"],
         limit=common["limit"],
         filter_parameters=common["filter"],
         sort_parameters=common["sort"],
     )
     response.headers["Content-Range"] = header_range
-    return shops
+    return prices
 
 
-@router.get("/{id}", response_model=ShopBase)
-def get_by_id(id: UUID) -> ShopBase:
-    shop = shop_crud.get(id)
-    if not shop:
-        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
-    return shop
+@router.get("/{id}", response_model=PriceBase)
+def get_by_id(id: UUID) -> PriceBase:
+    price = price_crud.get(id)
+    if not price:
+        raise_status(HTTPStatus.NOT_FOUND, f"Price with id {id} not found")
+    return price
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def create(data: ShopCreate = Body(...)) -> None:
-    logger.info("Saving shop", data=data)
-    return shop_crud.create(obj_in=data)
+def create(data: PriceCreate = Body(...)) -> None:
+    logger.info("Saving price", data=data)
+    return price_crud.create(obj_in=data)
 
 
-@router.put("/{shop_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def update(*, shop_id: UUID, item_in: ShopUpdate) -> Any:
-    shop = shop_crud.get(id=shop_id)
-    logger.info("shop", data=shop)
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
+@router.put("/{price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def update(*, price_id: UUID, item_in: PriceUpdate) -> Any:
+    price = price_crud.get(id=price_id)
+    logger.info("price", data=price)
+    if not price:
+        raise HTTPException(status_code=404, detail="Price not found")
 
-    shop = shop_crud.update(
-        db_obj=shop,
+    price = price_crud.update(
+        db_obj=price,
         obj_in=item_in,
     )
-    return shop
+    return price
 
 
-@router.delete("/{shop_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def delete(shop_id: UUID) -> None:
-    return shop_crud.delete(id=shop_id)
+@router.delete("/{price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def delete(price_id: UUID) -> None:
+    return price_crud.delete(id=price_id)

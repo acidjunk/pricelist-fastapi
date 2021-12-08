@@ -1,12 +1,18 @@
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 from server.schemas.base import BoilerplateBaseModel
 
 
 class PriceBase(BoilerplateBaseModel):
-    id: UUID
-    name: str
-    description: str
+    id: Optional[UUID]
+    internal_product_id: str
+    half: Optional[float]
+    one: Optional[float]
+    two_five: Optional[float]
+    five: Optional[float]
+    joint: Optional[float]
+    piece: Optional[float]
 
     class Config:
         orm_mode = True

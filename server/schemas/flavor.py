@@ -5,25 +5,27 @@ from uuid import UUID
 from server.schemas.base import BoilerplateBaseModel
 
 
-class StrainBase(BoilerplateBaseModel):
+class FlavorBase(BoilerplateBaseModel):
     id: Optional[UUID]
     name: str
+    icon: str
+    color: Optional[str]
 
     class Config:
         orm_mode = True
 
 
 # Properties to receive via API on creation
-class StrainCreate(StrainBase):
+class FlavorCreate(FlavorBase):
     pass
 
 
 # Properties to receive via API on update
-class StrainUpdate(StrainBase):
+class FlavorUpdate(FlavorBase):
     pass
 
 
-class StrainInDBBase(StrainBase):
+class FlavorInDBBase(FlavorBase):
     id: UUID
 
     class Config:
@@ -31,5 +33,5 @@ class StrainInDBBase(StrainBase):
 
 
 # Additional properties to return via API
-class StrainSchema(StrainInDBBase):
+class FlavorSchema(FlavorInDBBase):
     pass

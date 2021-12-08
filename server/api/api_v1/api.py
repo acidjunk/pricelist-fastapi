@@ -13,9 +13,9 @@
 
 """Module that implements process related API endpoints."""
 
-from fastapi.routing import APIRouter
+from server.api.api_v1.router_fix import APIRouter
 
-from server.api.api_v1.endpoints import health, login, users, strains, shops, categories_images
+from server.api.api_v1.endpoints import health, login, users, strains, shops, categories_images, flavors, prices, shops_to_prices
 from server.websockets import chat
 
 from fastapi import Depends
@@ -24,11 +24,15 @@ from server.api import deps
 # Todo: add security depends here or in endpoints
 
 api_router = APIRouter()
+
 api_router.include_router(login.router, tags=["login"])
 api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(strains.router, prefix="/strains", tags=["strains"], dependencies=[Depends(deps.get_current_active_superuser)])
 api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
+api_router.include_router(shops_to_prices.router, prefix="/shops-to-prices", tags=["shops-to-prices"])
 api_router.include_router(categories_images.router, prefix="/categories-images", tags=["categories-images"], dependencies=[Depends(deps.get_current_active_superuser)])
+api_router.include_router(flavors.router, prefix="/flavors", tags=["flavors"], dependencies=[Depends(deps.get_current_active_superuser)])
+api_router.include_router(prices.router, prefix="/prices", tags=["prices"], dependencies=[Depends(deps.get_current_active_superuser)])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
 

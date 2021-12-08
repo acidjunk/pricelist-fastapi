@@ -2,9 +2,9 @@ from http import HTTPStatus
 from typing import List, Any
 from uuid import UUID
 
-from fastapi.routing import APIRouter
 from fastapi.param_functions import Body, Depends
 from fastapi import HTTPException
+from server.api.api_v1.router_fix import APIRouter
 from starlette.responses import Response
 from server.api.error_handling import raise_status
 
@@ -33,10 +33,11 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return shops
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=ShopCreate, status_code=HTTPStatus.CREATED)
 def create(data: ShopCreate = Body(...)) -> None:
     logger.info("Saving shop", data=data)
-    return shop_crud.create(obj_in=data)
+    shop = shop_crud.create(obj_in=data)
+    return shop
 
 
 @router.get("/cache-status/{id}", response_model=ShopCacheStatus)
@@ -110,7 +111,7 @@ def get_by_id(id: UUID):
 
 
 @router.put("/{shop_id}", response_model=ShopBase, status_code=HTTPStatus.CREATED)
-def update(*, shop_id: UUID, item_in: ShopUpdate) -> Any:
+def update(*, shop_id: UUID, item_in: ShopUpdate) -> None:
     shop = shop_crud.get(id=shop_id)
     logger.info("shop", data=shop)
     if not shop:

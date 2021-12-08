@@ -12,7 +12,7 @@ from server.db.models import UsersTable
 from server.schemas import TokenPayload
 from server.settings import app_settings
 
-reusable_oauth = OAuth2PasswordBearer(tokenUrl=f"/api/login/access-token")
+reusable_oauth = OAuth2PasswordBearer(tokenUrl=f"/v1/login/access-token")
 
 
 async def common_parameters(

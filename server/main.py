@@ -35,6 +35,7 @@ from server.forms import FormException
 from server.settings import app_settings
 from server.version import GIT_COMMIT_HASH
 
+
 structlog.configure(
     processors=[
         structlog.processors.add_log_level,
@@ -55,12 +56,12 @@ logger = structlog.get_logger(__name__)
 app = FastAPI(
     title="Pricelist FastAPI",
     description="The boilerplate is a project that can be copied and adapted.",
-    openapi_url="/api/openapi.json",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    openapi_url="/v1/openapi.json",
+    docs_url="/v1/docs",
+    redoc_url="/v1/redoc",
     version=GIT_COMMIT_HASH if GIT_COMMIT_HASH else "0.1.0",
     default_response_class=JSONResponse,
-    root_path="/prod",
+    # root_path="/stg",
     servers=[
         {
             "url": "https://api.prijslijst.info",
@@ -71,7 +72,7 @@ app = FastAPI(
     ],
 )
 
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="/v1")
 
 app.add_middleware(SessionMiddleware, secret_key=app_settings.SESSION_SECRET)
 app.add_middleware(DBSessionMiddleware, database=db)
