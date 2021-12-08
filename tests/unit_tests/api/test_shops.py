@@ -9,6 +9,13 @@ def test_shops_get_multi(test_client, shop_1, shop_2):
     assert 2 == len(shops)
 
 
+def test_shops_get_multi_with_slash(test_client, shop_1, shop_2):
+    response = test_client.get(f"/api/shops/")
+    assert response.status_code == 200
+    shops = response.json()
+    assert 2 == len(shops)
+
+
 def test_shop_get_by_id(shop_1, test_client):
     response = test_client.get(f"/api/shops/{shop_1.id}")
     print(response.__dict__)

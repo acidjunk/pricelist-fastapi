@@ -10,7 +10,7 @@ Resources:
                 ApiEvent:
                     Properties:
                         RestApiId:
-                            Ref: ApiStagingPricelistInfo
+                            Ref: ApiStagingPrijslijstInfo
                         Path: /{proxy+}
                         Method: ANY
                     Type: Api
@@ -25,8 +25,8 @@ Resources:
             # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-template-anatomy-globals.html#sam-specification-template-anatomy-globals-supported-resources-and-properties
             Role: !Sub arn:aws:iam::${AWS::AccountId}:role/fastapi-postgres-boilerplate
 
-    ApiStagingPricelistInfo:
+    ApiStagingPrijslijstInfo:
         Type: AWS::Serverless::Api
         Properties:
-            StageName: stg
+            StageName: backend
             OpenApiVersion: '3.0.1'
