@@ -15,7 +15,7 @@ from server.apis.v1.helpers import (
 from server.api.deps import common_parameters
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-from server.schemas.shop import ShopBase, ShopCreate, ShopUpdate, ShopCacheStatus
+from server.schemas.shop import ShopBase, ShopCreate, ShopUpdate, ShopCacheStatus, ShopWithPrices
 
 router = APIRouter()
 logger = structlog.get_logger(__name__)
@@ -49,7 +49,7 @@ def get_cache_status(id: UUID) -> ShopCacheStatus:
     return shop
 
 
-@router.get("/{id}")
+@router.get("/{id}", response_model=ShopWithPrices)
 def get_by_id(id: UUID):
     """List Shop"""
     item = load(Shop, id)
@@ -63,7 +63,7 @@ def get_by_id(id: UUID):
     item.prices = [
         {
             "id": pr.id,
-            "internal_product_id": pr.price.internal_product_id,
+            "internal_product_id": int(pr.price.internal_product_id),
             "active": pr.active,
             "new": pr.new,
             "category_id": pr.category_id,
@@ -84,7 +84,7 @@ def get_by_id(id: UUID):
             "kind_id": pr.kind_id,
             "kind_image": pr.kind.image_1 if pr.kind_id else None,
             "kind_name": pr.kind.name if pr.kind_id else None,
-            "strains": [strain.strain for strain in pr.kind.kind_to_strains] if pr.kind_id else [],
+            "strains": [dict({"name": strain.strain.name}) for strain in pr.kind.kind_to_strains] if pr.kind_id else [],
             "kind_short_description_nl": pr.kind.short_description_nl if pr.kind_id else None,
             "kind_short_description_en": pr.kind.short_description_en if pr.kind_id else None,
             "kind_c": pr.kind.c if pr.kind_id else None,

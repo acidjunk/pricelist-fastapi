@@ -18,7 +18,7 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/", response_model=List[PriceBase])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[PriceBase]:
     prices, header_range = price_crud.get_multi(
         skip=common["skip"],
