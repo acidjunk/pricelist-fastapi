@@ -8,11 +8,11 @@ from typing import Dict, List, Optional
 # Add to requirments
 # import boto3
 import structlog
+from sqlalchemy import String, cast, or_
+from sqlalchemy.sql import expression
 
 from server.api.error_handling import raise_status
 from server.db import db
-from sqlalchemy import String, cast, or_
-from sqlalchemy.sql import expression
 
 # s3 = boto3.resource(
 #     "s3",

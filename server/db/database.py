@@ -13,24 +13,13 @@
 
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Generator,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    cast,
-)
+from typing import Any, Callable, ClassVar, Dict, Generator, Iterator, List, Optional, Set, cast
 from uuid import uuid4
 
 import structlog
 from sqlalchemy import create_engine
 from sqlalchemy import inspect as sa_inspect
-from sqlalchemy.ext.declarative import as_declarative, DeclarativeMeta
+from sqlalchemy.ext.declarative import DeclarativeMeta, as_declarative
 from sqlalchemy.orm import Query, Session, scoped_session, sessionmaker
 from sqlalchemy.orm.state import InstanceState
 from sqlalchemy.sql.schema import MetaData

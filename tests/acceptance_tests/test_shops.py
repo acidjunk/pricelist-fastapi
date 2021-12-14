@@ -1,10 +1,11 @@
 from urllib.request import urlopen
-import requests
-from server.utils.json import json_dumps
-from deepdiff import DeepDiff  # For Deep Difference of 2 objects
-from deepdiff import grep, DeepSearch  # For finding if item exists in an object
-from deepdiff import DeepHash  # For hashing objects based on their contents
 
+import requests
+from deepdiff import DeepDiff  # For Deep Difference of 2 objects
+from deepdiff import DeepHash  # For hashing objects based on their contents
+from deepdiff import DeepSearch, grep  # For finding if item exists in an object
+
+from server.utils.json import json_dumps
 from tests.acceptance_tests.acceptance_settings import acceptance_settings
 
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI

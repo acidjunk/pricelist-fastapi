@@ -1,25 +1,19 @@
 from http import HTTPStatus
-from typing import List, Any
+from typing import Any, List
 from uuid import UUID
 
-from server.api.api_v1.router_fix import APIRouter
-from fastapi.param_functions import Body, Depends
-from fastapi import HTTPException
-from starlette.responses import Response
-from server.api.error_handling import raise_status
-
 import structlog
-from server.apis.v1.helpers import (
-    load,
-    name_file,
-)
+from fastapi import HTTPException
+from fastapi.param_functions import Body, Depends
+from starlette.responses import Response
+
+from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
+from server.api.error_handling import raise_status
+from server.apis.v1.helpers import load, name_file
 from server.crud import category_crud
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-
-import structlog
-
 from server.schemas.category import CategoryUpdate
 
 logger = structlog.get_logger(__name__)

@@ -13,23 +13,22 @@
 
 """Module that implements process related API endpoints."""
 
-from server.api.api_v1.router_fix import APIRouter
+from fastapi import Depends
 
+from server.api import deps
 from server.api.api_v1.endpoints import (
-    health,
-    login,
-    users,
-    strains,
-    shops,
     categories_images,
     flavors,
+    health,
+    login,
     prices,
+    shops,
     shops_to_prices,
+    strains,
+    users,
 )
+from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
-
-from fastapi import Depends
-from server.api import deps
 
 # Todo: add security depends here or in endpoints
 

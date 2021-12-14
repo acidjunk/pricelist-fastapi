@@ -1,6 +1,8 @@
 from http import HTTPStatus
 from uuid import uuid4
+
 import structlog
+
 from server.utils.json import json_dumps
 
 logger = structlog.getLogger(__name__)

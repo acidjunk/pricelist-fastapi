@@ -1,17 +1,17 @@
 from http import HTTPStatus
-from typing import List, Any
+from typing import Any, List
 from uuid import UUID
 
-from server.api.api_v1.router_fix import APIRouter
-from fastapi.param_functions import Body, Depends
+import structlog
 from fastapi import HTTPException
+from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
+
+from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_flavor import flavor_crud
-import structlog
-
-from server.schemas.flavor import FlavorCreate, FlavorSchema, FlavorUpdate, FlavorBase
+from server.schemas.flavor import FlavorBase, FlavorCreate, FlavorSchema, FlavorUpdate
 
 logger = structlog.get_logger(__name__)
 

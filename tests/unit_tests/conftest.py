@@ -1,6 +1,6 @@
+import json
 import os
 import uuid
-import json
 from contextlib import closing
 from datetime import datetime
 from typing import Dict, cast
@@ -8,7 +8,6 @@ from typing import Dict, cast
 import pytest
 import respx
 import structlog
-
 from alembic import command
 from alembic.config import Config
 from fastapi.applications import FastAPI
@@ -24,35 +23,25 @@ from starlette.testclient import TestClient
 from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import db
+from server.db.database import ENGINE_ARGUMENTS, SESSION_ARGUMENTS, BaseModel, DBSessionMiddleware, SearchQuery
 from server.db.models import (
-    RolesTable,
-    UsersTable,
-    ProductsTable,
-    Price,
-    Shop,
-    ShopToPrice,
-    Tag,
-    Flavor,
     Category,
+    Flavor,
     Kind,
-    KindToTag,
     KindToFlavor,
     KindToStrain,
-    Strain,
+    KindToTag,
     Order,
+    Price,
+    ProductsTable,
+    RolesTable,
+    Shop,
+    ShopToPrice,
+    Strain,
+    Tag,
+    UsersTable,
 )
-
-from server.db.database import (
-    ENGINE_ARGUMENTS,
-    SESSION_ARGUMENTS,
-    BaseModel,
-    DBSessionMiddleware,
-    SearchQuery,
-)
-from server.exception_handlers.generic_exception_handlers import (
-    form_error_handler,
-    problem_detail_handler,
-)
+from server.exception_handlers.generic_exception_handlers import form_error_handler, problem_detail_handler
 from server.forms import FormException
 from server.security import get_password_hash
 from server.settings import app_settings

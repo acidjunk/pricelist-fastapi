@@ -1,17 +1,17 @@
 from http import HTTPStatus
-from typing import List, Any
+from typing import Any, List
 from uuid import UUID
 
-from server.api.api_v1.router_fix import APIRouter
-from fastapi.param_functions import Body, Depends
+import structlog
 from fastapi import HTTPException
+from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
+
+from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_price import price_crud
-import structlog
-
-from server.schemas.price import PriceCreate, PriceUpdate, PriceBase
+from server.schemas.price import PriceBase, PriceCreate, PriceUpdate
 
 logger = structlog.get_logger(__name__)
 

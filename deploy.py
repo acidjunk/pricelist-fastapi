@@ -1,15 +1,16 @@
+import logging
 import os
 import shutil
 import sys
-import logging
+from contextlib import closing
+
 import boto3
 import structlog
-from dotenv import load_dotenv
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
+from pydantic.networks import PostgresDsn
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
-from pydantic.networks import PostgresDsn
-from contextlib import closing
 
 REGION_NAME = "eu-central-1"
 # Assuming: "staging" env =>
@@ -17,12 +18,16 @@ REGION_NAME = "eu-central-1"
 ENV_PREFIX = "api-"
 ENV_SUFFIX = "-prijslijst-info"
 
+DEPLOY_NEEDED = True
+
+
 logger = structlog.get_logger(__name__)
 
 # Todo's
-#- try to be describing about how trhis script should be used
-#- there are a couple of names that will be generated: it would be nice to have them in the log
-#- fix script for prod (and template also)
+# - try to be describing about how trhis script should be used
+# - there are a couple of names that will be generated: it would be nice to have them in the log
+# - fix script for prod (and template also)
+
 
 def env_database_uri():
     if (env_var := os.environ.get("DATABASE_URI")) is not None:
@@ -94,39 +99,76 @@ def deploy(new_bucket_name, environment_name, db_conn_str):
     stack_name = f"{ENV_PREFIX}{environment_name}{ENV_SUFFIX}"
     logger.info("Determined stack_name", stack_name=stack_name)
     try:
-        BASE_PATH = "."
+        BASE_PATH = os.getcwd()
         # BUILD_DIR = "%s/%s" % (BASE_PATH, ".aws-sam/build")
         #
         # if not os.path.exists(BUILD_DIR):
         #     os.mkdir(BUILD_DIR)
 
-        os.system("cd %s && sam validate" % (BASE_PATH))
-        os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
-        os.system(
-            "cd %s && sam package --s3-bucket %s --output-template-file out.yml --region %s"
-            % (BASE_PATH, new_bucket_name, REGION_NAME)
-        )
-        os.system(
-            "cd %s && sam deploy --template-file out.yml --stack-name %s --region %s --no-fail-on-empty-changeset "
-            "--capabilities CAPABILITY_IAM" % (BASE_PATH, stack_name, REGION_NAME)
-        )
-        os.system(
-            "cd %s && aws lambda get-function-configuration --function-name %s --region %s"
-            % (BASE_PATH, stack_name, REGION_NAME)
-        )
+        if DEPLOY_NEEDED:
+            os.system("cd %s && sam validate" % (BASE_PATH))
+            os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
+            os.system(
+                "cd %s && sam package --s3-bucket %s --output-template-file out.yml --region %s"
+                % (BASE_PATH, new_bucket_name, REGION_NAME)
+            )
+            os.system(
+                "cd %s && sam deploy --template-file out.yml --stack-name %s --region %s --no-fail-on-empty-changeset "
+                "--capabilities CAPABILITY_IAM" % (BASE_PATH, stack_name, REGION_NAME)
+            )
+            os.system(
+                "cd %s && aws lambda get-function-configuration --function-name %s --region %s"
+                % (BASE_PATH, stack_name, REGION_NAME)
+            )
 
         # Todo: extract to a separate function that can handle setting env vars
-        os.system(
-            'cd %s && aws lambda update-function-configuration --function-name %s --region %s --environment "Variables={DATABASE_URI=%s}"'
-            % (BASE_PATH, stack_name, REGION_NAME, db_conn_str)
+        envs = []
+        envs.append(return_lambda_env_var(stack_name=stack_name, name="DATABASE_URI", value=db_conn_str))
+        envs.append(
+            return_lambda_env_var(
+                stack_name=stack_name,
+                name="SECRET_KEY",
+                value=os.getenv("SECRET_KEY"),
+            )
         )
+        envs.append(
+            return_lambda_env_var(
+                stack_name=stack_name, name="SECURITY_PASSWORD_SALT", value=os.getenv("SECURITY_PASSWORD_SALT")
+            )
+        )
+        cmd = (
+            f"cd {os.getcwd()} && aws lambda update-function-configuration --function-name {stack_name} "
+            f'--region {REGION_NAME} --environment "Variables={{{",".join(envs)}}}"'
+        )
+        os.system(cmd)
 
     except Exception as e:
         print(e)
         sys.exit(1)
 
 
+def return_lambda_env_var(stack_name, name, value):
+    logger.info("Gonna set Lambda env var", name=name, value=value, stack_name=stack_name)
+    # cmd = (
+    #     f"cd {os.getcwd()} && aws lambda update-function-configuration --function-name {stack_name} "
+    #     f'--region {REGION_NAME} --environment "Variables={{{name}={value}}}"'
+    # )
+    return f"{name}={value}"
+
+
+def check_environment_before_deploy():
+    if (
+        not os.getenv("AWS_ACCESS_KEY_ID")
+        or not os.getenv("AWS_SECRET_ACCESS_KEY")
+        or not os.getenv("SECURITY_PASSWORD_SALT")
+        or not os.getenv("SECRET_KEY")
+    ):
+        logger.error("Please set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SECURITY_PASSWORD_SALT, SECRET_KEY env vars")
+        sys.exit(1)
+
+
 def main(environment_name):
+    check_environment_before_deploy()
     client = boto3.client(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
@@ -146,8 +188,11 @@ def main(environment_name):
     else:
         logger.info("Skipping bucket creation as it already exists")
 
-    # db_conn_str = env_database_uri() or create_db(environment_name)
-    # deploy(new_bucket_name, environment_name, db_conn_str)
+    db_conn_str = env_database_uri() or create_db(environment_name)
+    logger.info("Using DB conn str for DB connection", db_uri=db_conn_str)
+    answer = input("Are you sure you want to continue? y/n ")
+    if answer == "y":
+        deploy(new_bucket_name, environment_name, db_conn_str)
 
 
 def check_aws_tooling():
@@ -159,7 +204,7 @@ if __name__ == "__main__":
     args = sys.argv
 
     if len(args) <= 1:
-        logger.error("Please provide a full env name")
+        logger.error("Please provide a full env name: e.g. PYTHONPATH=. python deploy.py staging")
         sys.exit()
 
     logger.info("Starting deployment for env", env=args[1])
@@ -167,3 +212,10 @@ if __name__ == "__main__":
         logger.error("No AWS CLI found")
         sys.exit()
     main(environment_name=args[1])
+
+    # Set an env var:
+    # set_lambda_env_var(
+    #     "api-staging-prijslijst-info",
+    #     "DATBASE_URI",
+    #     "postgres://priceliststaging:0|s@3ZET2Fks@formatics-postgres-eu.cogvmrr9jpcc.eu-central-1.rds.amazonaws.com/priceliststaging",
+    # )

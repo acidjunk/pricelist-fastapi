@@ -1,15 +1,22 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
 from server.schemas.base import BoilerplateBaseModel
 
 
 class CategoryBase(BoilerplateBaseModel):
     id: UUID
-    name: str
     shop_id: str
-    image_1: dict
-    image_2: dict
+    main_category_id: str
+    name: str
+    name_en: Optional[str] = None
+    description: str
+    icon: Optional[str] = None
+    order_number: int = 0
+    cannabis: bool = False
+    image_1: str
+    image_2: str
 
     class Config:
         orm_mode = True
@@ -26,6 +33,9 @@ class CategoryUpdate(CategoryBase):
 
 
 class CategoryInDBBase(CategoryBase):
+    created_at: datetime
+    modified_at: Optional[datetime] = None
+
     class Config:
         orm_mode = True
 

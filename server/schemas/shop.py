@@ -1,6 +1,7 @@
-from typing import Optional, List
-from uuid import UUID
 from datetime import datetime
+from typing import List, Optional
+from uuid import UUID
+
 from server.schemas.base import BoilerplateBaseModel
 
 

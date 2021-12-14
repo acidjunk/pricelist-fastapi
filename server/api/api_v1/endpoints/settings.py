@@ -14,9 +14,9 @@
 from http import HTTPStatus
 
 from aiocache import Cache
-from server.api.api_v1.router_fix import APIRouter
 from starlette.background import BackgroundTasks
 
+from server.api.api_v1.router_fix import APIRouter
 from server.settings import app_settings
 
 router = APIRouter()

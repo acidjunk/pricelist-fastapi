@@ -1,12 +1,11 @@
 import logging
 import os
-
-import structlog
-from fastapi.routing import APIRouter
 from typing import List
 
+import structlog
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+from fastapi.routing import APIRouter
 
 logger = structlog.get_logger(__name__)
 

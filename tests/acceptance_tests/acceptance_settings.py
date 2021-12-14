@@ -1,10 +1,9 @@
+import os
 from typing import Optional
 
-import os
 from dotenv import load_dotenv
-from pydantic import BaseSettings
+from pydantic import BaseSettings, validator
 from pydantic.networks import AnyHttpUrl
-from pydantic import validator
 
 SUFFIX: str = "/v1/"
 

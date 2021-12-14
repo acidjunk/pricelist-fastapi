@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
 from server.schemas.base import BoilerplateBaseModel
 
 
@@ -25,8 +26,6 @@ class ShopToPriceBase(BoilerplateBaseModel):
     joint: Optional[float]
     use_piece: Optional[bool]
     piece: Optional[float]
-    created_at: Optional[datetime]
-    modified_at: Optional[datetime]
 
     class Config:
         orm_mode = True
@@ -43,6 +42,9 @@ class ShopToPriceUpdate(ShopToPriceBase):
 
 
 class ShopToPriceInDBBase(ShopToPriceBase):
+    created_at: Optional[datetime]
+    modified_at: Optional[datetime]
+
     class Config:
         orm_mode = True
 

@@ -21,22 +21,13 @@ from xmlrpc.client import DateTime
 import pytz
 import sqlalchemy
 import structlog
-from sqlalchemy import (
-    Boolean,
-    Column,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-    TypeDecorator,
-    text,
-)
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, TypeDecorator, text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Dialect
 from sqlalchemy.exc import DontWrapMixin
-from sqlalchemy_utils import UUIDType
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy_utils import UUIDType
+
 from server.db.database import BaseModel, Database
 from server.settings import app_settings
 from server.utils.date_utils import nowtz
