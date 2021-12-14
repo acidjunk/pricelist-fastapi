@@ -41,5 +41,5 @@ __all__ = (
     "Msg",
     "RoleCreate",
     "RoleUpdate",
-    "RoleSchema"
+    "RoleSchema",
 )

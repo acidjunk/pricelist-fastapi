@@ -28,5 +28,3 @@ acceptance_settings = AcceptanceSettings()
 if __name__ == "__main__":
     print(acceptance_settings.PRD_BACKEND_URI)
     print(acceptance_settings.ACC_BACKEND_URI)
-
-

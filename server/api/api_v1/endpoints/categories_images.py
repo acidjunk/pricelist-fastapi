@@ -10,7 +10,8 @@ from server.api.error_handling import raise_status
 
 import structlog
 from server.apis.v1.helpers import (
-    load, name_file,
+    load,
+    name_file,
 )
 from server.api.deps import common_parameters
 from server.crud import category_crud

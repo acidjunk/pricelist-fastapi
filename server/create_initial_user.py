@@ -16,8 +16,7 @@ def main() -> None:
     role_admin = role_crud.get_by_name(name=app_settings.FIRST_SUPERUSER_ROLE)
     if not role_admin:
         role_in = RoleCreate(
-            name=app_settings.FIRST_SUPERUSER_ROLE,
-            description=app_settings.FIRST_SUPERUSER_ROLE_DESCRIPTION
+            name=app_settings.FIRST_SUPERUSER_ROLE, description=app_settings.FIRST_SUPERUSER_ROLE_DESCRIPTION
         )
         role_admin = role_crud.create(obj_in=role_in)
         logger.info("Initial role created")
@@ -31,10 +30,7 @@ def main() -> None:
             password=app_settings.FIRST_SUPERUSER_PASSWORD,
         )
         superuser = user_crud.create(obj_in=user_in)  # noqa: F841
-        role_user_in = RoleUserCreate(
-            user_id=superuser.id,
-            role_id=role_admin.id
-        )
+        role_user_in = RoleUserCreate(user_id=superuser.id, role_id=role_admin.id)
         role_user_crud.create(obj_in=role_user_in)
         logger.info("Initial superuser created")
     else:

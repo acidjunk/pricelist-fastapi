@@ -27,11 +27,7 @@ def test_shop_get_by_id(shop_1, test_client):
 def test_shop_save(test_client, superuser_token_headers):
     body = {"name": "New Strain", "description": "Shop description"}
 
-    response = test_client.post(
-        "/api/shops/",
-        data=json_dumps(body),
-        headers=superuser_token_headers
-    )
+    response = test_client.post("/api/shops/", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.CREATED == response.status_code
     shops = test_client.get("/api/shops").json()
     assert 1 == len(shops)
@@ -39,11 +35,7 @@ def test_shop_save(test_client, superuser_token_headers):
 
 def test_shop_update(shop_1, test_client, superuser_token_headers):
     body = {"name": "Updated Shop", "description": "Shop description"}
-    response = test_client.put(
-        f"/api/shops/{shop_1.id}",
-        data=json_dumps(body),
-        headers=superuser_token_headers
-    )
+    response = test_client.put(f"/api/shops/{shop_1.id}", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.CREATED == response.status_code
 
     response_updated = test_client.get(f"/api/shops/{shop_1.id}", headers=superuser_token_headers)

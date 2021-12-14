@@ -28,19 +28,19 @@ def test_shops_full():
     ddiff = DeepDiff(response_acc, response_prd, ignore_order=True)
     assert ddiff == {}
     for shop in response_prd:
-        shops_ids.append(shop['id'])
+        shops_ids.append(shop["id"])
 
     for shop_id in shops_ids:
         response_prd = requests.get(PRD_BACKEND_URI + f"shops/{shop_id}").json()
         response_acc = requests.get(ACC_BACKEND_URI + f"shops/{shop_id}").json()
-        acc_prices = response_acc['prices']
-        prd_prices = response_prd['prices']
+        acc_prices = response_acc["prices"]
+        prd_prices = response_prd["prices"]
 
         assert len(acc_prices) == len(prd_prices)
         prices_differences = []
         for prd_price in prd_prices:
             for acc_price in acc_prices:
-                if prd_price['id'] == acc_price['id']:
+                if prd_price["id"] == acc_price["id"]:
                     price_diff = DeepDiff(prd_price, acc_price, ignore_order=True)
                     if price_diff != {}:
                         prices_differences.append(price_diff.tree)

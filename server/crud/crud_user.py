@@ -28,7 +28,7 @@ class CRUDUser(CRUDBase[UsersTable, UserCreate, UserUpdate]):
             email=obj_in.email,
             password=get_password_hash(obj_in.password),
             username=obj_in.username,
-            active=obj_in.is_active
+            active=obj_in.is_active,
         )
         db.session.add(db_obj)
         db.session.commit()
