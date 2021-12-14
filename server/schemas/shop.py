@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 from server.schemas.base import BoilerplateBaseModel
@@ -11,6 +11,10 @@ class ShopBase(BoilerplateBaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ShopWithPrices(ShopBase):
+    prices: List[dict]
 
 
 class ShopCacheStatus(BoilerplateBaseModel):

@@ -6,13 +6,13 @@ DNS:
         dev: api.development.trojtheband.nl
         prod: api.trojtheband.nl
     Real:
-        staging: api.staging.prijslist.info
-        dev: api.development.prijslist.info
+        staging: api.staging.prijslijst.info
+        dev: api.development.prijslijst.info
 
 S3 Buckets:
     API:
-        staging: api-staging-prijslist-info
-        dev: api-development-prijslist-info
+        staging: api-staging-prijslijst-info
+        dev: api-development-prijslijst-info
         prod: api-prijslijst-info
     IMAGES:
         staging: images-staging-prijslijst-info

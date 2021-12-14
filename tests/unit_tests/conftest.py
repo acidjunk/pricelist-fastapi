@@ -398,12 +398,12 @@ def kind_1(tag_1, flavor_1, strain_1):
         s=False,
         short_description_nl="Cinderela 99 x Jack Herrer",
         description_nl="Amnesia is typisch een sativa-dominant cannabis strain, met wat variaites tussen de kwekers. "
-                       "Cinderela 99 x Jack Herrer in de volksmond ook wel bekend als Haze knalt.",
+        "Cinderela 99 x Jack Herrer in de volksmond ook wel bekend als Haze knalt.",
         short_description_en="Amnesia is typically a sativa-dominant cannabis strain",
         description_en="Amnesia is typically a sativa-dominant cannabis strain with some variation between breeders. "
-                       "Skunk, Cinderella 99, and Jack Herer are some of Amnesia’s genetic forerunners, passing on "
-                       "uplifting, creative, and euphoric effects. This strain normally has a high THC and low CBD "
-                       "profile and produces intense psychotropic effects that new consumers should be wary of.",
+        "Skunk, Cinderella 99, and Jack Herer are some of Amnesia’s genetic forerunners, passing on "
+        "uplifting, creative, and euphoric effects. This strain normally has a high THC and low CBD "
+        "profile and produces intense psychotropic effects that new consumers should be wary of.",
     )
     db.session.add(fixture)
     record = KindToTag(id=str(uuid.uuid4()), kind_id=fixture_id, tag=tag_1, amount=90)
@@ -554,4 +554,3 @@ def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2,
     db.session.add(order)
     db.session.commit()
     return shop_1
-

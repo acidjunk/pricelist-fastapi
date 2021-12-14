@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 from sqlalchemy.orm.exc import NoResultFound
 
-from server.db import Shop,Strain, db, transactional
+from server.db import Shop, Strain, db, transactional
 from server.utils.date_utils import nowtz
 
 
@@ -70,10 +70,7 @@ def test_transactional_no_commit():
         with transactional(db, logger):
             insert_p({})
 
-    assert (
-        db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all()
-        == []
-    )
+    assert db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all() == []
     logger.assert_has_calls(
         [
             mock.call.warning(
@@ -115,10 +112,7 @@ def test_transactional_no_commit_second_thread():
             insert_p({})
 
     assert db.session.query(Shop).filter(Shop.name == "Test transactional should be committed").one()
-    assert (
-        db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all()
-        == []
-    )
+    assert db.session.query(Shop).filter(Shop.name == "Test transactional should not be committed").all() == []
     logger.assert_has_calls(
         [
             mock.call.warning(
@@ -167,6 +161,5 @@ def test_autouse_fixture_rolls_back_bbb():
         Shop.query.filter(Shop.name == "aaa").one()
 
 
-@pytest.mark.xfail
 def test_str_method():
-    assert str(Strain()) == "Shop(id=None, name=None, description=None, modified_at=None)"
+    assert str(Strain()) == "Strain(id=None, name=None)"
