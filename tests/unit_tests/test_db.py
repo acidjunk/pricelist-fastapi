@@ -167,6 +167,5 @@ def test_autouse_fixture_rolls_back_bbb():
         Shop.query.filter(Shop.name == "aaa").one()
 
 
-@pytest.mark.xfail
 def test_str_method():
-    assert str(Strain()) == "Shop(id=None, name=None, description=None, modified_at=None)"
+    assert str(Strain()) == "Strain(id=None, name=None)"
