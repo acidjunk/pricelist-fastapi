@@ -20,6 +20,7 @@ from server.api.api_v1.endpoints import (
     categories_images,
     flavors,
     health,
+    kinds_to_strains,
     login,
     prices,
     shops,
@@ -42,6 +43,7 @@ api_router.include_router(
 )
 api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
 api_router.include_router(shops_to_prices.router, prefix="/shops-to-prices", tags=["shops-to-prices"])
+api_router.include_router(kinds_to_strains.router, prefix="/kinds-to-strains", tags=["kinds-to-strains"])
 api_router.include_router(
     categories_images.router,
     prefix="/categories-images",
