@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class KindToFlavorBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     kind_id: UUID
     flavor_id: UUID
 
@@ -25,6 +24,8 @@ class KindToFlavorUpdate(KindToFlavorBase):
 
 
 class KindToFlavorInDBBase(KindToFlavorBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 

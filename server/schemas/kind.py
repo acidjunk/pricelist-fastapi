@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class KindBase(BoilerplateBaseModel):
-    id: UUID
     short_description_nl: str
     description_nl: str
     short_description_en: str
@@ -42,6 +41,7 @@ class KindUpdate(KindBase):
 
 
 class KindInDBBase(KindBase):
+    id: UUID
     created_at: datetime
     modified_at: Optional[datetime] = None
 

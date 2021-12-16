@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -6,8 +5,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class PriceBase(BoilerplateBaseModel):
-    id: Optional[UUID]  # todo: not sure if it's optional
-    # Int or string ? In shops.get_multi() is int in prices.get_multi() is str
     internal_product_id: str
     half: Optional[float]
     one: Optional[float]
@@ -31,6 +28,8 @@ class PriceUpdate(PriceBase):
 
 
 class PriceInDBBase(PriceBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 

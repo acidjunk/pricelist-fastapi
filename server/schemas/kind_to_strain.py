@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class KindToStrainBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     kind_id: UUID
     strain_id: UUID
 
@@ -25,6 +24,8 @@ class KindToStrainUpdate(KindToStrainBase):
 
 
 class KindToStrainInDBBase(KindToStrainBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 

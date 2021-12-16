@@ -45,9 +45,9 @@ class ShopToPriceUpdate(ShopToPriceBase):
 
 
 class ShopToPriceInDBBase(ShopToPriceBase):
+    id: UUID
     created_at: datetime
     modified_at: datetime
-    id: UUID
 
     class Config:
         orm_mode = True

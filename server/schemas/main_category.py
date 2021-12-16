@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class MainCategoryBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
 
     class Config:

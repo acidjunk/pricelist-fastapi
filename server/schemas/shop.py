@@ -6,7 +6,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class ShopBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
     description: str
 
@@ -36,6 +35,8 @@ class ShopUpdate(ShopBase):
 
 
 class ShopInDBBase(ShopBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 
