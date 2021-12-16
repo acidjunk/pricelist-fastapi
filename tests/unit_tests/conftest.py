@@ -329,7 +329,7 @@ def category_2(shop_1):
 
 @pytest.fixture
 def tag_1():
-    fixture = Tag(id=str(uuid.uuid4()), name="Giggly")
+    fixture = Tag(id=str(uuid.uuid4()), name="GigglyTest")
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -337,7 +337,7 @@ def tag_1():
 
 @pytest.fixture
 def tag_2():
-    fixture = Tag(id=str(uuid.uuid4()), name="Focused")
+    fixture = Tag(id=str(uuid.uuid4()), name="FocusedTest")
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -442,15 +442,53 @@ def product_1():
 
 
 @pytest.fixture
-def shop_with_products(shop_1, kind_1, kind_2, price_1, price_2, price_3, product_1):
-    shop_to_price1 = ShopToPrice(price_id=price_1.id, shop_id=shop_1.id, kind_id=kind_1.id)
-    shop_to_price2 = ShopToPrice(price_id=price_2.id, shop_id=shop_1.id, kind_id=kind_2.id)
-    shop_to_price3 = ShopToPrice(price_id=price_3.id, shop_id=shop_1.id, product_id=product_1.id)
+def product_2():
+    fixture_id = str(uuid.uuid4())
+    fixture = ProductsTable(
+        id=fixture_id,
+        name="Pepsi",
+        short_description_nl="Pepsi Light",
+        description_nl="niet zo goed als coca cola",
+        short_description_en="Pepsi Light",
+        description_en="Not as good as coca cola",
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_with_products(shop_1, kind_1, kind_2, price_1, price_2, price_3, product_1, category_1):
+    shop_to_price1 = ShopToPrice(price_id=price_1.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_1.id)
+    shop_to_price2 = ShopToPrice(price_id=price_2.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_2.id)
+    shop_to_price3 = ShopToPrice(
+        price_id=price_3.id, shop_id=shop_1.id, category_id=category_1.id, product_id=product_1.id
+    )
     db.session.add(shop_to_price1)
     db.session.add(shop_to_price2)
     db.session.add(shop_to_price3)
     db.session.commit()
     return shop_1
+
+
+@pytest.fixture
+def shop_to_price_1(shop_1, kind_1, price_1, category_1):
+    shop_to_price = ShopToPrice(
+        id=uuid.uuid4(), price_id=price_1.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_1.id
+    )
+    db.session.add(shop_to_price)
+    db.session.commit()
+    return shop_to_price
+
+
+@pytest.fixture
+def shop_to_price_2(shop_1, product_1, price_1, category_1):
+    shop_to_price = ShopToPrice(
+        id=uuid.uuid4(), price_id=price_1.id, shop_id=shop_1.id, category_id=category_1.id, product_id=product_1.id
+    )
+    db.session.add(shop_to_price)
+    db.session.commit()
+    return shop_to_price
 
 
 @pytest.fixture

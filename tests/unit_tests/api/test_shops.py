@@ -19,7 +19,6 @@ def test_shops_get_multi_with_slash(test_client, shop_1, shop_2):
 
 def test_shop_get_by_id(shop_1, test_client):
     response = test_client.get(f"/api/shops/{shop_1.id}")
-    print(response.__dict__)
     assert HTTPStatus.OK == response.status_code
     shop = response.json()
     assert shop["name"] == "Mississippi"

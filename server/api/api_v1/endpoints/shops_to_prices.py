@@ -64,7 +64,7 @@ def get_by_id(id: UUID) -> ShopToPriceInDBBase:
     return item
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: ShopToPriceCreate = Body(...)) -> None:
     logger.info("Saving shop to price relation", data=data)
     price = price_crud.get(data.price_id)
@@ -77,7 +77,7 @@ def create(data: ShopToPriceCreate = Body(...)) -> None:
         raise_status(HTTPStatus.NOT_FOUND, "Price or Shop not found")
 
     if (product and kind) or not product and not kind:
-        raise_status(HTTPStatus.BAD_REQUEST, "One Cannabis or one Horeca product has to be provided")
+        raise_status(HTTPStatus.BAD_REQUEST, "Either one Cannabis or one Horeca product has to be provided")
 
     if kind:
         check_query = shop_to_price_crud.check_relation_by_kind(shop_id=shop.id, price_id=price.id, kind_id=kind.id)
@@ -85,7 +85,9 @@ def create(data: ShopToPriceCreate = Body(...)) -> None:
             raise_status(HTTPStatus.CONFLICT, "Relation already exists")
 
     if product:
-        check_query = shop_to_price_crud.check_relation_by_product(shop_id=shop.id, price_id=price.id, kind_id=kind.id)
+        check_query = shop_to_price_crud.check_relation_by_product(
+            shop_id=shop.id, price_id=price.id, product_id=product.id
+        )
         if len(check_query) > 0:
             raise_status(HTTPStatus.CONFLICT, "Relation already exists")
 
