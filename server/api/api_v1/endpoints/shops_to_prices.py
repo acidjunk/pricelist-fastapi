@@ -85,7 +85,9 @@ def create(data: ShopToPriceCreate = Body(...)) -> None:
             raise_status(HTTPStatus.CONFLICT, "Relation already exists")
 
     if product:
-        check_query = shop_to_price_crud.check_relation_by_product(shop_id=shop.id, price_id=price.id, product_id=product.id)
+        check_query = shop_to_price_crud.check_relation_by_product(
+            shop_id=shop.id, price_id=price.id, product_id=product.id
+        )
         if len(check_query) > 0:
             raise_status(HTTPStatus.CONFLICT, "Relation already exists")
 
