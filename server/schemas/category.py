@@ -18,9 +18,6 @@ class CategoryBase(BoilerplateBaseModel):
     image_1: str
     image_2: str
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class CategoryCreate(CategoryBase):

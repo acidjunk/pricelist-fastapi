@@ -9,9 +9,6 @@ class KindToFlavorBase(BoilerplateBaseModel):
     kind_id: UUID
     flavor_id: UUID
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class KindToFlavorCreate(KindToFlavorBase):

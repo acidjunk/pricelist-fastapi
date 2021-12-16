@@ -26,9 +26,6 @@ class ShopToPriceBase(BoilerplateBaseModel):
     use_piece: bool = False
     piece: Optional[float] = None
 
-    class Config:
-        orm_mode = True
-
 
 class ShopToPriceAvailability(BoilerplateBaseModel):
     active: bool

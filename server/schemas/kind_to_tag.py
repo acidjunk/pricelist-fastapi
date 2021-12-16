@@ -9,9 +9,6 @@ class KindToTagBase(BoilerplateBaseModel):
     kind_id: UUID
     tag_id: UUID
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class KindToTagCreate(KindToTagBase):

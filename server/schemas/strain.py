@@ -7,9 +7,6 @@ from server.schemas.base import BoilerplateBaseModel
 class StrainBase(BoilerplateBaseModel):
     name: str
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class StrainCreate(StrainBase):

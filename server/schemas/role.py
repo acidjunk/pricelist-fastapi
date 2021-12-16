@@ -7,9 +7,6 @@ class RoleBase(BoilerplateBaseModel):
     name: str
     description: str
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class RoleCreate(RoleBase):

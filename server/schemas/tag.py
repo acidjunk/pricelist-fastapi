@@ -9,9 +9,6 @@ class TagBase(BoilerplateBaseModel):
     name: str
     amount: str  # todo: check type
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class TagCreate(TagBase):

@@ -11,29 +11,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from server.schemas.map import Map, MapCreate, MapUpdate
+from server.schemas.category import CategoryCreate, CategorySchema, CategoryUpdate
+from server.schemas.flavor import FlavorCreate, FlavorSchema, FlavorUpdate
+from server.schemas.kind import KindCreate, KindSchema, KindUpdate
+from server.schemas.kind_to_flavor import KindToFlavorCreate, KindToFlavorSchema, KindToFlavorUpdate
+from server.schemas.kind_to_strain import KindToStrainCreate, KindToStrainSchema, KindToStrainUpdate
+from server.schemas.kind_to_tag import KindToTagCreate, KindToTagSchema, KindToTagUpdate
+from server.schemas.main_category import MainCategoryCreate, MainCategorySchema, MainCategoryUpdate
 from server.schemas.msg import Msg
-from server.schemas.product import Product, ProductCreate, ProductUpdate
-from server.schemas.product_type import ProductType, ProductTypeCreate, ProductTypeUpdate
+from server.schemas.product import ProductCreate, ProductSchema, ProductUpdate
 from server.schemas.role import RoleCreate, RoleSchema, RoleUpdate
+from server.schemas.shop import ShopCreate, ShopSchema, ShopUpdate
+from server.schemas.shop_to_price import ShopToPriceCreate, ShopToPriceSchema, ShopToPriceUpdate
+from server.schemas.strain import StrainCreate, StrainSchema, StrainUpdate
+from server.schemas.table import TableCreate, TableSchema, TableUpdate
+from server.schemas.tag import TagCreate, TagSchema, TagUpdate
 from server.schemas.token import Token, TokenPayload
 from server.schemas.user import User, UserCreate, UserUpdate
 
 __all__ = (
-    "ProductType",
-    "ProductTypeCreate",
-    "ProductTypeUpdate",
-    "Product",
+    "FlavorCreate",
+    "FlavorUpdate",
+    "FlavorSchema",
+    "TagCreate",
+    "TagUpdate",
+    "TagSchema",
+    "CategoryCreate",
+    "CategoryUpdate",
+    "CategorySchema",
+    "MainCategoryCreate",
+    "MainCategoryUpdate",
+    "MainCategorySchema",
+    "ShopCreate",
+    "ShopUpdate",
+    "ShopSchema",
+    "ShopCreate",
+    "ShopUpdate",
+    "ShopSchema",
+    "ShopToPriceCreate",
+    "ShopToPriceUpdate",
+    "ShopToPriceSchema",
     "ProductCreate",
     "ProductUpdate",
+    "ProductSchema",
+    "KindCreate",
+    "KindUpdate",
+    "KindSchema",
+    "KindToFlavorCreate",
+    "KindToFlavorUpdate",
+    "KindToFlavorSchema",
+    "KindToTagCreate",
+    "KindToTagUpdate",
+    "KindToTagSchema",
+    "KindToStrainCreate",
+    "KindToStrainUpdate",
+    "KindToStrainSchema",
     "Token",
     "TokenPayload",
     "User",
     "UserCreate",
     "UserUpdate",
-    "Map",
-    "MapCreate",
-    "MapUpdate",
     "Msg",
     "RoleCreate",
     "RoleUpdate",

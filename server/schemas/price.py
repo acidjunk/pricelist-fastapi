@@ -13,9 +13,6 @@ class PriceBase(BoilerplateBaseModel):
     joint: Optional[float]
     piece: Optional[float]
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class PriceCreate(PriceBase):

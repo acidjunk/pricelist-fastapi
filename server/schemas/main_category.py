@@ -8,9 +8,6 @@ from server.schemas.base import BoilerplateBaseModel
 class MainCategoryBase(BoilerplateBaseModel):
     name: str
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class MainCategoryCreate(MainCategoryBase):

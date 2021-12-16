@@ -26,9 +26,6 @@ class KindBase(BoilerplateBaseModel):
     image_5: Optional[str] = None
     image_6: Optional[str] = None
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class KindCreate(KindBase):

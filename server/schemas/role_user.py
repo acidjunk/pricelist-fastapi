@@ -7,9 +7,6 @@ class RoleUserBase(BoilerplateBaseModel):
     user_id: UUID
     role_id: UUID
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class RoleUserCreate(RoleUserBase):

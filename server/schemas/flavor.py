@@ -10,9 +10,6 @@ class FlavorBase(BoilerplateBaseModel):
     icon: str
     color: Optional[str]
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive via API on creation
 class FlavorCreate(FlavorBase):
