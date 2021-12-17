@@ -35,13 +35,14 @@ def get_by_id(id: UUID) -> StrainSchema:
     return strain
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: StrainCreate = Body(...)) -> None:
     logger.info("Saving strain", data=data)
-    return strain_crud.create(obj_in=data)
+    strain = strain_crud.create(obj_in=data)
+    return strain
 
 
-@router.put("/{strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{strain_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, strain_id: UUID, item_in: StrainUpdate) -> Any:
     strain = strain_crud.get(id=strain_id)
     logger.info("domain_event", data=strain)

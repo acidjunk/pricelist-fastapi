@@ -34,7 +34,7 @@ def test_flavor_save(test_client, superuser_token_headers):
     body = {"name": "New Flavor", "icon": "New Icon", "color": "#ffffff"}
 
     response = test_client.post("/api/flavors/", data=json_dumps(body), headers=superuser_token_headers)
-    assert HTTPStatus.NO_CONTENT == response.status_code
+    assert HTTPStatus.CREATED == response.status_code
     flavors = test_client.get("/api/flavors", headers=superuser_token_headers).json()
     assert 48 == len(flavors)
 
@@ -42,7 +42,7 @@ def test_flavor_save(test_client, superuser_token_headers):
 def test_flavor_update(flavor_1, test_client, superuser_token_headers):
     body = {"name": "Updated Flavor", "icon": "moon", "color": "00fff0"}
     response = test_client.put(f"/api/flavors/{flavor_1.id}", data=json_dumps(body), headers=superuser_token_headers)
-    assert HTTPStatus.NO_CONTENT == response.status_code
+    assert HTTPStatus.CREATED == response.status_code
 
     response_updated = test_client.get(f"/api/flavors/{flavor_1.id}", headers=superuser_token_headers)
     flavor = response_updated.json()
