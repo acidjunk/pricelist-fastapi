@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -6,11 +5,7 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class StrainBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation

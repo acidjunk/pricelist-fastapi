@@ -6,11 +6,7 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class MainCategoryBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation

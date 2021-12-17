@@ -18,8 +18,8 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=List[FlavorBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[FlavorBase]:
+@router.get("/", response_model=List[FlavorSchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[FlavorSchema]:
     flavors, header_range = flavor_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )

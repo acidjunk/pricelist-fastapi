@@ -6,12 +6,8 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class TagBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
     amount: str  # todo: check type
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation

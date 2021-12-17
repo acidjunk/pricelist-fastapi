@@ -1,29 +1,30 @@
-# Copyright 2019-2020 SURF.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
 
 
 class ProductBase(BoilerplateBaseModel):
-    name: str
-    description: str
-    # product_type: str
-
-    class Config:
-        orm_mode = True
+    short_description_nl: str
+    description_nl: str
+    short_description_en: str
+    description_en: str
+    c: bool = False
+    h: bool = False
+    i: bool = False
+    s: bool = False
+    complete: bool = False
+    approved_at: Optional[datetime] = None
+    approved: bool = False
+    approved_by: Optional[str] = None
+    disapproved_reason: Optional[str] = None
+    image_1: Optional[str] = None
+    image_2: Optional[str] = None
+    image_3: Optional[str] = None
+    image_4: Optional[str] = None
+    image_5: Optional[str] = None
+    image_6: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -39,11 +40,12 @@ class ProductUpdate(ProductBase):
 class ProductInDBBase(ProductBase):
     id: UUID
     created_at: datetime
+    modified_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
 
 
 # Additional properties to return via API
-class Product(ProductInDBBase):
+class ProductSchema(ProductInDBBase):
     pass

@@ -6,13 +6,9 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class FlavorBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
     icon: str
     color: Optional[str]
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation

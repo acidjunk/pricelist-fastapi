@@ -13,15 +13,15 @@ from server.api.error_handling import raise_status
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_kind_to_strain import kind_to_strain_crud
 from server.crud.crud_strain import strain_crud
-from server.schemas.kind_to_strain import KindToStrainBase, KindToStrainCreate, KindToStrainUpdate
+from server.schemas.kind_to_strain import KindToStrainCreate, KindToStrainSchema, KindToStrainUpdate
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[KindToStrainBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[KindToStrainBase]:
+@router.get("/", response_model=List[KindToStrainSchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[KindToStrainSchema]:
     """List prices for a kind_to_strain"""
     query_result, content_range = kind_to_strain_crud.get_multi(
         skip=common["skip"],
@@ -33,8 +33,8 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return query_result
 
 
-@router.get("/{id}", response_model=KindToStrainBase)
-def get_by_id(id: UUID) -> KindToStrainBase:
+@router.get("/{id}", response_model=KindToStrainSchema)
+def get_by_id(id: UUID) -> KindToStrainSchema:
     kind_to_strain = kind_to_strain_crud.get(id)
     if not kind_to_strain:
         raise_status(HTTPStatus.NOT_FOUND, f"KindToStrain with id {id} not found")

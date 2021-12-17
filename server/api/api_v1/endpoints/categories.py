@@ -10,51 +10,51 @@ from starlette.responses import Response
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
-from server.crud.crud_strain import strain_crud
-from server.schemas.strain import MainCategoryBase, MainCategoryCreate, MainCategorySchema, MainCategoryUpdate
+from server.crud.crud_category import category_crud
+from server.schemas.category import CategoryBase, CategoryCreate, CategorySchema, CategoryUpdate
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[MainCategoryBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[MainCategoryBase]:
-    strains, header_range = strain_crud.get_multi(
+@router.get("/", response_model=List[CategorySchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[CategorySchema]:
+    categories, header_range = category_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )
     response.headers["Content-Range"] = header_range
-    return strains
+    return categories
 
 
-@router.get("/{id}", response_model=MainCategorySchema)
-def get_by_id(id: UUID) -> MainCategorySchema:
-    strain = strain_crud.get(id)
-    if not strain:
-        raise_status(HTTPStatus.NOT_FOUND, f"MainCategory with id {id} not found")
-    return strain
+@router.get("/{id}", response_model=CategorySchema)
+def get_by_id(id: UUID) -> CategorySchema:
+    category = category_crud.get(id)
+    if not category:
+        raise_status(HTTPStatus.NOT_FOUND, f"Category with id {id} not found")
+    return category
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def create(data: MainCategoryCreate = Body(...)) -> None:
-    logger.info("Saving strain", data=data)
-    return strain_crud.create(obj_in=data)
+def create(data: CategoryCreate = Body(...)) -> None:
+    logger.info("Saving category", data=data)
+    return category_crud.create(obj_in=data)
 
 
-@router.put("/{strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def update(*, strain_id: UUID, item_in: MainCategoryUpdate) -> Any:
-    strain = strain_crud.get(id=strain_id)
-    logger.info("domain_event", data=strain)
-    if not strain:
-        raise HTTPException(status_code=404, detail="MainCategory not found")
+@router.put("/{category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def update(*, category_id: UUID, item_in: CategoryUpdate) -> Any:
+    category = category_crud.get(id=category_id)
+    logger.info("domain_event", data=category)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
 
-    strain = strain_crud.update(
-        db_obj=strain,
+    category = category_crud.update(
+        db_obj=category,
         obj_in=item_in,
     )
-    return strain
+    return category
 
 
-@router.delete("/{strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def delete(strain_id: UUID) -> None:
-    return strain_crud.delete(id=strain_id)
+@router.delete("/{category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def delete(category_id: UUID) -> None:
+    return category_crud.delete(id=category_id)

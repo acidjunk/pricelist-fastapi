@@ -18,7 +18,7 @@ from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
-    ShopToPriceInDBBase,
+    ShopToPriceSchema,
     ShopToPriceUpdate,
 )
 
@@ -27,8 +27,8 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=List[ShopToPriceInDBBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopToPriceInDBBase]:
+@router.get("/", response_model=List[ShopToPriceSchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopToPriceSchema]:
     """List prices for a shop"""
     query_result, content_range = shop_to_price_crud.get_multi(
         skip=common["skip"],
@@ -49,8 +49,8 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return query_result
 
 
-@router.get("/{id}", response_model=ShopToPriceInDBBase)
-def get_by_id(id: UUID) -> ShopToPriceInDBBase:
+@router.get("/{id}", response_model=ShopToPriceSchema)
+def get_by_id(id: UUID) -> ShopToPriceSchema:
     item = shop_to_price_crud.get(id)
     if not item:
         raise_status(HTTPStatus.NOT_FOUND, f"Relation shop_to_price with id {id} not found")

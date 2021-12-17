@@ -1,26 +1,25 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
 
 
-class KindToStrainBase(BoilerplateBaseModel):
-    kind_id: UUID
-    strain_id: UUID
+class TableBase(BoilerplateBaseModel):
+    shop_id: UUID
+    name: str
 
 
 # Properties to receive via API on creation
-class KindToStrainCreate(KindToStrainBase):
+class TableCreate(TableBase):
     pass
 
 
 # Properties to receive via API on update
-class KindToStrainUpdate(KindToStrainBase):
+class TableUpdate(TableBase):
     pass
 
 
-class KindToStrainInDBBase(KindToStrainBase):
+class TableInDBBase(TableBase):
     id: UUID
 
     class Config:
@@ -28,5 +27,5 @@ class KindToStrainInDBBase(KindToStrainBase):
 
 
 # Additional properties to return via API
-class KindToStrainSchema(KindToStrainInDBBase):
+class TableSchema(TableInDBBase):
     pass

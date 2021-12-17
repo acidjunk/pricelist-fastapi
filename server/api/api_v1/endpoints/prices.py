@@ -11,15 +11,15 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_price import price_crud
-from server.schemas.price import PriceBase, PriceCreate, PriceUpdate
+from server.schemas.price import PriceCreate, PriceSchema, PriceUpdate
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[PriceBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[PriceBase]:
+@router.get("/", response_model=List[PriceSchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[PriceSchema]:
     prices, header_range = price_crud.get_multi(
         skip=common["skip"],
         limit=common["limit"],
@@ -30,8 +30,8 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return prices
 
 
-@router.get("/{id}", response_model=PriceBase)
-def get_by_id(id: UUID) -> PriceBase:
+@router.get("/{id}", response_model=PriceSchema)
+def get_by_id(id: UUID) -> PriceSchema:
     price = price_crud.get(id)
     if not price:
         raise_status(HTTPStatus.NOT_FOUND, f"Price with id {id} not found")

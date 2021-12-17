@@ -26,9 +26,6 @@ class ShopToPriceBase(BoilerplateBaseModel):
     use_piece: bool = False
     piece: Optional[float] = None
 
-    class Config:
-        orm_mode = True
-
 
 class ShopToPriceAvailability(BoilerplateBaseModel):
     active: bool
@@ -45,9 +42,9 @@ class ShopToPriceUpdate(ShopToPriceBase):
 
 
 class ShopToPriceInDBBase(ShopToPriceBase):
+    id: UUID
     created_at: datetime
     modified_at: datetime
-    id: UUID
 
     class Config:
         orm_mode = True

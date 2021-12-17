@@ -6,12 +6,8 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class KindToTagBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     kind_id: UUID
     tag_id: UUID
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation
@@ -25,6 +21,8 @@ class KindToTagUpdate(KindToTagBase):
 
 
 class KindToTagInDBBase(KindToTagBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 

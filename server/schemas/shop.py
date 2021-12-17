@@ -6,23 +6,8 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class ShopBase(BoilerplateBaseModel):
-    id: Optional[UUID]
     name: str
     description: str
-
-    class Config:
-        orm_mode = True
-
-
-class ShopWithPrices(ShopBase):
-    prices: List[dict]
-
-
-class ShopCacheStatus(BoilerplateBaseModel):
-    modified_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True
 
 
 # Properties to receive via API on creation
@@ -36,6 +21,8 @@ class ShopUpdate(ShopBase):
 
 
 class ShopInDBBase(ShopBase):
+    id: UUID
+
     class Config:
         orm_mode = True
 
@@ -43,3 +30,11 @@ class ShopInDBBase(ShopBase):
 # Additional properties to return via API
 class ShopSchema(ShopInDBBase):
     pass
+
+
+class ShopWithPrices(ShopInDBBase):
+    prices: List[dict]
+
+
+class ShopCacheStatus(ShopInDBBase):
+    modified_at: Optional[datetime]

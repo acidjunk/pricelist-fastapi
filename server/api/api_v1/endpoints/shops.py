@@ -13,14 +13,14 @@ from server.api.error_handling import raise_status
 from server.apis.v1.helpers import load
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-from server.schemas.shop import ShopBase, ShopCacheStatus, ShopCreate, ShopUpdate, ShopWithPrices
+from server.schemas.shop import ShopCacheStatus, ShopCreate, ShopSchema, ShopUpdate, ShopWithPrices
 
 router = APIRouter()
 logger = structlog.get_logger(__name__)
 
 
-@router.get("/", response_model=List[ShopBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopBase]:
+@router.get("/", response_model=List[ShopSchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopSchema]:
     shops, header_range = shop_crud.get_multi(
         skip=common["skip"],
         limit=common["limit"],
@@ -31,8 +31,8 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return shops
 
 
-@router.post("/", response_model=ShopCreate, status_code=HTTPStatus.CREATED)
-def create(data: ShopCreate = Body(...)) -> None:
+@router.post("/", response_model=ShopSchema, status_code=HTTPStatus.CREATED)
+def create(data: ShopCreate = Body(...)) -> ShopSchema:
     logger.info("Saving shop", data=data)
     shop = shop_crud.create(obj_in=data)
     return shop
@@ -106,7 +106,7 @@ def get_by_id(id: UUID):
     return item
 
 
-@router.put("/{shop_id}", response_model=ShopBase, status_code=HTTPStatus.CREATED)
+@router.put("/{shop_id}", response_model=ShopSchema, status_code=HTTPStatus.CREATED)
 def update(*, shop_id: UUID, item_in: ShopUpdate) -> None:
     shop = shop_crud.get(id=shop_id)
     logger.info("shop", data=shop)
