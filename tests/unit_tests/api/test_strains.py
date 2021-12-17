@@ -34,7 +34,7 @@ def test_strain_save(test_client, superuser_token_headers):
     body = {"name": "New Strain"}
 
     response = test_client.post("/api/strains/", data=json_dumps(body), headers=superuser_token_headers)
-    assert HTTPStatus.NO_CONTENT == response.status_code
+    assert HTTPStatus.CREATED == response.status_code
     strains = test_client.get("/api/strains", headers=superuser_token_headers).json()
     assert 1 == len(strains)
 
@@ -42,7 +42,7 @@ def test_strain_save(test_client, superuser_token_headers):
 def test_strain_update(strain_1, test_client, superuser_token_headers):
     body = {"name": "Updated Strain"}
     response = test_client.put(f"/api/strains/{strain_1.id}", data=json_dumps(body), headers=superuser_token_headers)
-    assert HTTPStatus.NO_CONTENT == response.status_code
+    assert HTTPStatus.CREATED == response.status_code
 
     response_updated = test_client.get(f"/api/strains/{strain_1.id}", headers=superuser_token_headers)
     strain = response_updated.json()

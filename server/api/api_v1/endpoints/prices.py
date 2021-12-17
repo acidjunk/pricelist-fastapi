@@ -38,13 +38,14 @@ def get_by_id(id: UUID) -> PriceSchema:
     return price
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: PriceCreate = Body(...)) -> None:
     logger.info("Saving price", data=data)
-    return price_crud.create(obj_in=data)
+    price = price_crud.create(obj_in=data)
+    return price
 
 
-@router.put("/{price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{price_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, price_id: UUID, item_in: PriceUpdate) -> Any:
     price = price_crud.get(id=price_id)
     logger.info("price", data=price)

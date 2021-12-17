@@ -35,13 +35,14 @@ def get_by_id(id: UUID) -> FlavorSchema:
     return flavor
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: FlavorCreate = Body(...)) -> None:
     logger.info("Saving flavor", data=data)
-    return flavor_crud.create(obj_in=data)
+    flavor = flavor_crud.create(obj_in=data)
+    return flavor
 
 
-@router.put("/{flavor_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{flavor_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, flavor_id: UUID, item_in: FlavorUpdate) -> Any:
     flavor = flavor_crud.get(id=flavor_id)
     logger.info("domain_event", data=flavor)
