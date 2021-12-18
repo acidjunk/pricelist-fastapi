@@ -6,16 +6,16 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class KindBase(BoilerplateBaseModel):
-    short_description_nl: str
-    description_nl: str
-    short_description_en: str
-    description_en: str
+    name: str
+    short_description_nl: Optional[str] = None
+    description_nl: Optional[str] = None
+    short_description_en: Optional[str] = None
+    description_en: Optional[str] = None
     c: bool = False
     h: bool = False
     i: bool = False
     s: bool = False
     complete: bool = False
-    approved_at: Optional[datetime] = None
     approved: bool = False
     approved_by: Optional[str] = None
     disapproved_reason: Optional[str] = None
@@ -41,6 +41,7 @@ class KindInDBBase(KindBase):
     id: UUID
     created_at: datetime
     modified_at: Optional[datetime] = None
+    approved_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True

@@ -11,7 +11,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_flavor import flavor_crud
-from server.schemas.flavor import FlavorBase, FlavorCreate, FlavorSchema, FlavorUpdate
+from server.schemas.flavor import FlavorCreate, FlavorSchema, FlavorUpdate
 
 logger = structlog.get_logger(__name__)
 

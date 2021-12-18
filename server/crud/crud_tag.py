@@ -1,10 +1,10 @@
 from server.crud.base import CRUDBase
 from server.db.models import Tag
-from server.schemas.flavor import TagCreate, TagUpdate
+from server.schemas.tag import TagCreate, TagUpdate
 
 
 class CRUDTag(CRUDBase[Tag, TagCreate, TagUpdate]):
     pass
 
 
-flavor_crud = CRUDTag(Tag)
+tag_crud = CRUDTag(Tag)

@@ -11,15 +11,15 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_main_category import main_category_crud
-from server.schemas.main_category import MainCategoryBase, MainCategoryCreate, MainCategorySchema, MainCategoryUpdate
+from server.schemas.main_category import MainCategoryCreate, MainCategorySchema, MainCategoryUpdate
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[MainCategoryBase])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[MainCategoryBase]:
+@router.get("/", response_model=List[MainCategorySchema])
+def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[MainCategorySchema]:
     main_categories, header_range = main_category_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )

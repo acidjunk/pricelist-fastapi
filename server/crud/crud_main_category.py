@@ -7,4 +7,4 @@ class CRUDMainCategory(CRUDBase[MainCategory, MainCategoryCreate, MainCategoryUp
     pass
 
 
-category_crud = CRUDMainCategory(MainCategory)
+main_category_crud = CRUDMainCategory(MainCategory)

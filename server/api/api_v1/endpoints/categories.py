@@ -11,7 +11,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_category import category_crud
-from server.schemas.category import CategoryBase, CategoryCreate, CategorySchema, CategoryUpdate
+from server.schemas.category import CategoryCreate, CategorySchema, CategoryUpdate
 
 logger = structlog.get_logger(__name__)
 
