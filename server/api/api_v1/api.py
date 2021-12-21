@@ -22,11 +22,11 @@ from server.api.api_v1.endpoints import (
     health,
     kinds,
     kinds_to_flavors,
-    kinds_to_tags,
     kinds_to_strains,
-    products,
+    kinds_to_tags,
     login,
     prices,
+    products,
     shops,
     shops_to_prices,
     strains,
@@ -50,7 +50,7 @@ api_router.include_router(
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    products.router, prefix="/products", tags=["products"], dependencies=[Depends(deps.get_current_active_superuser)]
+    products.router, prefix="/products", tags=["products"]
 )  # todo handle auth in edpoint itself (id is fetachable; rest is admin)
 api_router.include_router(
     kinds.router, prefix="/kinds", tags=["kinds"]

@@ -7,6 +7,7 @@ from deepdiff import DeepSearch, grep  # For finding if item exists in an object
 
 from server.utils.json import json_dumps
 from tests.acceptance_tests.acceptance_settings import acceptance_settings
+from tests.acceptance_tests.helpers import get_difference_in_json_list
 
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI
 ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
@@ -22,13 +23,13 @@ def test_shops_get_multi():
 
 
 def test_shops_full():
-    response_prd = requests.get(PRD_BACKEND_URI + "shops").json()
-    response_acc = requests.get(ACC_BACKEND_URI + "shops").json()
-    assert len(response_prd) == len(response_acc)
+    response_multi_prd = requests.get(PRD_BACKEND_URI + "shops").json()
+    response_multi_acc = requests.get(ACC_BACKEND_URI + "shops").json()
+    assert len(response_multi_prd) == len(response_multi_acc)
     shops_ids = []
-    ddiff = DeepDiff(response_acc, response_prd, ignore_order=True)
+    ddiff = DeepDiff(response_multi_acc, response_multi_prd, ignore_order=True)
     assert ddiff == {}
-    for shop in response_prd:
+    for shop in response_multi_prd:
         shops_ids.append(shop["id"])
 
     for shop_id in shops_ids:
@@ -38,13 +39,7 @@ def test_shops_full():
         prd_prices = response_prd["prices"]
 
         assert len(acc_prices) == len(prd_prices)
-        prices_differences = []
-        for prd_price in prd_prices:
-            for acc_price in acc_prices:
-                if prd_price["id"] == acc_price["id"]:
-                    price_diff = DeepDiff(prd_price, acc_price, ignore_order=True)
-                    if price_diff != {}:
-                        prices_differences.append(price_diff.tree)
+        prices_differences = get_difference_in_json_list(acc_prices, prd_prices)
 
         assert len(prices_differences) == 0
 
