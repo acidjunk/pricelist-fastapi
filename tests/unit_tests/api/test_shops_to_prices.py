@@ -22,7 +22,7 @@ def test_shop_to_price_get_by_id_not_found(test_client, shop_to_price_1):
 
 
 def test_shops_to_prices_create_with_nonexistent_product(
-    test_client, price_3, shop_with_products, category_1, product_2
+    test_client, price_3, shop_with_products, category_1, product_2, superuser_token_headers
 ):
     body = {
         "active": True,
@@ -38,11 +38,13 @@ def test_shops_to_prices_create_with_nonexistent_product(
         "use_joint": True,
         "use_piece": True,
     }
-    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body))
+    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body), headers=superuser_token_headers)
     assert response.status_code == HTTPStatus.CREATED
 
 
-def test_shops_to_prices_create_with_existing_product(test_client, price_3, shop_with_products, category_1, product_1):
+def test_shops_to_prices_create_with_existing_product(
+    test_client, price_3, shop_with_products, category_1, product_1, superuser_token_headers
+):
     body = {
         "active": True,
         "new": False,
@@ -57,11 +59,13 @@ def test_shops_to_prices_create_with_existing_product(test_client, price_3, shop
         "use_joint": True,
         "use_piece": True,
     }
-    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body))
+    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body), headers=superuser_token_headers)
     assert response.status_code == HTTPStatus.CONFLICT
 
 
-def test_shops_to_prices_create_with_both_product_and_kind(test_client, price_3, shop_1, category_1, product_1, kind_1):
+def test_shops_to_prices_create_with_both_product_and_kind(
+    test_client, price_3, shop_1, category_1, product_1, kind_1, superuser_token_headers
+):
     body = {
         "active": True,
         "new": False,
@@ -77,11 +81,13 @@ def test_shops_to_prices_create_with_both_product_and_kind(test_client, price_3,
         "use_joint": True,
         "use_piece": True,
     }
-    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body))
+    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body), headers=superuser_token_headers)
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_shops_to_prices_create_without_any_product_or_kind(test_client, price_3, shop_1, category_1):
+def test_shops_to_prices_create_without_any_product_or_kind(
+    test_client, price_3, shop_1, category_1, superuser_token_headers
+):
     body = {
         "active": True,
         "new": False,
@@ -95,11 +101,11 @@ def test_shops_to_prices_create_without_any_product_or_kind(test_client, price_3
         "use_joint": True,
         "use_piece": True,
     }
-    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body))
+    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body), headers=superuser_token_headers)
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_shops_to_prices_create_shop_not_found(test_client, price_3, category_1, product_2):
+def test_shops_to_prices_create_shop_not_found(test_client, price_3, category_1, product_2, superuser_token_headers):
     body = {
         "active": True,
         "new": False,
@@ -114,11 +120,11 @@ def test_shops_to_prices_create_shop_not_found(test_client, price_3, category_1,
         "use_joint": True,
         "use_piece": True,
     }
-    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body))
+    response = test_client.post(f"/api/shops-to-prices", data=json_dumps(body), headers=superuser_token_headers)
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_shops_to_prices_update(test_client, shop_to_price_2, product_2):
+def test_shops_to_prices_update(test_client, shop_to_price_2, product_2, superuser_token_headers):
     body = {
         "active": shop_to_price_2.active,
         "new": shop_to_price_2.new,
@@ -133,15 +139,17 @@ def test_shops_to_prices_update(test_client, shop_to_price_2, product_2):
         "use_joint": shop_to_price_2.use_joint,
         "use_piece": shop_to_price_2.use_piece,
     }
-    response = test_client.put(f"/api/shops-to-prices/{shop_to_price_2.id}", data=json_dumps(body))
+    response = test_client.put(
+        f"/api/shops-to-prices/{shop_to_price_2.id}", data=json_dumps(body), headers=superuser_token_headers
+    )
     assert response.status_code == HTTPStatus.NO_CONTENT
-    updated_response = test_client.get(f"/api/shops-to-prices/{shop_to_price_2.id}")
+    updated_response = test_client.get(f"/api/shops-to-prices/{shop_to_price_2.id}", headers=superuser_token_headers)
     updated_shop_to_price = updated_response.json()
     assert updated_shop_to_price["product_id"] == str(product_2.id)
 
 
-def test_shops_to_prices_delete(test_client, shop_to_price_1):
-    response = test_client.delete(f"/api/shops-to-prices/{shop_to_price_1.id}")
+def test_shops_to_prices_delete(test_client, shop_to_price_1, superuser_token_headers):
+    response = test_client.delete(f"/api/shops-to-prices/{shop_to_price_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code
     shops_to_prices = test_client.get("/api/shops-to-prices").json()
     assert 0 == len(shops_to_prices)

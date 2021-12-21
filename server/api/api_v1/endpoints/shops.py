@@ -7,12 +7,13 @@ from fastapi import HTTPException
 from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
 
+from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.apis.v1.helpers import load
 from server.crud.crud_shop import shop_crud
-from server.db.models import Category, Price, Shop, ShopToPrice
+from server.db.models import Category, Price, Shop, ShopToPrice, UsersTable
 from server.schemas.shop import ShopCacheStatus, ShopCreate, ShopSchema, ShopUpdate, ShopWithPrices
 
 router = APIRouter()
@@ -32,7 +33,9 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
 
 
 @router.post("/", response_model=ShopSchema, status_code=HTTPStatus.CREATED)
-def create(data: ShopCreate = Body(...)) -> ShopSchema:
+def create(
+    data: ShopCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+) -> ShopSchema:
     logger.info("Saving shop", data=data)
     shop = shop_crud.create(obj_in=data)
     return shop
@@ -107,7 +110,9 @@ def get_by_id(id: UUID):
 
 
 @router.put("/{shop_id}", response_model=ShopSchema, status_code=HTTPStatus.CREATED)
-def update(*, shop_id: UUID, item_in: ShopUpdate) -> None:
+def update(
+    *, shop_id: UUID, item_in: ShopUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+) -> None:
     shop = shop_crud.get(id=shop_id)
     logger.info("Updating shop", data=shop)
     if not shop:
@@ -121,5 +126,5 @@ def update(*, shop_id: UUID, item_in: ShopUpdate) -> None:
 
 
 @router.delete("/{shop_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def delete(shop_id: UUID) -> None:
+def delete(shop_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
     return shop_crud.delete(id=shop_id)
