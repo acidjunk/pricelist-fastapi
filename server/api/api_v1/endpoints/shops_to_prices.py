@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
 
+from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
@@ -16,6 +17,7 @@ from server.crud.crud_price import price_crud
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
+from server.db.models import UsersTable
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
@@ -66,7 +68,9 @@ def get_by_id(id: UUID) -> ShopToPriceSchema:
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
-def create(data: ShopToPriceCreate = Body(...)) -> None:
+def create(
+    data: ShopToPriceCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+) -> None:
     logger.info("Saving shop to price relation", data=data)
     price = price_crud.get(data.price_id)
     shop = shop_crud.get(data.shop_id)
@@ -113,7 +117,12 @@ def create(data: ShopToPriceCreate = Body(...)) -> None:
 
 
 @router.put("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def update(*, shop_to_price_id: UUID, item_in: ShopToPriceUpdate) -> Any:
+def update(
+    *,
+    shop_to_price_id: UUID,
+    item_in: ShopToPriceUpdate,
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
     logger.info("Updating shop_to_price", data=shop_to_price)
@@ -140,7 +149,12 @@ def update(*, shop_to_price_id: UUID, item_in: ShopToPriceUpdate) -> Any:
 
 
 @router.put("/availability/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def update(*, shop_to_price_id: UUID, item_in: ShopToPriceAvailability) -> Any:
+def update(
+    *,
+    shop_to_price_id: UUID,
+    item_in: ShopToPriceAvailability,
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
     return shop_crud.update(
@@ -150,5 +164,5 @@ def update(*, shop_to_price_id: UUID, item_in: ShopToPriceAvailability) -> Any:
 
 
 @router.delete("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def delete(shop_to_price_id: UUID) -> None:
+def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
     return shop_to_price_crud.delete(id=shop_to_price_id)
