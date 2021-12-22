@@ -53,22 +53,20 @@ def create(data: KindToStrainCreate = Body(...)) -> None:
     return kind_to_strain_crud.create(obj_in=data)
 
 
-#
-#
-# @router.put("/{kind_to_strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-# def update(*, kind_to_strain_id: UUID, item_in: KindToStrainUpdate) -> Any:
-#     kind_to_strain = kind_to_strain_crud.get(id=kind_to_strain_id)
-#     logger.info("kind_to_strain", data=kind_to_strain)
-#     if not kind_to_strain:
-#         raise HTTPException(status_code=404, detail="Shop not found")
-#
-#     kind_to_strain = kind_to_strain_crud.update(
-#         db_obj=kind_to_strain,
-#         obj_in=item_in,
-#     )
-#     return kind_to_strain
-#
-#
-# @router.delete("/{kind_to_strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-# def delete(kind_to_strain_id: UUID) -> None:
-#     return kind_to_strain_crud.delete(id=kind_to_strain_id)
+@router.put("/{kind_to_strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def update(*, kind_to_strain_id: UUID, item_in: KindToStrainUpdate) -> Any:
+    kind_to_strain = kind_to_strain_crud.get(id=kind_to_strain_id)
+    logger.info("Updating kind_to_strain", data=kind_to_strain)
+    if not kind_to_strain:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    kind_to_strain = kind_to_strain_crud.update(
+        db_obj=kind_to_strain,
+        obj_in=item_in,
+    )
+    return kind_to_strain
+
+
+@router.delete("/{kind_to_strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def delete(kind_to_strain_id: UUID) -> None:
+    return kind_to_strain_crud.delete(id=kind_to_strain_id)

@@ -11,18 +11,27 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_category import category_crud
-from server.schemas.category import CategoryCreate, CategorySchema, CategoryUpdate
+from server.schemas.category import CategoryCreate, CategorySchema, CategoryUpdate, CategoryWithNames
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CategorySchema])
+# Todo: fix filtering on shop_id
+
+
+@router.get("/", response_model=List[CategoryWithNames])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[CategorySchema]:
     categories, header_range = category_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )
+    for category in categories:
+        category.main_category_name = category.main_category.name if category.main_category else "Unknown"
+        category.main_category_name_en = category.main_category.name_en if category.main_category else "Unknown"
+        category.shop_name = category.shop.name
+        category.category_and_shop = f"{category.name} in {category.shop.name}"
+
     response.headers["Content-Range"] = header_range
     return categories
 
@@ -44,7 +53,7 @@ def create(data: CategoryCreate = Body(...)) -> None:
 @router.put("/{category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def update(*, category_id: UUID, item_in: CategoryUpdate) -> Any:
     category = category_crud.get(id=category_id)
-    logger.info("domain_event", data=category)
+    logger.info("Updating category", data=category)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 

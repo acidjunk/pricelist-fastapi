@@ -17,6 +17,7 @@ from fastapi import Depends
 
 from server.api import deps
 from server.api.api_v1.endpoints import (
+    categories,
     categories_images,
     flavors,
     health,
@@ -25,11 +26,14 @@ from server.api.api_v1.endpoints import (
     kinds_to_strains,
     kinds_to_tags,
     login,
+    main_categories,
     prices,
     products,
     shops,
     shops_to_prices,
     strains,
+    tables,
+    tags,
     users,
 )
 from server.api.api_v1.router_fix import APIRouter
@@ -44,17 +48,25 @@ api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
 api_router.include_router(shops_to_prices.router, prefix="/shops-to-prices", tags=["shops-to-prices"])
 api_router.include_router(
+    main_categories.router,
+    prefix="/main-categories",
+    tags=["main-categories"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)
+api_router.include_router(
+    categories.router,
+    prefix="/categories",
+    tags=["categories"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)
+api_router.include_router(
     categories_images.router,
     prefix="/categories-images",
     tags=["categories-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
-api_router.include_router(
-    products.router, prefix="/products", tags=["products"]
-)  # todo handle auth in edpoint itself (id is fetachable; rest is admin)
-api_router.include_router(
-    kinds.router, prefix="/kinds", tags=["kinds"]
-)  # todo handle auth in edpoint itself (id is fetachable; rest is admin)
+api_router.include_router(products.router, prefix="/products", tags=["products"])
+api_router.include_router(kinds.router, prefix="/kinds", tags=["kinds"])
 api_router.include_router(
     kinds_to_flavors.router,
     prefix="/kinds-to-flavors",
@@ -75,6 +87,12 @@ api_router.include_router(
 )
 api_router.include_router(
     strains.router, prefix="/strains", tags=["strains"], dependencies=[Depends(deps.get_current_active_superuser)]
+)
+api_router.include_router(
+    tags.router, prefix="/tags", tags=["tags"], dependencies=[Depends(deps.get_current_active_superuser)]
+)
+api_router.include_router(
+    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
     flavors.router, prefix="/flavors", tags=["flavors"], dependencies=[Depends(deps.get_current_active_superuser)]

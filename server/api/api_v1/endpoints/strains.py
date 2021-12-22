@@ -45,7 +45,7 @@ def create(data: StrainCreate = Body(...)) -> None:
 @router.put("/{strain_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, strain_id: UUID, item_in: StrainUpdate) -> Any:
     strain = strain_crud.get(id=strain_id)
-    logger.info("domain_event", data=strain)
+    logger.info("Updating strain", data=strain)
     if not strain:
         raise HTTPException(status_code=404, detail="Strain not found")
 

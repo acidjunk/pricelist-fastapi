@@ -48,7 +48,7 @@ def create(data: PriceCreate = Body(...)) -> None:
 @router.put("/{price_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, price_id: UUID, item_in: PriceUpdate) -> Any:
     price = price_crud.get(id=price_id)
-    logger.info("price", data=price)
+    logger.info("Updating price", data=price)
     if not price:
         raise HTTPException(status_code=404, detail="Price not found")
 

@@ -7,7 +7,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 class TagBase(BoilerplateBaseModel):
     name: str
-    amount: str  # todo: check type
 
 
 # Properties to receive via API on creation

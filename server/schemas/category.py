@@ -6,17 +6,17 @@ from server.schemas.base import BoilerplateBaseModel
 
 
 class CategoryBase(BoilerplateBaseModel):
-    id: UUID
-    shop_id: str
-    main_category_id: str
+    shop_id: UUID
+    main_category_id: Optional[UUID] = None
     name: str
     name_en: Optional[str] = None
-    description: str
+    description: Optional[str] = None
+    color: str
     icon: Optional[str] = None
-    order_number: int = 0
+    order_number: Optional[int] = None
     cannabis: bool = False
-    image_1: str
-    image_2: str
+    image_1: Optional[str] = None
+    image_2: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -30,8 +30,7 @@ class CategoryUpdate(CategoryBase):
 
 
 class CategoryInDBBase(CategoryBase):
-    created_at: datetime
-    modified_at: Optional[datetime] = None
+    id: UUID
 
     class Config:
         orm_mode = True
@@ -40,3 +39,9 @@ class CategoryInDBBase(CategoryBase):
 # Additional properties to return via API
 class CategorySchema(CategoryInDBBase):
     pass
+
+
+class CategoryWithNames(CategoryInDBBase):
+    main_category_name: str
+    main_category_name_en: Optional[str] = None
+    shop_name: str

@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from server import schemas, security
 from server.api import deps
-from server.crud import user_crud
+from server.crud.crud_user import user_crud
 from server.db import db
 from server.db.models import UsersTable
 from server.security import get_password_hash

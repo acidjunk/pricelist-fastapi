@@ -18,7 +18,7 @@ from sqlalchemy.exc import OperationalError
 
 from server.api.api_v1.router_fix import APIRouter
 from server.api.error_handling import raise_status
-from server.crud import user_crud
+from server.crud.crud_user import user_crud
 from server.db import ProductsTable
 from server.schemas import UserCreate
 from server.settings import app_settings

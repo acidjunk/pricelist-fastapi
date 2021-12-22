@@ -53,7 +53,7 @@ def update(
     *, kind_id: UUID, item_in: KindUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ) -> Any:
     kind = kind_crud.get(id=kind_id)
-    logger.info("domain_event", data=kind)
+    logger.info("Updating kind", data=kind)
     if not kind:
         raise HTTPException(status_code=404, detail="Kind not found")
 

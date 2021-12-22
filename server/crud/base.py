@@ -1,6 +1,6 @@
-import logging
 from typing import Generic, List, Optional, Tuple, Type, TypeVar
 
+import structlog
 from fastapi.encoders import jsonable_encoder
 from more_itertools import one
 from pydantic import BaseModel
@@ -13,7 +13,7 @@ from server.api.models import transform_json
 from server.db import db
 from server.db.database import BaseModel
 
-logger = logging.getLogger("crud.base")
+logger = structlog.getLogger()
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

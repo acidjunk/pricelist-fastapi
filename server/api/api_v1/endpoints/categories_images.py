@@ -11,7 +11,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.apis.v1.helpers import load, name_file
-from server.crud import category_crud
+from server.crud.crud_category import category_crud
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
 from server.schemas.category import CategoryUpdate

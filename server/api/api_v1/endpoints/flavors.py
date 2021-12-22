@@ -45,7 +45,7 @@ def create(data: FlavorCreate = Body(...)) -> None:
 @router.put("/{flavor_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, flavor_id: UUID, item_in: FlavorUpdate) -> Any:
     flavor = flavor_crud.get(id=flavor_id)
-    logger.info("domain_event", data=flavor)
+    logger.info("Updating flavor", data=flavor)
     if not flavor:
         raise HTTPException(status_code=404, detail="Flavor not found")
 

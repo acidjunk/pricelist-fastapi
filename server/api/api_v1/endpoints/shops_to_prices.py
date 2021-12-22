@@ -10,9 +10,10 @@ from starlette.responses import Response
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
-from server.crud import category_crud, product_crud
+from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
+from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.schemas.shop_to_price import (
@@ -115,7 +116,7 @@ def create(data: ShopToPriceCreate = Body(...)) -> None:
 def update(*, shop_to_price_id: UUID, item_in: ShopToPriceUpdate) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
-    logger.info("shop_to_price", data=shop_to_price)
+    logger.info("Updating shop_to_price", data=shop_to_price)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
 

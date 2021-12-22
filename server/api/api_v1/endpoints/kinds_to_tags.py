@@ -53,22 +53,20 @@ def create(data: KindToTagCreate = Body(...)) -> None:
     return kind_to_tag_crud.create(obj_in=data)
 
 
-#
-#
-# @router.put("/{kind_to_tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-# def update(*, kind_to_tag_id: UUID, item_in: KindToTagUpdate) -> Any:
-#     kind_to_tag = kind_to_tag_crud.get(id=kind_to_tag_id)
-#     logger.info("kind_to_tag", data=kind_to_tag)
-#     if not kind_to_tag:
-#         raise HTTPException(status_code=404, detail="Shop not found")
-#
-#     kind_to_tag = kind_to_tag_crud.update(
-#         db_obj=kind_to_tag,
-#         obj_in=item_in,
-#     )
-#     return kind_to_tag
-#
-#
-# @router.delete("/{kind_to_tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-# def delete(kind_to_tag_id: UUID) -> None:
-#     return kind_to_tag_crud.delete(id=kind_to_tag_id)
+@router.put("/{kind_to_tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def update(*, kind_to_tag_id: UUID, item_in: KindToTagUpdate) -> Any:
+    kind_to_tag = kind_to_tag_crud.get(id=kind_to_tag_id)
+    logger.info("Updating kind_to_tag", data=kind_to_tag)
+    if not kind_to_tag:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    kind_to_tag = kind_to_tag_crud.update(
+        db_obj=kind_to_tag,
+        obj_in=item_in,
+    )
+    return kind_to_tag
+
+
+@router.delete("/{kind_to_tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def delete(kind_to_tag_id: UUID) -> None:
+    return kind_to_tag_crud.delete(id=kind_to_tag_id)

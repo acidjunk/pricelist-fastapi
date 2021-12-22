@@ -55,7 +55,7 @@ def update(
     *, product_id: UUID, item_in: ProductUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ) -> Any:
     product = product_crud.get(id=product_id)
-    logger.info("domain_event", data=product)
+    logger.info("Updating product", data=product)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 

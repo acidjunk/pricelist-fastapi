@@ -7,6 +7,10 @@ from server.schemas.base import BoilerplateBaseModel
 
 class MainCategoryBase(BoilerplateBaseModel):
     name: str
+    name_en: Optional[str]
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    order_number: Optional[int] = None
 
 
 # Properties to receive via API on creation
@@ -29,3 +33,7 @@ class MainCategoryInDBBase(MainCategoryBase):
 # Additional properties to return via API
 class MainCategorySchema(MainCategoryInDBBase):
     pass
+
+
+class MainCategoryWithNames(MainCategoryInDBBase):
+    shop_name: str

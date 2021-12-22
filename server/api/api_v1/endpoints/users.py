@@ -8,7 +8,7 @@ from starlette.responses import Response
 from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
-from server.crud import user_crud
+from server.crud.crud_user import user_crud
 from server.db.models import UsersTable
 from server.schemas import User, UserCreate, UserUpdate
 from server.settings import app_settings

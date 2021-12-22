@@ -6,10 +6,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 
-from server.crud import user_crud
-from server.db import db
+from server.crud.crud_user import user_crud
 from server.db.models import UsersTable
-from server.schemas import TokenPayload
 from server.settings import app_settings
 
 reusable_oauth = OAuth2PasswordBearer(tokenUrl=f"/v1/login/access-token")

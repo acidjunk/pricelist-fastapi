@@ -109,7 +109,7 @@ def get_by_id(id: UUID):
 @router.put("/{shop_id}", response_model=ShopSchema, status_code=HTTPStatus.CREATED)
 def update(*, shop_id: UUID, item_in: ShopUpdate) -> None:
     shop = shop_crud.get(id=shop_id)
-    logger.info("shop", data=shop)
+    logger.info("Updating shop", data=shop)
     if not shop:
         raise HTTPException(status_code=404, detail="Shop not found")
 

@@ -11,18 +11,25 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_main_category import main_category_crud
-from server.schemas.main_category import MainCategoryCreate, MainCategorySchema, MainCategoryUpdate
+from server.schemas.main_category import (
+    MainCategoryCreate,
+    MainCategorySchema,
+    MainCategoryUpdate,
+    MainCategoryWithNames,
+)
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[MainCategorySchema])
+@router.get("/", response_model=List[MainCategoryWithNames])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[MainCategorySchema]:
     main_categories, header_range = main_category_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )
+    for main_category in main_categories:
+        main_category.shop_name = main_category.shop.name
     response.headers["Content-Range"] = header_range
     return main_categories
 
@@ -44,7 +51,7 @@ def create(data: MainCategoryCreate = Body(...)) -> None:
 @router.put("/{main_category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def update(*, main_category_id: UUID, item_in: MainCategoryUpdate) -> Any:
     main_category = main_category_crud.get(id=main_category_id)
-    logger.info("domain_event", data=main_category)
+    logger.info("Updating main_category", data=main_category)
     if not main_category:
         raise HTTPException(status_code=404, detail="MainCategory not found")
 

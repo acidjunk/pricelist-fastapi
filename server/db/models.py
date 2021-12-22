@@ -219,8 +219,8 @@ class Category(BaseModel):
     shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
 
     def __repr__(self):
-        main_categorie_name = self.main_category.name if self.main_category_id else "NO_MAIN"
-        return f"{self.shop.name}: {main_categorie_name}: {self.name}"
+        main_category = self.main_category.name if self.main_category_id else "NO_MAIN"
+        return f"{self.shop.name}: {main_category}: {self.name}"
 
 
 class Kind(BaseModel):
