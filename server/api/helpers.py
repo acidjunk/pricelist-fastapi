@@ -10,10 +10,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import base64
+import os
 from http import HTTPStatus
 from typing import List, Optional
 
+import boto3 as boto3
 from more_itertools import chunked
 from sqlalchemy import String, cast
 from sqlalchemy.orm import Query
@@ -35,6 +37,12 @@ VALID_SORT_KEYS = {
     "modifier": "modified_by",
     "modified": "modified_at",
 }
+
+s3 = boto3.resource(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+)
 
 
 def _query_with_filters(
@@ -101,37 +109,39 @@ def _query_with_filters(
     return query.all()
 
 
-# def upload_file(blob, file_name):
-#     image_mime, image_base64 = blob.split(",")
-#     image = base64.b64decode(image_base64)
-#
-#     # Todo: make dynamic
-#     s3_object = s3.Object("images-prijslijst-info", file_name)
-#     resp = s3_object.put(Body=image, ContentType="image/png")
-#
-#     if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
-#         logger.info("Uploaded file to S3", file_name=file_name)
-#
-#         # Make the result public
-#         object_acl = s3_object.Acl()
-#         response = object_acl.put(ACL="public-read")
-#         logger.info("Made public", response=response)
-#
-#
-# def name_file(column_name, record_name, image_name=""):
-#     _, _, image_number = column_name.rpartition("_")[0:3]
-#     current_name = image_name
-#     extension = "png"  # todo: make it dynamic e.g. get it from mime-type, extra arg for this function?
-#     if not current_name:
-#         name = "".join([c if c.isalnum() else "-" for c in record_name])
-#         name = f"{name}-{image_number}-1".lower()
-#     else:
-#         name, _ = current_name.split(".")
-#         name, _, counter = name.rpartition("-")[0:3]
-#         name = f"{name}-{int(counter) + 1}".lower()
-#     name = f"{name}.{extension}"
-#     logger.info("Named file", col_name=column_name, name_in=image_name, name_out=name)
-#     return name
+def upload_file(blob, file_name):
+    image_mime, image_base64 = blob.split(",")
+    image = base64.b64decode(image_base64)
+
+    # Todo: make dynamic
+    s3_object = s3.Object("images-georgi-prijslijst-info", file_name)
+    resp = s3_object.put(Body=image, ContentType="image/png")
+
+    if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        logger.info("Uploaded file to S3", file_name=file_name)
+
+        # Make the result public
+        object_acl = s3_object.Acl()
+        response = object_acl.put(ACL="public-read")
+        logger.info("Made public", response=response)
+
+
+def name_file(column_name, record_name, image_name=""):
+    _, _, image_number = column_name.rpartition("_")[0:3]
+    current_name = image_name
+    extension = "png"  # todo: make it dynamic e.g. get it from mime-type, extra arg for this function?
+    if not current_name:
+        name = "".join([c if c.isalnum() else "-" for c in record_name])
+        name = f"{name}-{image_number}-1".lower()
+    else:
+        name, _ = current_name.split(".")
+        name, _, counter = name.rpartition("-")[0:3]
+        name = f"{name}-{int(counter) + 1}".lower()
+    name = f"{name}.{extension}"
+    logger.info("Named file", col_name=column_name, name_in=image_name, name_out=name)
+    return name
+
+
 #
 #
 # def invalidateShopCache(shop_id):

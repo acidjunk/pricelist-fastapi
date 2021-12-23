@@ -195,37 +195,37 @@ def query_with_filters(
     return query.all(), content_range
 
 
-def upload_file(blob, file_name):
-    image_mime, image_base64 = blob.split(",")
-    image = base64.b64decode(image_base64)
+# def upload_file(blob, file_name):
+#     image_mime, image_base64 = blob.split(",")
+#     image = base64.b64decode(image_base64)
+#
+#     # Todo: make dynamic
+#     s3_object = s3.Object("images-prijslijst-info", file_name)
+#     resp = s3_object.put(Body=image, ContentType="image/png")
+#
+#     if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
+#         logger.info("Uploaded file to S3", file_name=file_name)
+#
+#         # Make the result public
+#         object_acl = s3_object.Acl()
+#         response = object_acl.put(ACL="public-read")
+#         logger.info("Made public", response=response)
+#
 
-    # Todo: make dynamic
-    s3_object = s3.Object("images-prijslijst-info", file_name)
-    resp = s3_object.put(Body=image, ContentType="image/png")
-
-    if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
-        logger.info("Uploaded file to S3", file_name=file_name)
-
-        # Make the result public
-        object_acl = s3_object.Acl()
-        response = object_acl.put(ACL="public-read")
-        logger.info("Made public", response=response)
-
-
-def name_file(column_name, record_name, image_name=""):
-    _, _, image_number = column_name.rpartition("_")[0:3]
-    current_name = image_name
-    extension = "png"  # todo: make it dynamic e.g. get it from mime-type, extra arg for this function?
-    if not current_name:
-        name = "".join([c if c.isalnum() else "-" for c in record_name])
-        name = f"{name}-{image_number}-1".lower()
-    else:
-        name, _ = current_name.split(".")
-        name, _, counter = name.rpartition("-")[0:3]
-        name = f"{name}-{int(counter) + 1}".lower()
-    name = f"{name}.{extension}"
-    logger.info("Named file", col_name=column_name, name_in=image_name, name_out=name)
-    return name
+# def name_file(column_name, record_name, image_name=""):
+#     _, _, image_number = column_name.rpartition("_")[0:3]
+#     current_name = image_name
+#     extension = "png"  # todo: make it dynamic e.g. get it from mime-type, extra arg for this function?
+#     if not current_name:
+#         name = "".join([c if c.isalnum() else "-" for c in record_name])
+#         name = f"{name}-{image_number}-1".lower()
+#     else:
+#         name, _ = current_name.split(".")
+#         name, _, counter = name.rpartition("-")[0:3]
+#         name = f"{name}-{int(counter) + 1}".lower()
+#     name = f"{name}.{extension}"
+#     logger.info("Named file", col_name=column_name, name_in=image_name, name_out=name)
+#     return name
 
 
 # def invalidateShopCache(shop_id):

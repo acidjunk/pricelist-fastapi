@@ -22,6 +22,7 @@ from server.api.api_v1.endpoints import (
     flavors,
     health,
     kinds,
+    kinds_images,
     kinds_to_flavors,
     kinds_to_strains,
     kinds_to_tags,
@@ -63,7 +64,19 @@ api_router.include_router(
     categories_images.router,
     prefix="/categories-images",
     tags=["categories-images"],
-    dependencies=[Depends(deps.get_current_active_superuser)],
+    # dependencies=[Depends(deps.get_current_active_superuser)],
+)
+api_router.include_router(
+    categories_images.router,
+    prefix="/kinds-images",
+    tags=["kinds-images"],
+    # dependencies=[Depends(deps.get_current_active_superuser)],
+)
+api_router.include_router(
+    categories_images.router,
+    prefix="/products-images",
+    tags=["products-images"],
+    # dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(products.router, prefix="/products", tags=["products"])
 api_router.include_router(kinds.router, prefix="/kinds", tags=["kinds"])
