@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
@@ -15,8 +15,8 @@ class CategoryBase(BoilerplateBaseModel):
     icon: Optional[str] = None
     order_number: Optional[int] = None
     cannabis: bool = False
-    image_1: Optional[str] = None
-    image_2: Optional[str] = None
+    image_1: Union[Optional[dict], Optional[str]]
+    image_2: Union[Optional[dict], Optional[str]]
 
 
 # Properties to receive via API on creation
