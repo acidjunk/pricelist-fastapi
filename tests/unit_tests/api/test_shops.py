@@ -25,7 +25,7 @@ def test_shop_get_by_id(shop_1, test_client):
 
 
 def test_shop_save(test_client, superuser_token_headers):
-    body = {"name": "New Strain", "description": "Shop description"}
+    body = {"name": "New Shop", "description": "Shop description"}
 
     response = test_client.post("/api/shops/", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.CREATED == response.status_code

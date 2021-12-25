@@ -13,7 +13,7 @@ from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_kind import kind_crud
 from server.db.models import UsersTable
-from server.schemas.kind import KindCreate, KindSchema, KindUpdate
+from server.schemas.kind import KindCreate, KindSchema, KindUpdate, KindWithDetails
 
 logger = structlog.get_logger(__name__)
 
@@ -33,11 +33,58 @@ def get_multi(
     return kinds
 
 
-@router.get("/{id}", response_model=KindSchema)
+@router.get("/{id}", response_model=KindWithDetails)
 def get_by_id(id: UUID) -> KindSchema:
     kind = kind_crud.get(id)
     if not kind:
         raise_status(HTTPStatus.NOT_FOUND, f"Kind with id {id} not found")
+
+    # Todo Georgi; finish implementation of optional `shop` parameter
+    # Copied from Flask::
+    # if shop:
+    #     item.prices = []
+    #     for price_relation in item.shop_to_price:
+    #         if str(price_relation.shop_id) == shop:
+    #             item.prices.append(
+    #                 {
+    #                     "id": price_relation.price.id,
+    #                     "internal_product_id": price_relation.price.internal_product_id,
+    #                     "active": price_relation.active,
+    #                     "new": price_relation.new,
+    #                     "half": price_relation.price.half if price_relation.use_half else None,
+    #                     "one": price_relation.price.one if price_relation.use_one else None,
+    #                     "two_five": price_relation.price.two_five if price_relation.use_two_five else None,
+    #                     "five": price_relation.price.five if price_relation.use_five else None,
+    #                     "joint": price_relation.price.joint if price_relation.use_joint else None,
+    #                     "piece": price_relation.price.piece if price_relation.use_piece else None,
+    #                     "created_at": price_relation.created_at,
+    #                     "modified_at": price_relation.modified_at,
+    #                 }
+    #             )
+
+    kind.tags = [
+        {"id": tag.id, "name": tag.tag.name, "amount": tag.amount}
+        for tag in sorted(kind.kind_to_tags, key=lambda i: i.amount, reverse=True)
+    ]
+    kind.tags_amount = len(kind.tags)
+
+    kind.flavors = [
+        {"id": flavor.id, "name": flavor.flavor.name, "icon": flavor.flavor.icon, "color": flavor.flavor.color}
+        for flavor in sorted(kind.kind_to_flavors, key=lambda i: i.flavor.name)
+    ]
+    kind.flavors_amount = len(kind.flavors)
+
+    kind.strains = [
+        {"id": strain.id, "name": strain.strain.name}
+        for strain in sorted(kind.kind_to_strains, key=lambda i: i.strain.name)
+    ]
+    kind.strains_amount = len(kind.strains)
+
+    kind.images_amount = 0
+    for i in [1, 2, 3, 4, 5, 6]:
+        if getattr(kind, f"image_{i}"):
+            kind.images_amount += 1
+
     return kind
 
 
