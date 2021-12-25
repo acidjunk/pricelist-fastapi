@@ -28,6 +28,7 @@ def get_endpoints(fastapi_app):
                 url_list.append({"path": route.path, "name": route.name, "method": list(route.methods)[0]})
     return url_list
 
+
 # Todo: georgi fix your new endpoints 🎅
 @pytest.mark.xfail(reason="Not complete yet")
 def test_endpoint_auth(test_client):
