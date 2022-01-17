@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
@@ -50,3 +50,19 @@ class KindInDBBase(KindBase):
 # Additional properties to return via API
 class KindSchema(KindInDBBase):
     pass
+
+
+class KindWithDetails(KindInDBBase):
+    # Todo: Georgi investigate if it's ok to use the "ModelSchema" here. It has DB write access which isn't needed
+    # We could be more strict and generic by re-using the schema of tag, flavors etc. instead of `List[dict]`
+    tags: List[dict]
+    tags_amount: int = 0
+    flavors: List[dict]
+    flavors_amount: int = 0
+    strains: List[dict]
+    strains_amount: int = 0
+    prices: Optional[List[dict]] = None
+
+
+class KindWithDetailsAndPrices(KindWithDetails):
+    prices: List[dict] = []
