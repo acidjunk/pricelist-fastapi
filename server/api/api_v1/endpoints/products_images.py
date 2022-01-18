@@ -15,7 +15,7 @@ from server.api.helpers import name_file, upload_file
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-from server.schemas.product import KindUpdate
+from server.schemas.product import ProductUpdate
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -45,7 +45,7 @@ def get_by_id(id: UUID):
 
 
 @router.put("/{id}", status_code=HTTPStatus.CREATED)
-def put(*, id: UUID, item_in: KindUpdate):
+def put(*, id: UUID, item_in: ProductUpdate):
     item = product_crud.get(id=id)
     # todo: raise 404 o abort
 
