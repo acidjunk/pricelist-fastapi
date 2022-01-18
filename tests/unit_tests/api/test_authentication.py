@@ -29,8 +29,6 @@ def get_endpoints(fastapi_app):
     return url_list
 
 
-# Todo: georgi fix your new endpoints 🎅
-@pytest.mark.xfail(reason="Not complete yet")
 def test_endpoint_auth(test_client):
     responses = []
     for endpoint in get_endpoints(fastapi_app=test_client.app):
