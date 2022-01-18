@@ -36,7 +36,7 @@ from server.api.api_v1.endpoints import (
     strains,
     tables,
     tags,
-    users
+    users,
 )
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
