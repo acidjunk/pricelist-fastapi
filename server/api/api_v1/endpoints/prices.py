@@ -61,4 +61,5 @@ def update(*, price_id: UUID, item_in: PriceUpdate) -> Any:
 
 @router.delete("/{price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(price_id: UUID) -> None:
-    return price_crud.delete(id=price_id)
+    price_crud.delete(id=price_id)
+    return None

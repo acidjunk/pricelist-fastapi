@@ -69,4 +69,5 @@ def update(*, kind_to_tag_id: UUID, item_in: KindToTagUpdate) -> Any:
 
 @router.delete("/{kind_to_tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(kind_to_tag_id: UUID) -> None:
-    return kind_to_tag_crud.delete(id=kind_to_tag_id)
+    kind_to_tag_crud.delete(id=kind_to_tag_id)
+    return None

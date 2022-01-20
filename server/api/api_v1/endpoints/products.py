@@ -68,4 +68,5 @@ def update(
 
 @router.delete("/{product_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(product_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
-    return product_crud.delete(id=product_id)
+    product_crud.delete(id=product_id)
+    return None
