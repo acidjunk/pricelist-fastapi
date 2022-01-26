@@ -64,5 +64,4 @@ def update(*, main_category_id: UUID, item_in: MainCategoryUpdate) -> Any:
 
 @router.delete("/{main_category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(main_category_id: UUID) -> None:
-    main_category_crud.delete(id=main_category_id)
-    return None
+    return main_category_crud.delete(id=main_category_id)

@@ -113,5 +113,4 @@ def update(
 
 @router.delete("/{kind_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(kind_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
-    kind_crud.delete(id=kind_id)
-    return None
+    return kind_crud.delete(id=kind_id)
