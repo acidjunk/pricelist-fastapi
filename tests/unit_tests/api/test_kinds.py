@@ -54,7 +54,7 @@ def test_kind_update(kind_1, test_client, superuser_token_headers):
     kind = response_updated.json()
     assert kind["name"] == "Updated Kind"
 
-    
+
 def test_kind_delete(kind_1, test_client, superuser_token_headers):
     response = test_client.delete(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code
