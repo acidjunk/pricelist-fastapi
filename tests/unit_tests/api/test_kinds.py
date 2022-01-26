@@ -55,10 +55,8 @@ def test_kind_update(kind_1, test_client, superuser_token_headers):
     assert kind["name"] == "Updated Kind"
 
 
-@pytest.mark.xfail(reason="Todo georgi: investigate, probably something wrong in fixtures")
-# For Rene, maybe a little help with this ?
-def test_kind_delete(kind_2, test_client, superuser_token_headers):
-    response = test_client.delete(f"/api/kinds/{kind_2.id}", headers=superuser_token_headers)
+def test_kind_delete(kind_1, test_client, superuser_token_headers):
+    response = test_client.delete(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code
-    shops = test_client.get("/api/kinds", headers=superuser_token_headers).json()
-    assert 47 == len(shops)
+    kinds = test_client.get("/api/kinds", headers=superuser_token_headers).json()
+    assert 0 == len(kinds)

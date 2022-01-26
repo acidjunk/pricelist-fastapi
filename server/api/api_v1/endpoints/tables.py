@@ -58,4 +58,5 @@ def update(*, table_id: UUID, item_in: TableUpdate) -> Any:
 
 @router.delete("/{table_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(table_id: UUID) -> None:
-    return table_crud.delete(id=table_id)
+    table_crud.delete(id=table_id)
+    return None
