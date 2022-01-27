@@ -8,26 +8,21 @@ from server.types import JSON
 
 class OrderItem(BoilerplateBaseModel):
     description: Optional[str]
-    price: Optional[str]
+    price: Optional[float]
     kind_id: Optional[str]
     kind_name: Optional[str]
-    product_id: Optional[str]
+    product_id: Optional[UUID]
     product_name: Optional[str]
     internal_product_id: Optional[str]
-    quantity: int
+    quantity: Optional[int]
 
 
 class OrderBase(BoilerplateBaseModel):
     shop_id: UUID
-    shop_name: Optional[str] = None
+    table_id: UUID
     order_info: List[OrderItem]
     total: Optional[float]
     customer_order_id: int
-    status: str
-    completed_by: Optional[UUID]
-    completed_by_name: Optional[str]
-    table_id: UUID
-    table_name: str
 
 
 # Properties to receive via API on creation
@@ -44,6 +39,8 @@ class OrderInDBBase(OrderBase):
     id: UUID
     created_at: datetime
     completed_at: Optional[datetime] = None
+    completed_by: Optional[UUID]
+    status: str
 
     class Config:
         orm_mode = True
@@ -51,4 +48,6 @@ class OrderInDBBase(OrderBase):
 
 # Additional properties to return via API
 class OrderSchema(OrderInDBBase):
-    pass
+    table_name: str
+    shop_name: Optional[str] = None
+    completed_by_name: Optional[str]

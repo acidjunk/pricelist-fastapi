@@ -14,6 +14,7 @@ from server.api.error_handling import raise_status
 from server.crud.crud_order import order_crud
 from server.db.models import UsersTable
 from server.schemas.order import OrderCreate, OrderSchema, OrderUpdate
+from server.utils.json import json_dumps
 
 logger = structlog.get_logger(__name__)
 
@@ -48,17 +49,32 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return orders
 
 
-# @router.get("/{id}", response_model=OrderWithDetails)
 @router.get("/{id}")
 def get_by_id(id: UUID) -> OrderSchema:
-    pass
+    order = order_crud.get(id)
+    if not order:
+        raise_status(HTTPStatus.NOT_FOUND, f"Order with id {id} not found")
+    return order
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(
-    data: OrderCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    data: OrderCreate = Body(...)
 ) -> None:
     logger.info("Saving order", data=data)
+
+    # if data.customer_order_id:
+    #     del data.customer_order_id
+    # if not data.shop_id:
+    #     raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
+    order_info = data.order_info
+
+    order_info_json = json_dumps(data.order_info)
+    order_info_2 = []
+    for item in data.order_info:
+        order_info_2.append(str(dict(item)))
+
+    data.order_info = order_info_2
     order = order_crud.create(obj_in=data)
     return order
 

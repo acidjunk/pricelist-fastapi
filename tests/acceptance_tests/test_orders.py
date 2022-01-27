@@ -14,7 +14,7 @@ ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
 
 
 def test_orders_get_multi():
-    response_prd = requests.get(PRD_BACKEND_URI + "orders?range=%5B0%2C200%5D").json()
-    response_acc = requests.get(ACC_BACKEND_URI + "orders?skip=0&limit=200").json()
+    response_prd = requests.get(PRD_BACKEND_URI + "orders/?range=%5B0%2C249%5D&sort=%5B%22created_at%22%2C%22DESC%22%5D").json()
+    response_acc = requests.get(ACC_BACKEND_URI + "orders?limit=250&sort=created_at%3ADESC").json()
     ddiff = DeepDiff(response_acc, response_prd, ignore_order=True)
     assert ddiff == {}
