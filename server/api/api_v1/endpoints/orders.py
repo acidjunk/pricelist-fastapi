@@ -68,13 +68,6 @@ def create(
     # if not data.shop_id:
     #     raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
     order_info = data.order_info
-
-    order_info_json = json_dumps(data.order_info)
-    order_info_2 = []
-    for item in data.order_info:
-        order_info_2.append(str(dict(item)))
-
-    data.order_info = order_info_2
     order = order_crud.create(obj_in=data)
     return order
 

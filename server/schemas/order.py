@@ -3,10 +3,11 @@ from typing import List, Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
+from pydantic import BaseModel
 from server.types import JSON
 
 
-class OrderItem(BoilerplateBaseModel):
+class OrderItem(BaseModel):
     description: Optional[str]
     price: Optional[float]
     kind_id: Optional[str]
@@ -19,10 +20,11 @@ class OrderItem(BoilerplateBaseModel):
 
 class OrderBase(BoilerplateBaseModel):
     shop_id: UUID
-    table_id: UUID
-    order_info: List[OrderItem]
+    table_id: Optional[UUID]  # Optional or required ?
+    # order_info: List[OrderItem]
+    order_info: JSON
     total: Optional[float]
-    customer_order_id: int
+    customer_order_id: Optional[int]  # Optional or required ?
 
 
 # Properties to receive via API on creation
