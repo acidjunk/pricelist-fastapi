@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from server.schemas.base import BoilerplateBaseModel
 from pydantic import BaseModel
+
+from server.schemas.base import BoilerplateBaseModel
 from server.types import JSON
 
 
@@ -22,7 +23,7 @@ class OrderBase(BoilerplateBaseModel):
     shop_id: UUID
     table_id: Optional[UUID]  # Optional or required ?
     # order_info: List[OrderItem]
-    order_info: JSON
+    order_info: List[OrderItem]
     total: Optional[float]
     customer_order_id: Optional[int]  # Optional or required ?
 

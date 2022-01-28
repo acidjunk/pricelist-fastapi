@@ -58,16 +58,16 @@ def get_by_id(id: UUID) -> OrderSchema:
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
-def create(
-    data: OrderCreate = Body(...)
-) -> None:
+def create(data: OrderCreate = Body(...)) -> None:
     logger.info("Saving order", data=data)
 
     # if data.customer_order_id:
     #     del data.customer_order_id
     # if not data.shop_id:
     #     raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
-    order_info = data.order_info
+    # print(data)
+    # order_info = data["order_info"]
+
     order = order_crud.create(obj_in=data)
     return order
 
