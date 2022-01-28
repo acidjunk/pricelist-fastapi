@@ -12,6 +12,8 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_order import order_crud
+from server.crud.crud_shop import shop_crud
+from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db.models import UsersTable
 from server.schemas.order import OrderCreate, OrderSchema, OrderUpdate
 from server.utils.json import json_dumps
@@ -21,18 +23,64 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-# def get_price_rules_total(order_items):
-#     """Calculate the total number of grams."""
-#     JOINT = 0.4
-#
-#     # Todo: add correct order line for 0.5 and 2.5
-#     prices = {"0,5 gram": 0.5, "1 gram": 1, "2,5 gram": 2.5, "5 gram": 5, "joint": JOINT}
-#     total = 0
-#     for item in order_items:
-#         if item["description"] in prices:
-#             total = total + (prices[item["description"]] * item["quantity"])
-#
-#     return total
+def get_price_rules_total(order_items):
+    """Calculate the total number of grams."""
+    JOINT = 0.4
+
+    # Todo: add correct order line for 0.5 and 2.5
+    prices = {"0,5 gram": 0.5, "1 gram": 1, "2,5 gram": 2.5, "5 gram": 5, "joint": JOINT}
+    total = 0
+    for item in order_items:
+        if item.description in prices:
+            total = total + (prices[item.description] * item.quantity)
+
+    return total
+
+
+def get_first_unavailable_product_name(order_items, shop_id):
+    """Search for the first unavailable product and return it's name."""
+    products = shop_to_price_crud.get_products_with_prices_by_shop_id(shop_id=shop_id)
+
+    for item in order_items:
+        found_product = False  # Start False
+        for product in products:
+            if item.kind_id == str(product.kind_id):
+                if product.active:
+                    if item.description == "0,5 gram" and (not product.use_half or not product.price.half):
+                        logger.warning("Product is currently not available in 0.5 gram", kind_name=item.kind_name)
+                    elif item.description == "1 gram" and (not product.use_one or not product.price.one):
+                        logger.warning("Product is currently not available in 1 gram", kind_name=item.kind_name)
+                    elif item.description == "2,5 gram" and (not product.use_two_five or not product.price.two_five):
+                        logger.warning("Product is currently not available in 2.5 gram", kind_name=item.kind_name)
+                    elif item.description == "5 gram" and (not product.use_five or not product.price.five):
+                        logger.warning("Product is currently not available in 5 gram", kind_name=item.kind_name)
+                    elif item.description == "1 joint" and (not product.use_joint or not product.price.joint):
+                        logger.warning("Product is currently not available as joint", kind_name=item.kind_name)
+                    else:
+                        logger.info(
+                            "Found product in order item and in available products",
+                            kind_id=item.kind_id,
+                            kind_name=item.kind_name,
+                        )
+                        found_product = True
+                else:
+                    logger.warning("Product is currently not available", kind_name=item.kind_name)
+            if item.product_id == str(product.product_id):
+                if product.active:
+                    if not product.use_piece or not product.price.piece:
+                        logger.warning("Product is currently not available as piece", product_name=item.product_name)
+                    else:
+                        logger.info(
+                            "Found horeca product in order item and in available products",
+                            product_id=item.product_id,
+                            product_name=item.product_name,
+                        )
+                        found_product = True
+                else:
+                    logger.warning("Horeca product is currently not available", product_name=item.product_name)
+        if not found_product:
+            return item.kind_name if item.kind_name else item.product_name
+    return None
 
 
 @router.get("/", response_model=List[OrderSchema])
@@ -61,13 +109,27 @@ def get_by_id(id: UUID) -> OrderSchema:
 def create(data: OrderCreate = Body(...)) -> None:
     logger.info("Saving order", data=data)
 
-    # if data.customer_order_id:
-    #     del data.customer_order_id
-    # if not data.shop_id:
-    #     raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
-    # print(data)
-    # order_info = data["order_info"]
+    if data.customer_order_id:
+        del data.customer_order_id
+    shop_id = data.shop_id
+    if not shop_id:
+        raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
 
+    # 5 gram check
+    total_cannabis = get_price_rules_total(data.order_info)
+    logger.info("Checked order weight", weight=total_cannabis)
+    if total_cannabis > 5:
+        raise_status(HTTPStatus.BAD_REQUEST, "MAX_5_GRAMS_ALLOWED")
+
+    # Availability check
+    unavailable_product_name = get_first_unavailable_product_name(data.order_info, data.shop_id)
+    if unavailable_product_name:
+        raise_status(HTTPStatus.BAD_REQUEST, f"{unavailable_product_name}, OUT_OF_STOCK")
+
+    if not shop_crud.get(str(shop_id)):
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {shop_id} not found")
+
+    data.customer_order_id = order_crud.get_newest_order_id(shop_id=shop_id)
     order = order_crud.create(obj_in=data)
     return order
 

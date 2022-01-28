@@ -22,14 +22,13 @@ class OrderItem(BaseModel):
     # custom validator that checks product_name or kind_anem -> should be UUID.
 
 
-
 class OrderBase(BoilerplateBaseModel):
     shop_id: UUID
     table_id: Optional[UUID]  # Optional or required ?
-    # order_info: List[OrderItem]
     order_info: List[OrderItem]
     total: Optional[float]
     customer_order_id: Optional[int]  # Optional or required ?
+    notes: Optional[str] = None
 
 
 # Properties to receive via API on creation
