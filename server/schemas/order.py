@@ -9,14 +9,18 @@ from server.types import JSON
 
 
 class OrderItem(BaseModel):
-    description: Optional[str]
-    price: Optional[float]
+    description: str
+    price: float
     kind_id: Optional[str]
     kind_name: Optional[str]
     product_id: Optional[UUID]
     product_name: Optional[str]
-    internal_product_id: Optional[str]
-    quantity: Optional[int]
+    internal_product_id: str
+    quantity: int
+
+    # custom validator that checks product_id or kind_id -> should be UUID.
+    # custom validator that checks product_name or kind_anem -> should be UUID.
+
 
 
 class OrderBase(BoilerplateBaseModel):
