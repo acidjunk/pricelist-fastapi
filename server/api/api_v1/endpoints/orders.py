@@ -112,8 +112,8 @@ def create(data: OrderCreate = Body(...)) -> None:
     if data.customer_order_id:
         del data.customer_order_id
     shop_id = data.shop_id
-    if not shop_id:
-        raise_status(HTTPStatus.BAD_REQUEST, "shop_id not in payload")
+    if not shop_crud.get(str(shop_id)):
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {shop_id} not found")
 
     # 5 gram check
     total_cannabis = get_price_rules_total(data.order_info)
@@ -125,9 +125,6 @@ def create(data: OrderCreate = Body(...)) -> None:
     unavailable_product_name = get_first_unavailable_product_name(data.order_info, data.shop_id)
     if unavailable_product_name:
         raise_status(HTTPStatus.BAD_REQUEST, f"{unavailable_product_name}, OUT_OF_STOCK")
-
-    if not shop_crud.get(str(shop_id)):
-        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {shop_id} not found")
 
     data.customer_order_id = order_crud.get_newest_order_id(shop_id=shop_id)
     order = order_crud.create(obj_in=data)

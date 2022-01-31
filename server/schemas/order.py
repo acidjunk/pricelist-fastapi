@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -13,7 +13,7 @@ class OrderItem(BaseModel):
     price: float
     kind_id: Optional[str]
     kind_name: Optional[str]
-    product_id: Optional[UUID]
+    product_id: Optional[str]
     product_name: Optional[str]
     internal_product_id: str
     quantity: int
@@ -54,6 +54,6 @@ class OrderInDBBase(OrderBase):
 
 # Additional properties to return via API
 class OrderSchema(OrderInDBBase):
-    table_name: str
+    table_name: Optional[str]
     shop_name: Optional[str] = None
     completed_by_name: Optional[str]

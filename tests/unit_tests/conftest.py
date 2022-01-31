@@ -516,7 +516,7 @@ def shop_with_orders(shop_with_products, kind_1, kind_2, price_1, price_2):
     order = Order(
         id=str(uuid.uuid4()),
         shop_id=str(shop_with_products.id),
-        order_info=json.dumps(items),
+        order_info=items,
         total=24.0,
         customer_order_id=1,
     )
@@ -524,10 +524,10 @@ def shop_with_orders(shop_with_products, kind_1, kind_2, price_1, price_2):
     order = Order(
         id=str(uuid.uuid4()),
         shop_id=str(shop_with_products.id),
-        order_info=json.dumps(items),
+        order_info=items,
         total=24.0,
         customer_order_id=2,
-        completed_at=datetime.datetime.utcnow(),
+        completed_at=datetime.utcnow(),
         status="complete",
     )
     db.session.add(order)
@@ -566,7 +566,7 @@ def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2,
     order = Order(
         id=str(uuid.uuid4()),
         shop_id=str(shop_with_products.id),
-        order_info=json.dumps(items),
+        order_info=items,
         total=26.50,
         customer_order_id=1,
     )
@@ -574,10 +574,10 @@ def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2,
     order = Order(
         id=str(uuid.uuid4()),
         shop_id=str(shop_with_products.id),
-        order_info=json.dumps(items),
+        order_info=items,
         total=26.50,
         customer_order_id=2,
-        completed_at=datetime.datetime.utcnow(),
+        completed_at=datetime.utcnow(),
         status="complete",
     )
     db.session.add(order)
