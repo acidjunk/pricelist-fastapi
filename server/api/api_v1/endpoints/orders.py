@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import Any, List
 from uuid import UUID
@@ -11,12 +12,12 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.utils import validate_uuid4
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db.models import UsersTable
 from server.schemas.order import OrderCreate, OrderSchema, OrderUpdate
-from server.utils.json import json_dumps
 
 logger = structlog.get_logger(__name__)
 
@@ -84,7 +85,11 @@ def get_first_unavailable_product_name(order_items, shop_id):
 
 
 @router.get("/", response_model=List[OrderSchema])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[OrderSchema]:
+def get_multi(
+    response: Response,
+    common: dict = Depends(common_parameters),
+    current_user: UsersTable = Depends(deps.get_current_active_user),
+) -> List[OrderSchema]:
     orders, header_range = order_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
     )
@@ -103,6 +108,34 @@ def get_by_id(id: UUID) -> OrderSchema:
     if not order:
         raise_status(HTTPStatus.NOT_FOUND, f"Order with id {id} not found")
     return order
+
+
+@router.get("/check/{ids}")
+def check(ids: str, current_user: UsersTable = Depends(deps.get_current_active_user)) -> List[OrderSchema]:
+    id_list = ids.split(",")
+
+    # Validate input
+    for index, id in enumerate(id_list):
+        if not validate_uuid4(id):
+            raise_status(HTTPStatus.BAD_REQUEST, f"ID {index + 1} is not valid")
+
+    if len(id_list) > 10:
+        raise_status(HTTPStatus.BAD_REQUEST, "Max 10 orders")
+
+    # Build response
+    items = []
+    for id in id_list:
+        # item = load(Order, id, allow_404=True) #the old
+        item = order_crud.get(id)
+        if item:
+            item.table_name = item.table.name
+            items.append(item)
+
+    for item in items:
+        if item.shop_id != items[0].shop_id:
+            raise_status(HTTPStatus.BAD_REQUEST, "All ID's should belong to one shop")
+
+    return items
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
@@ -131,14 +164,41 @@ def create(data: OrderCreate = Body(...)) -> None:
     return order
 
 
-@router.put("/{order_id}", response_model=None, status_code=HTTPStatus.CREATED)
-def update(
-    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+@router.patch("/{order_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+def patch(
+    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_user)
 ) -> Any:
-    order = order_crud.get(id=order_id)
-    logger.info("Updating order", data=order)
+    order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    if (
+        "complete" not in order.status
+        and item_in.status
+        and (item_in.status == "complete" or item_in.status == "cancelled")
+        and not order.completed_at
+    ):
+        order.completed_at = datetime.utcnow()
+        order.completed_by = current_user.id
+
+    _ = order_crud.update(
+        db_obj=order,
+        obj_in=item_in,
+    )
+    return None
+
+
+@router.put("/{order_id}", response_model=None, status_code=HTTPStatus.CREATED)
+def update(
+    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_user)
+) -> Any:
+    order = order_crud.get(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if item_in.status and (item_in.status == "complete" or item_in.status == "cancelled") and not order.completed_at:
+        order.completed_at = datetime.utcnow()
+        order.completed_by = current_user.id
 
     order = order_crud.update(
         db_obj=order,

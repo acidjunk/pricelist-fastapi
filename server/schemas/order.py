@@ -1,8 +1,9 @@
+import uuid
 from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 from server.schemas.base import BoilerplateBaseModel
 from server.types import JSON
@@ -18,22 +19,31 @@ class OrderItem(BaseModel):
     internal_product_id: str
     quantity: int
 
-    # custom validator that checks product_id or kind_id -> should be UUID.
-    # custom validator that checks product_name or kind_anem -> should be UUID.
+    @root_validator
+    def check_order_item_if_has_both(cls, values):
+        if (values.get("kind_id") is None) and (values.get("product_id") is None):
+            raise ValueError("Order item should have at least one kind_id or one product_id!")
+        if (values.get("kind_name") is None) and (values.get("product_name") is None):
+            raise ValueError("Order item should have at least one kind_name or one product_name!")
+        if bool(values.get("kind_id")) == bool(values.get("product_id")):
+            raise ValueError("Order item can have either kind_id or product_id but not both!")
+        if bool(values.get("kind_name")) == bool(values.get("product_name")):
+            raise ValueError("Order item can have either kind_name or product_name but not both!")
+        return values
 
 
 class OrderBase(BoilerplateBaseModel):
-    shop_id: UUID
     table_id: Optional[UUID]  # Optional or required ?
-    order_info: List[OrderItem]
     total: Optional[float]
     customer_order_id: Optional[int]  # Optional or required ?
     notes: Optional[str] = None
+    status: Optional[str]
 
 
 # Properties to receive via API on creation
 class OrderCreate(OrderBase):
-    pass
+    shop_id: UUID
+    order_info: List[OrderItem]
 
 
 # Properties to receive via API on update
@@ -43,10 +53,11 @@ class OrderUpdate(OrderBase):
 
 class OrderInDBBase(OrderBase):
     id: UUID
+    shop_id: UUID
+    order_info: List[OrderItem]
     created_at: datetime
     completed_at: Optional[datetime] = None
     completed_by: Optional[UUID]
-    status: str
 
     class Config:
         orm_mode = True

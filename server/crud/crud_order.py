@@ -11,8 +11,12 @@ class CRUDOrder(CRUDBase[Order, OrderCreate, OrderUpdate]):
         order_id = Order.query.filter_by(shop_id=str(shop_id)).count() + 1
         return order_id
 
-    def get_order_by_shop_and_customer_order_id(self, *, customer_order_id: int, shop_id: UUID) -> Order:
-        order = Order.query.filter_by(shop_id=shop_id).filter_by(customer_order_id=customer_order_id).first()
+    def get_all_orders_filtered_by(self, **kwargs):
+        order = Order.query.filter_by(**kwargs).all()
+        return order
+
+    def get_first_order_filtered_by(self, **kwargs):
+        order = Order.query.filter_by(**kwargs).first()
         return order
 
 

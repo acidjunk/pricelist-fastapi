@@ -1,23 +1,24 @@
 from http import HTTPStatus
 from unittest import mock
 
+import pytest
+
 from server.api.api_v1.endpoints.orders import get_price_rules_total
 from server.crud.crud_order import order_crud
 from server.schemas.order import OrderItem
+from server.utils.json import json_dumps
 
 
-def test_order_list(test_client, shop_with_orders):
-    response = test_client.get(f"/api/orders")
+def test_order_list(test_client, shop_with_orders, superuser_token_headers):
+    response = test_client.get(f"/api/orders", headers=superuser_token_headers)
     assert response.status_code == 200
-    response_json = response.json()
-    assert len(response_json) == 2
+    assert len(response.json()) == 2
 
 
-def test_mixed_order_list(test_client, shop_with_mixed_orders):
-    response = test_client.get(f"/api/orders")
+def test_mixed_order_list(test_client, shop_with_mixed_orders, superuser_token_headers):
+    response = test_client.get(f"/api/orders", headers=superuser_token_headers)
     assert response.status_code == 200
-    response_json = response.json()
-    assert len(response_json) == 2
+    assert len(response.json()) == 2
 
 
 def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_products):
@@ -51,7 +52,7 @@ def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_p
     assert response_json["customer_order_id"] == 1
     assert response_json["total"] == 24.0
 
-    order = order_crud.get_order_by_shop_and_customer_order_id(customer_order_id=1, shop_id=str(shop_with_products.id))
+    order = order_crud.get_first_order_filtered_by(customer_order_id=1)
     assert order.shop_id == shop_with_products.id
     assert order.total == 24.0
     assert order.customer_order_id == 1
@@ -66,7 +67,7 @@ def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_p
     assert response_json["total"] == 24.0
 
     assert response.status_code == 201
-    order = order_crud.get_order_by_shop_and_customer_order_id(customer_order_id=2, shop_id=str(shop_with_products.id))
+    order = order_crud.get_first_order_filtered_by(customer_order_id=2)
     assert order.customer_order_id == 2
 
 
@@ -109,7 +110,7 @@ def test_create_mixed_order(test_client, price_1, price_2, price_3, product_1, k
     assert response_json["customer_order_id"] == 1
     assert response_json["total"] == 26.50
 
-    order = order_crud.get_order_by_shop_and_customer_order_id(customer_order_id=1, shop_id=str(shop_with_products.id))
+    order = order_crud.get_first_order_filtered_by(customer_order_id=1)
     assert order.shop_id == shop_with_products.id
     assert order.total == 26.50
     assert order.customer_order_id == 1
@@ -124,7 +125,7 @@ def test_create_mixed_order(test_client, price_1, price_2, price_3, product_1, k
     assert response_json["total"] == 26.50
 
     assert response.status_code == 201, response.json
-    order = order_crud.get_order_by_shop_and_customer_order_id(customer_order_id=2, shop_id=str(shop_with_products.id))
+    order = order_crud.get_first_order_filtered_by(customer_order_id=2)
     assert order.customer_order_id == 2
 
 
@@ -305,3 +306,38 @@ def test_price_rules():
         ),
     ]
     assert get_price_rules_total(order_info) == 5.4
+
+
+def test_patch_order_to_complete(test_client, shop_with_orders, superuser_token_headers):
+    # Get the uncompleted order_id from the fixture:
+    order = order_crud.get_first_order_filtered_by(status="pending")
+
+    body = {"status": "complete"}
+    response = test_client.patch(f"/api/orders/{order.id}", json=body, headers=superuser_token_headers)
+    assert response.status_code == 204
+
+    updated_order = test_client.get(f"/api/orders/{order.id}", headers=superuser_token_headers).json()
+    assert updated_order["status"] == "complete"
+    assert updated_order["completed_at"] is not None
+
+
+def test_update_order(test_client, shop_with_orders, superuser_token_headers):
+    # Get the completed order_id from the fixture:
+    order = order_crud.get_first_order_filtered_by(status="complete")
+
+    body = {"status": "cancelled"}
+    response = test_client.put(f"/api/orders/{order.id}", json=body, headers=superuser_token_headers)
+    assert response.status_code == 201
+
+    updated_order = test_client.get(f"/api/orders/{order.id}", headers=superuser_token_headers).json()
+    assert updated_order["status"] == "cancelled"
+
+
+def test_delete_order(test_client, shop_with_orders, superuser_token_headers):
+    order = order_crud.get_first_order_filtered_by(status="complete")
+
+    response = test_client.delete(f"/api/orders/{order.id}", headers=superuser_token_headers)
+    assert response.status_code == 204
+
+    orders = test_client.get("/api/orders", headers=superuser_token_headers).json()
+    assert 1 == len(orders)
