@@ -19,7 +19,7 @@ fi
 
 if [ "$1" = "dev" ]; then
     echo "Starting auto-reloading webserver"
-    PYTHONPATH=. uvicorn server.main:app --reload --port 8080
+    PYTHONPATH=. uvicorn server.main:app --reload --port 5000
 else
     echo "Starting threaded webserver"
     bin/server
