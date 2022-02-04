@@ -43,7 +43,6 @@ def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_p
     body = {
         "shop_id": str(shop_with_products.id),
         "total": 24.0,  # 2x 1 gram of 10,- + 1 joint of 4
-        "notes": "Nice one",
         "order_info": items,
     }
     response = test_client.post(f"/api/orders", json=body)
@@ -56,7 +55,6 @@ def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_p
     assert order.shop_id == shop_with_products.id
     assert order.total == 24.0
     assert order.customer_order_id == 1
-    assert order.notes == "Nice one"
     assert order.status == "pending"
     assert order.order_info == items
 
@@ -101,7 +99,6 @@ def test_create_mixed_order(test_client, price_1, price_2, price_3, product_1, k
     body = {
         "shop_id": str(shop_with_products.id),
         "total": 26.50,  # 2x 1 gram of 10,- + 1 joint of 4 + 1 cola (2.50)
-        "notes": "Nice one",
         "order_info": items,
     }
     response = test_client.post(f"/api/orders", json=body)
@@ -114,7 +111,6 @@ def test_create_mixed_order(test_client, price_1, price_2, price_3, product_1, k
     assert order.shop_id == shop_with_products.id
     assert order.total == 26.50
     assert order.customer_order_id == 1
-    assert order.notes == "Nice one"
     assert order.status == "pending"
     assert order.order_info == items
 

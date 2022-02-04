@@ -88,7 +88,7 @@ def get_first_unavailable_product_name(order_items, shop_id):
 def get_multi(
     response: Response,
     common: dict = Depends(common_parameters),
-    current_user: UsersTable = Depends(deps.get_current_active_user),
+    # current_user: UsersTable = Depends(deps.get_current_active_user),
 ) -> List[OrderSchema]:
     orders, header_range = order_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
@@ -111,7 +111,10 @@ def get_by_id(id: UUID) -> OrderSchema:
 
 
 @router.get("/check/{ids}")
-def check(ids: str, current_user: UsersTable = Depends(deps.get_current_active_user)) -> List[OrderSchema]:
+def check(
+    ids: str,
+    # current_user: UsersTable = Depends(deps.get_current_active_user)
+) -> List[OrderSchema]:
     id_list = ids.split(",")
 
     # Validate input

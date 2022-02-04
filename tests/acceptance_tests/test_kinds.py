@@ -7,7 +7,7 @@ from deepdiff import DeepSearch, grep  # For finding if item exists in an object
 
 from server.utils.json import json_dumps
 from tests.acceptance_tests.acceptance_settings import acceptance_settings
-from tests.acceptance_tests.helpers import get_difference_in_json_list
+from tests.acceptance_tests.helpers import get_difference_in_json_list, info_message
 
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI
 ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
@@ -21,12 +21,19 @@ def test_kinds_get_by_id():
     assert ddiff == {}
 
 
+def test_kinds_get_multi():
+    response_prd = requests.get(PRD_BACKEND_URI + "kinds/?range=%5B0%2C249%5D").json()
+    response_acc = requests.get(ACC_BACKEND_URI + "kinds?limit=250").json()
+
+    assert len(response_acc) == len(response_prd)
+
+    kinds_differences = get_difference_in_json_list(response_acc, response_prd)
+    assert kinds_differences == []
+
+
 def test_kinds_without_shop():
-    response_multi_prd = requests.get(PRD_BACKEND_URI + "kinds").json()
-    response_multi_acc = requests.get(ACC_BACKEND_URI + "kinds").json()
+    response_multi_prd = requests.get(PRD_BACKEND_URI + "kinds/?range=%5B0%2C249%5D").json()
     kinds_ids = []
-    ddiff = DeepDiff(response_multi_acc, response_multi_prd, ignore_order=True)
-    assert ddiff == {}
     for kind in response_multi_prd:
         kinds_ids.append(kind["id"])
 
@@ -52,10 +59,10 @@ def test_kinds_without_shop():
         strains_differences = get_difference_in_json_list(acc_list=acc_strains, prd_list=prd_strains)
         prices_differences = get_difference_in_json_list(acc_list=acc_prices, prd_list=prd_prices)
 
-        assert len(tags_differences) == 0
-        assert len(flavors_differences) == 0
-        assert len(strains_differences) == 0
-        assert len(prices_differences) == 0
+        assert tags_differences == [], print(info_message)
+        assert flavors_differences == [], print(info_message)
+        assert strains_differences == [], print(info_message)
+        assert prices_differences == [], print(info_message)
 
 
 def test_kinds_with_shop():
@@ -67,8 +74,8 @@ def test_kinds_with_shop():
             shops_with_kinds_ids.append(dict(shop_id=shop_to_price["shop_id"], kind_id=shop_to_price["kind_id"]))
 
     for item in shops_with_kinds_ids:
-        response_prd = requests.get(PRD_BACKEND_URI + f"kinds/{item['kind_id']}/?shop={item['shop_id']}").json()
-        response_acc = requests.get(ACC_BACKEND_URI + f"kinds/{item['kind_id']}/?shop={item['shop_id']}").json()
+        response_prd = requests.get(PRD_BACKEND_URI + f"kinds/{item['kind_id']}?shop={item['shop_id']}").json()
+        response_acc = requests.get(ACC_BACKEND_URI + f"kinds/{item['kind_id']}?shop={item['shop_id']}").json()
 
         acc_tags = response_acc["tags"]
         prd_tags = response_prd["tags"]
@@ -89,7 +96,7 @@ def test_kinds_with_shop():
         strains_differences = get_difference_in_json_list(acc_list=acc_strains, prd_list=prd_strains)
         prices_differences = get_difference_in_json_list(acc_list=acc_prices, prd_list=prd_prices)
 
-        assert len(tags_differences) == 0
-        assert len(flavors_differences) == 0
-        assert len(strains_differences) == 0
-        assert len(prices_differences) == 0
+        assert tags_differences == [], print(info_message)
+        assert flavors_differences == [], print(info_message)
+        assert strains_differences == [], print(info_message)
+        assert prices_differences == [], print(info_message)

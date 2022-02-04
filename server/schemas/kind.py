@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
+from server.schemas.price import DefaultPrice
 
 
 class KindBase(BoilerplateBaseModel):
@@ -16,9 +17,6 @@ class KindBase(BoilerplateBaseModel):
     i: bool = False
     s: bool = False
     complete: bool = False
-    approved: bool = False
-    approved_by: Optional[str] = None
-    disapproved_reason: Optional[str] = None
     image_1: Optional[str] = None
     image_2: Optional[str] = None
     image_3: Optional[str] = None
@@ -49,7 +47,9 @@ class KindInDBBase(KindBase):
 
 # Additional properties to return via API
 class KindSchema(KindInDBBase):
-    pass
+    approved: bool = False
+    approved_by: Optional[str] = None
+    disapproved_reason: Optional[str] = None
 
 
 class KindWithDetails(KindInDBBase):
@@ -61,7 +61,12 @@ class KindWithDetails(KindInDBBase):
     flavors_amount: int = 0
     strains: List[dict]
     strains_amount: int = 0
-    prices: Optional[List[dict]] = None
+    images_amount: int = 0
+
+
+class KindWithDefaultPrice(KindWithDetails):
+    # to be the same with the Flask backend
+    prices: Optional[DefaultPrice] = DefaultPrice()
 
 
 class KindWithDetailsAndPrices(KindWithDetails):

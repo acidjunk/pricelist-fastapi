@@ -36,7 +36,6 @@ class OrderBase(BoilerplateBaseModel):
     table_id: Optional[UUID]  # Optional or required ?
     total: Optional[float]
     customer_order_id: Optional[int]  # Optional or required ?
-    notes: Optional[str] = None
     status: Optional[str]
 
 
