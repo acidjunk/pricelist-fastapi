@@ -116,6 +116,18 @@ sam deploy --template-file out.yml \
 An more detailed explanation about the deployment on Amazon lambda can be found on: 
 [renedohmen.nl/deploy-fastapi-on-amazon-serverless](https://www.renedohmen.nl/deploy-fastapi-on-amazon-serverless/)
 
+## Reset staging DB
+
+use the RDS superuser to execute this on the staging DB
+
+```
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+REASSIGN OWNED BY rds_super_user TO priceliststaging;
+```
+
+Now a prepared prod dump can be imported.
+
 
 Workshop:
 =========
