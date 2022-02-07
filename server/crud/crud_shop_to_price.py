@@ -1,9 +1,12 @@
 from typing import Optional
 from uuid import UUID
 
+from sqlalchemy.orm import contains_eager, defer
+
 from server.crud.base import CRUDBase
 from server.db.models import ShopToPrice
 from server.schemas.shop_to_price import ShopToPriceCreate, ShopToPriceUpdate
+from server.utils.json import json_dumps
 
 
 class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate]):
@@ -21,6 +24,15 @@ class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate
             .all()
         )
         return check_query
+
+    def get_products_with_prices_by_shop_id(self, *, shop_id: UUID):
+        products = (
+            ShopToPrice.query.join(ShopToPrice.price)
+            .options(contains_eager(ShopToPrice.price), defer("price_id"))
+            .filter(ShopToPrice.shop_id == shop_id)
+            .all()
+        )
+        return products
 
 
 shop_to_price_crud = CRUDShopToPrice(ShopToPrice)

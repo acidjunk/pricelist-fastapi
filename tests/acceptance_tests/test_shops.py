@@ -11,20 +11,22 @@ from tests.acceptance_tests.helpers import get_difference_in_json_list
 
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI
 ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
+ACC_SUPERUSER_TOKEN_HEADERS = acceptance_settings.ACC_SUPERUSER_TOKEN_HEADERS
+
 test_shop_id = "a08a13e2-a31b-4b6d-b2b4-0491cb3d2227"
 test_shop_id_2 = "19149768-691c-40d8-a08e-fe900fd23bc0"
 
 
 def test_shops_get_multi():
     response_prd = requests.get(PRD_BACKEND_URI + "shops").json()
-    response_acc = requests.get(ACC_BACKEND_URI + "shops").json()
+    response_acc = requests.get(ACC_BACKEND_URI + "shops", headers=ACC_SUPERUSER_TOKEN_HEADERS).json()
     ddiff = DeepDiff(response_acc, response_prd, ignore_order=True)
     assert ddiff == {}
 
 
 def test_shops_full():
     response_multi_prd = requests.get(PRD_BACKEND_URI + "shops").json()
-    response_multi_acc = requests.get(ACC_BACKEND_URI + "shops").json()
+    response_multi_acc = requests.get(ACC_BACKEND_URI + "shops", headers=ACC_SUPERUSER_TOKEN_HEADERS).json()
     assert len(response_multi_prd) == len(response_multi_acc)
     shops_ids = []
     ddiff = DeepDiff(response_multi_acc, response_multi_prd, ignore_order=True)

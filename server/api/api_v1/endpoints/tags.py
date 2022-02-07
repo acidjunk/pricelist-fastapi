@@ -58,5 +58,4 @@ def update(*, tag_id: UUID, item_in: TagUpdate) -> Any:
 
 @router.delete("/{tag_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(tag_id: UUID) -> None:
-    tag_crud.delete(id=tag_id)
-    return None
+    return tag_crud.delete(id=tag_id)

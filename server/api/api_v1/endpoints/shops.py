@@ -21,7 +21,11 @@ logger = structlog.get_logger(__name__)
 
 
 @router.get("/", response_model=List[ShopSchema])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopSchema]:
+def get_multi(
+    response: Response,
+    common: dict = Depends(common_parameters),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> List[ShopSchema]:
     shops, header_range = shop_crud.get_multi(
         skip=common["skip"],
         limit=common["limit"],
@@ -127,5 +131,4 @@ def update(
 
 @router.delete("/{shop_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(shop_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
-    shop_crud.delete(id=shop_id)
-    return None
+    return shop_crud.delete(id=shop_id)

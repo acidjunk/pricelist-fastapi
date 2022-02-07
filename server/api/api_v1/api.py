@@ -28,6 +28,7 @@ from server.api.api_v1.endpoints import (
     kinds_to_tags,
     login,
     main_categories,
+    orders,
     prices,
     products,
     products_images,
@@ -41,14 +42,14 @@ from server.api.api_v1.endpoints import (
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
 
-# Todo: add security depends here or in endpoints
-
 api_router = APIRouter()
 
+# TODO Georgi: Bring back authentication
 api_router.include_router(login.router, tags=["login"])
 api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
 api_router.include_router(shops_to_prices.router, prefix="/shops-to-prices", tags=["shops-to-prices"])
+api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
 api_router.include_router(
     main_categories.router,
     prefix="/main-categories",

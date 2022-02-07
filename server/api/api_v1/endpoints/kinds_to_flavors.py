@@ -69,5 +69,4 @@ def update(*, kind_to_flavor_id: UUID, item_in: KindToFlavorUpdate) -> Any:
 
 @router.delete("/{kind_to_flavor_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(kind_to_flavor_id: UUID) -> None:
-    kind_to_flavor_crud.delete(id=kind_to_flavor_id)
-    return None
+    return kind_to_flavor_crud.delete(id=kind_to_flavor_id)
