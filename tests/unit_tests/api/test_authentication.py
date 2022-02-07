@@ -11,11 +11,12 @@ EXCLUDED_ENDPOINTS = [
     {"path": "/api/kinds/{id}/", "name": "get_by_id", "method": "GET"},
     {"path": "/api/products/", "name": "get_multi", "method": "GET"},
     {"path": "/api/products/{id}/", "name": "get_by_id", "method": "GET"},
-    {"path": "/api/shops/", "name": "get_multi", "method": "GET"},
     {"path": "/api/shops/{id}/", "name": "get_by_id", "method": "GET"},
     {"path": "/api/shops/cache-status/{id}/", "name": "get_cache_status", "method": "GET"},
     {"path": "/api/shops-to-prices/", "name": "get_multi", "method": "GET"},
     {"path": "/api/shops-to-prices/{id}/", "name": "get_by_id", "method": "GET"},
+    {"path": "/api/orders/check/{ids}/", "name": "check", "method": "GET"},
+    {"path": "/api/orders/", "name": "create", "method": "POST"},
     {"path": "/api/chat/", "name": "get", "method": "GET"},
 ]
 
@@ -29,7 +30,6 @@ def get_endpoints(fastapi_app):
     return url_list
 
 
-@pytest.mark.xfail(reason="Reason not ready yet")
 def test_endpoint_auth(test_client):
     responses = []
     for endpoint in get_endpoints(fastapi_app=test_client.app):

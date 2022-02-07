@@ -11,6 +11,9 @@ from tests.acceptance_tests.helpers import get_difference_in_json_list, info_mes
 
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI
 ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
+ACC_SUPERUSER_TOKEN_HEADERS = acceptance_settings.ACC_SUPERUSER_TOKEN_HEADERS
+
+
 test_kind_id = "0097d977-7e43-4acc-adc6-186f54b4c495"
 
 
@@ -18,17 +21,17 @@ def test_kinds_get_by_id():
     response_prd = requests.get(PRD_BACKEND_URI + f"kinds/{test_kind_id}").json()
     response_acc = requests.get(ACC_BACKEND_URI + f"kinds/{test_kind_id}").json()
     ddiff = DeepDiff(response_acc, response_prd, ignore_order=True)
-    assert ddiff == {}
+    assert ddiff == {}, print(info_message)
 
 
 def test_kinds_get_multi():
     response_prd = requests.get(PRD_BACKEND_URI + "kinds/?range=%5B0%2C249%5D").json()
-    response_acc = requests.get(ACC_BACKEND_URI + "kinds?limit=250").json()
+    response_acc = requests.get(ACC_BACKEND_URI + "kinds?limit=250", headers=ACC_SUPERUSER_TOKEN_HEADERS).json()
 
     assert len(response_acc) == len(response_prd)
 
     kinds_differences = get_difference_in_json_list(response_acc, response_prd)
-    assert kinds_differences == []
+    assert kinds_differences == [], print(info_message)
 
 
 def test_kinds_without_shop():

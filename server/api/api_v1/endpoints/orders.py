@@ -1,6 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, List
+from typing import Any, List, Optional
 from uuid import UUID
 
 import structlog
@@ -17,7 +17,7 @@ from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db.models import UsersTable
-from server.schemas.order import OrderCreate, OrderSchema, OrderUpdate
+from server.schemas.order import OrderBase, OrderCreate, OrderCreated, OrderSchema, OrderUpdate, OrderUpdated
 
 logger = structlog.get_logger(__name__)
 
@@ -88,7 +88,7 @@ def get_first_unavailable_product_name(order_items, shop_id):
 def get_multi(
     response: Response,
     common: dict = Depends(common_parameters),
-    # current_user: UsersTable = Depends(deps.get_current_active_user),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
     orders, header_range = order_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
@@ -103,18 +103,17 @@ def get_multi(
 
 
 @router.get("/{id}")
-def get_by_id(id: UUID) -> OrderSchema:
+def get_by_id(id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> OrderSchema:
     order = order_crud.get(id)
     if not order:
         raise_status(HTTPStatus.NOT_FOUND, f"Order with id {id} not found")
     return order
 
 
-@router.get("/check/{ids}")
+@router.get("/check/{ids}", response_model=List[OrderCreated])
 def check(
     ids: str,
-    # current_user: UsersTable = Depends(deps.get_current_active_user)
-) -> List[OrderSchema]:
+) -> List[OrderCreated]:
     id_list = ids.split(",")
 
     # Validate input
@@ -127,6 +126,7 @@ def check(
 
     # Build response
     items = []
+    items_with_schema = []
     for id in id_list:
         # item = load(Order, id, allow_404=True) #the old
         item = order_crud.get(id)
@@ -137,12 +137,24 @@ def check(
     for item in items:
         if item.shop_id != items[0].shop_id:
             raise_status(HTTPStatus.BAD_REQUEST, "All ID's should belong to one shop")
+        else:
+            checked_order = OrderCreated(
+                table_id=item.table_id,
+                total=item.total,
+                customer_order_id=item.customer_order_id,
+                status=item.status,
+                id=item.id,
+                created_at=item.created_at,
+                completed_at=item.completed_at,
+                table_name=item.table.name,
+            )
+            items_with_schema.append(checked_order)
 
-    return items
+    return items_with_schema
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
-def create(data: OrderCreate = Body(...)) -> None:
+@router.post("/", response_model=OrderCreated, status_code=HTTPStatus.CREATED)
+def create(data: OrderCreate = Body(...)) -> OrderCreated:
     logger.info("Saving order", data=data)
 
     if data.customer_order_id:
@@ -164,13 +176,24 @@ def create(data: OrderCreate = Body(...)) -> None:
 
     data.customer_order_id = order_crud.get_newest_order_id(shop_id=shop_id)
     order = order_crud.create(obj_in=data)
-    return order
+
+    created_order = OrderCreated(
+        table_id=order.table_id,
+        total=order.total,
+        customer_order_id=order.customer_order_id,
+        status=order.status,
+        id=order.id,
+        created_at=order.created_at,
+        completed_at=order.completed_at,
+        table_name=None,
+    )
+    return created_order
 
 
-@router.patch("/{order_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.patch("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def patch(
-    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_user)
-) -> Any:
+    *, order_id: UUID, item_in: OrderBase, current_user: UsersTable = Depends(deps.get_current_active_user)
+) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -184,30 +207,52 @@ def patch(
         order.completed_at = datetime.utcnow()
         order.completed_by = current_user.id
 
-    _ = order_crud.update(
+    order = order_crud.update(
         db_obj=order,
         obj_in=item_in,
     )
-    return None
+
+    updated_order = OrderUpdated(
+        table_id=order.table_id,
+        total=order.total,
+        customer_order_id=order.customer_order_id,
+        status=order.status,
+        shop_id=order.shop.id,
+        order_info=order.order_info,
+        id=order.id,
+    )
+
+    return updated_order
 
 
-@router.put("/{order_id}", response_model=None, status_code=HTTPStatus.CREATED)
+@router.put("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def update(
-    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_user)
-) -> Any:
+    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
     if item_in.status and (item_in.status == "complete" or item_in.status == "cancelled") and not order.completed_at:
         order.completed_at = datetime.utcnow()
-        order.completed_by = current_user.id
+        # order.completed_by = current_user.id
 
     order = order_crud.update(
         db_obj=order,
         obj_in=item_in,
     )
-    return order
+
+    updated_order = OrderUpdated(
+        table_id=order.table_id,
+        total=order.total,
+        customer_order_id=order.customer_order_id,
+        status=order.status,
+        shop_id=order.shop.id,
+        order_info=order.order_info,
+        id=order.id,
+    )
+
+    return updated_order
 
 
 @router.delete("/{order_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)

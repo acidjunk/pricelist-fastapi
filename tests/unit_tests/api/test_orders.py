@@ -308,9 +308,11 @@ def test_patch_order_to_complete(test_client, shop_with_orders, superuser_token_
     # Get the uncompleted order_id from the fixture:
     order = order_crud.get_first_order_filtered_by(status="pending")
 
-    body = {"status": "complete"}
+    body = {
+        "status": "complete",
+    }
     response = test_client.patch(f"/api/orders/{order.id}", json=body, headers=superuser_token_headers)
-    assert response.status_code == 204
+    assert response.status_code == 201
 
     updated_order = test_client.get(f"/api/orders/{order.id}", headers=superuser_token_headers).json()
     assert updated_order["status"] == "complete"
@@ -321,7 +323,7 @@ def test_update_order(test_client, shop_with_orders, superuser_token_headers):
     # Get the completed order_id from the fixture:
     order = order_crud.get_first_order_filtered_by(status="complete")
 
-    body = {"status": "cancelled"}
+    body = {"status": "cancelled", "order_info": order.order_info, "shop_id": str(order.shop_id)}
     response = test_client.put(f"/api/orders/{order.id}", json=body, headers=superuser_token_headers)
     assert response.status_code == 201
 

@@ -3,15 +3,15 @@ from http import HTTPStatus
 from server.utils.json import json_dumps
 
 
-def test_shops_get_multi(test_client, shop_1, shop_2):
-    response = test_client.get(f"/api/shops")
+def test_shops_get_multi(test_client, shop_1, shop_2, superuser_token_headers):
+    response = test_client.get(f"/api/shops", headers=superuser_token_headers)
     assert response.status_code == 200
     shops = response.json()
     assert 2 == len(shops)
 
 
-def test_shops_get_multi_with_slash(test_client, shop_1, shop_2):
-    response = test_client.get(f"/api/shops/")
+def test_shops_get_multi_with_slash(test_client, shop_1, shop_2, superuser_token_headers):
+    response = test_client.get(f"/api/shops/", headers=superuser_token_headers)
     assert response.status_code == 200
     shops = response.json()
     assert 2 == len(shops)
@@ -46,5 +46,5 @@ def test_shop_update(shop_1, test_client, superuser_token_headers):
 def test_shop_delete(shop_1, test_client, superuser_token_headers):
     response = test_client.delete(f"/api/shops/{shop_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code
-    shops = test_client.get("/api/shops").json()
+    shops = test_client.get("/api/shops", headers=superuser_token_headers).json()
     assert 0 == len(shops)

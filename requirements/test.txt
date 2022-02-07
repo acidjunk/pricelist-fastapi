@@ -16,7 +16,7 @@ flake8-rst-docstrings
 flake8-tidy-imports
 isort
 jsonref
-mypy==0.790
+mypy==0.812
 pytest
 pytest-cov
 pytest-xdist

@@ -45,9 +45,22 @@ class OrderCreate(OrderBase):
     order_info: List[OrderItem]
 
 
+# Properties to receive via API after creation
+class OrderCreated(OrderBase):
+    id: UUID
+    created_at: datetime
+    completed_at: Optional[datetime] = None
+    table_name: Optional[str]
+
+
 # Properties to receive via API on update
 class OrderUpdate(OrderBase):
-    pass
+    shop_id: UUID
+    order_info: List[OrderItem]
+
+
+class OrderUpdated(OrderUpdate):
+    id: UUID
 
 
 class OrderInDBBase(OrderBase):

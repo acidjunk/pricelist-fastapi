@@ -31,7 +31,7 @@ router = APIRouter()
 def get_multi(
     response: Response,
     common: dict = Depends(common_parameters),
-    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[KindWithDefaultPrice]:
     kinds, header_range = kind_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]

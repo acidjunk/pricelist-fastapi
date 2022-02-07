@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
+from server.schemas.price import DefaultPrice
 
 
 class ProductBase(BoilerplateBaseModel):
@@ -12,9 +13,6 @@ class ProductBase(BoilerplateBaseModel):
     short_description_en: Optional[str] = None
     description_en: Optional[str] = None
     complete: bool = False
-    approved: bool = False
-    approved_by: Optional[str] = None
-    disapproved_reason: Optional[str] = None
     image_1: Optional[str] = None
     image_2: Optional[str] = None
     image_3: Optional[str] = None
@@ -45,4 +43,19 @@ class ProductInDBBase(ProductBase):
 
 # Additional properties to return via API
 class ProductSchema(ProductInDBBase):
-    pass
+    approved: bool = False
+    approved_by: Optional[str] = None
+    disapproved_reason: Optional[str] = None
+
+
+class ProductWithDetails(ProductInDBBase):
+    images_amount: int = 0
+
+
+class ProductWithDefaultPrice(ProductWithDetails):
+    # to be the same with the Flask backend
+    prices: Optional[DefaultPrice] = DefaultPrice()
+
+
+class ProductWithDetailsAndPrices(ProductWithDetails):
+    prices: List[dict] = []

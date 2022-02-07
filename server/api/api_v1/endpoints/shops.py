@@ -21,7 +21,11 @@ logger = structlog.get_logger(__name__)
 
 
 @router.get("/", response_model=List[ShopSchema])
-def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopSchema]:
+def get_multi(
+    response: Response,
+    common: dict = Depends(common_parameters),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> List[ShopSchema]:
     shops, header_range = shop_crud.get_multi(
         skip=common["skip"],
         limit=common["limit"],

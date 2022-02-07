@@ -54,31 +54,31 @@ api_router.include_router(
     main_categories.router,
     prefix="/main-categories",
     tags=["main-categories"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     categories.router,
     prefix="/categories",
     tags=["categories"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     categories_images.router,
     prefix="/categories-images",
     tags=["categories-images"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     categories_images.router,
     prefix="/kinds-images",
     tags=["kinds-images"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     products_images.router,
     prefix="/products-images",
     tags=["products-images"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(products.router, prefix="/products", tags=["products"])
 api_router.include_router(kinds.router, prefix="/kinds", tags=["kinds"])
@@ -86,49 +86,34 @@ api_router.include_router(
     kinds_to_flavors.router,
     prefix="/kinds-to-flavors",
     tags=["kinds-relations"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     kinds_to_strains.router,
     prefix="/kinds-to-strains",
     tags=["kinds-relations"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
     kinds_to_tags.router,
     prefix="/kinds-to-tags",
     tags=["kinds-relations"],
-    # dependencies=[Depends(deps.get_current_active_superuser)],
+    dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    strains.router,
-    prefix="/strains",
-    tags=["strains"],
-    # dependencies=[Depends(deps.get_current_active_superuser)]
+    strains.router, prefix="/strains", tags=["strains"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    tags.router,
-    prefix="/tags",
-    tags=["tags"],
-    # dependencies=[Depends(deps.get_current_active_superuser)]
+    tags.router, prefix="/tags", tags=["tags"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    tables.router,
-    prefix="/tables",
-    tags=["tables"],
-    # dependencies=[Depends(deps.get_current_active_superuser)]
+    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    flavors.router,
-    prefix="/flavors",
-    tags=["flavors"],
-    # dependencies=[Depends(deps.get_current_active_superuser)]
+    flavors.router, prefix="/flavors", tags=["flavors"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    prices.router,
-    prefix="/prices",
-    tags=["prices"],
-    # dependencies=[Depends(deps.get_current_active_superuser)]
+    prices.router, prefix="/prices", tags=["prices"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
