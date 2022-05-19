@@ -12,6 +12,7 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.helpers import invalidateCompletedOrdersCache, invalidatePendingOrdersCache
 from server.api.utils import validate_uuid4
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
@@ -187,6 +188,7 @@ def create(data: OrderCreate = Body(...)) -> OrderCreated:
         completed_at=order.completed_at,
         table_name=None,
     )
+    invalidatePendingOrdersCache(created_order.id)
     return created_order
 
 
@@ -221,7 +223,7 @@ def patch(
         order_info=order.order_info,
         id=order.id,
     )
-
+    invalidateCompletedOrdersCache(updated_order.id)
     return updated_order
 
 

@@ -17,7 +17,9 @@ class ShopCreate(ShopBase):
 
 # Properties to receive via API on update
 class ShopUpdate(ShopBase):
-    pass
+    modified_at: Optional[datetime]
+    last_pending_order: Optional[str]
+    last_completed_order: Optional[str]
 
 
 class ShopInDBBase(ShopBase):
