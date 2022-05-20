@@ -1,3 +1,6 @@
+from datetime import datetime
+
+import time
 from http import HTTPStatus
 from typing import Any, List
 from uuid import UUID
@@ -12,13 +15,15 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import invalidateShopCache
+from server.apis.v1.helpers import load, save
 from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
-from server.db.models import UsersTable
+from server.db.models import UsersTable, Shop
+from server.schemas.shop import ShopUpdate
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
@@ -122,7 +127,7 @@ def update(
     *,
     shop_to_price_id: UUID,
     item_in: ShopToPriceUpdate,
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
@@ -141,12 +146,30 @@ def update(
     if (product and kind) or not product and not kind:
         raise_status(HTTPStatus.BAD_REQUEST, "One Cannabis or one Horeca product has to be provided")
 
-    invalidateShopCache(shop_to_price.shop_id)
+    # invalidateShopCache(item_in.shop_id)
+    # item = shop_crud.get(item_in.shop_id)
+    item = load(Shop, item_in.shop_id)
+    item.modified_at = datetime.utcnow()
+    save(item)
+
+    # item_in_2 = ShopUpdate(
+    #     name=item.name,
+    #     description=item.description,
+    #     modified_at=datetime.utcnow(),
+    #     last_pending_order=item.last_pending_order,
+    #     last_completed_order=item.last_completed_order
+    # )
+    # # sendMessageToWebSocketServer(payload)
     # Ok we survived all that: let's save it:
-    return shop_crud.update(
+    # cola = shop_crud.update(db_obj=item, obj_in=item_in_2)
+
+    shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
     )
+
+    return "seedb"
+
 
 
 @router.put("/availability/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
@@ -158,7 +181,7 @@ def update(
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
     invalidateShopCache(shop_to_price.shop_id)
-    return shop_crud.update(
+    return shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
     )

@@ -162,12 +162,12 @@ class Shop(BaseModel):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     name = Column(String(255), nullable=False, unique=True, index=True)
     description = Column(String(255), unique=True)
-
-    shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
-    shop_to_category = relationship("Category", cascade="save-update, merge, delete")
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow())
     last_pending_order = Column(String(255), unique=True)  # order id of last pending order for this shop (UUID)
     last_completed_order = Column(String(255), unique=True)  # order id of last completed order for this shop (UUID)
+
+    shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
+    shop_to_category = relationship("Category", cascade="save-update, merge, delete")
 
     def __repr__(self):
         return self.name

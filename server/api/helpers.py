@@ -48,12 +48,14 @@ s3 = boto3.resource(
     "s3",
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name="eu-central-1",
 )
 
 sendMessageLambda = boto3.client(
     "lambda",
     aws_access_key_id=os.getenv("LAMBDA_ACCESS_KEY_ID"),
     aws_secret_access_key=os.getenv("LAMBDA_SECRET_ACCESS_KEY"),
+    # region_name="eu-central-1",
 )
 
 
@@ -166,13 +168,17 @@ def sendMessageToWebSocketServer(payload):
 
 def invalidateShopCache(shop_id):
     item = shop_crud.get(shop_id)
-    item_in = ShopUpdate(name=item.name, description=item.description, modified_at=datetime.utcnow())
+    item_in = ShopUpdate(
+        name=item.name,
+        description=item.description,
+        modified_at=datetime.utcnow(),
+        last_pending_order=item.last_pending_order,
+        last_completed_order=item.last_completed_order
+    )
     payload = {"connectionType": "shop", "shopId": str(shop_id)}
-    sendMessageToWebSocketServer(payload)
-    try:
-        shop_crud.update(db_obj=item, obj_in=item_in)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {e}")
+    # sendMessageToWebSocketServer(payload)
+    shop_crud.update(db_obj=item, obj_in=item_in)
+    return
 
 
 def invalidateCompletedOrdersCache(order_id):
@@ -185,6 +191,7 @@ def invalidateCompletedOrdersCache(order_id):
         shop_crud.update(db_obj=shop, obj_in=shop_in)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")
+    return
 
 
 def invalidatePendingOrdersCache(order_id):
@@ -194,6 +201,6 @@ def invalidatePendingOrdersCache(order_id):
     payload = {"connectionType": "pending_orders", "shopId": str(shop.id)}
     sendMessageToWebSocketServer(payload)
     try:
-        shop_crud.update(db_obj=shop, obj_in=shop_in)
+        return shop_crud.update(db_obj=shop, obj_in=shop_in)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")

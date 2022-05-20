@@ -122,7 +122,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 setattr(db_obj, field, update_data[field])
         db.session.add(db_obj)
         db.session.commit()
-        db.session.refresh(db_obj)
+        # db.session.refresh(db_obj)
         return db_obj
 
     def delete(self, *, id: str) -> None:
