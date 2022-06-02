@@ -2,6 +2,10 @@ import csv
 import uuid
 from typing import Union
 from uuid import UUID
+import structlog
+from fastapi import Request
+
+logger = structlog.get_logger(__name__)
 
 # import qrcode
 # from database import Price, db
@@ -87,3 +91,19 @@ def validate_uuid4(uuid_string):
     # valid uuid4. This is bad for validation purposes.
 
     return str(val) == uuid_string
+
+
+def is_ip_allowed(request: Request, shop):
+    allowed_ips = shop.allowed_ips
+    ip = str(request.client.host)
+    shop_id = str(shop.id)
+    if not allowed_ips:
+        # IP checking isn't activated
+        logger.info("IP check isn't activated for shop", shop_name=shop.name, shop_id=shop_id, ip=ip)
+        return True
+    if ip in shop.allowed_ips:
+        logger.info("IP check OK for shop", shop_name=shop.name, shop_id=shop_id, ip=ip, allowed_ips=allowed_ips)
+        return True
+    logger.warning("IP is not allowed to order", shop_name=shop.name, shop_id=shop_id, ip=ip, allowed_ips=allowed_ips)
+    return False
+

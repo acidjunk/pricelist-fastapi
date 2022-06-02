@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 from uuid import UUID
 
 import structlog
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
 
@@ -12,12 +12,12 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
-from server.api.helpers import invalidateCompletedOrdersCache, invalidatePendingOrdersCache
-from server.api.utils import validate_uuid4
+from server.api.helpers import invalidateCompletedOrdersCache, invalidatePendingOrdersCache, _query_with_filters
+from server.api.utils import validate_uuid4, is_ip_allowed
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
-from server.db.models import UsersTable
+from server.db.models import UsersTable, Order
 from server.schemas.order import OrderBase, OrderCreate, OrderCreated, OrderSchema, OrderUpdate, OrderUpdated
 
 logger = structlog.get_logger(__name__)
@@ -87,9 +87,9 @@ def get_first_unavailable_product_name(order_items, shop_id):
 
 @router.get("/", response_model=List[OrderSchema])
 def get_multi(
-    response: Response,
-    common: dict = Depends(common_parameters),
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+        response: Response,
+        common: dict = Depends(common_parameters),
+        current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
     orders, header_range = order_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
@@ -103,6 +103,26 @@ def get_multi(
     return orders
 
 
+@router.get("/shop/{shop_id}/pending", response_model=List[OrderSchema])
+def show_all_pending_orders_per_shop(
+        shop_id: UUID,
+        response: Response,
+        common: dict = Depends(common_parameters),
+        # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> List[OrderSchema]:
+    # orders = order_crud.get_all_orders_filtered_by(status="pending", shop_id=shop_id)
+    orders = _query_with_filters(
+        response=response,
+        model=Order,
+        query=Order.query.filter(Order.shop_id == shop_id).filter(Order.status == "pending"),
+        range=[common["skip"], common["limit"]],
+        sort=common["sort"],
+        filters=common["filter"]
+    )
+    # response.headers["Content-Range"] = header_range
+    return orders
+
+
 @router.get("/{id}")
 def get_by_id(id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> OrderSchema:
     order = order_crud.get(id)
@@ -113,7 +133,7 @@ def get_by_id(id: UUID, current_user: UsersTable = Depends(deps.get_current_acti
 
 @router.get("/check/{ids}", response_model=List[OrderCreated])
 def check(
-    ids: str,
+        ids: str,
 ) -> List[OrderCreated]:
     id_list = ids.split(",")
 
@@ -155,14 +175,19 @@ def check(
 
 
 @router.post("/", response_model=OrderCreated, status_code=HTTPStatus.CREATED)
-def create(data: OrderCreate = Body(...)) -> OrderCreated:
+def create(request: Request, data: OrderCreate = Body(...)) -> OrderCreated:
     logger.info("Saving order", data=data)
 
     if data.customer_order_id:
         del data.customer_order_id
     shop_id = data.shop_id
-    if not shop_crud.get(str(shop_id)):
+    shop = shop_crud.get(str(shop_id))
+    if not shop:
         raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {shop_id} not found")
+
+    if not is_ip_allowed(request, shop) and str(data.table_id) != "0999fbcd-a72b-4cc2-abbe-41ccd466cdaf":
+        # allow test table to bypass IP check if any
+        raise_status(HTTPStatus.BAD_REQUEST, "NOT_ON_SHOP_WIFI")
 
     # 5 gram check
     total_cannabis = get_price_rules_total(data.order_info)
@@ -176,6 +201,12 @@ def create(data: OrderCreate = Body(...)) -> OrderCreated:
         raise_status(HTTPStatus.BAD_REQUEST, f"{unavailable_product_name}, OUT_OF_STOCK")
 
     data.customer_order_id = order_crud.get_newest_order_id(shop_id=shop_id)
+    data.status = "pending"
+    if str(data.table_id) == "0999fbcd-a72b-4cc2-abbe-41ccd466cdaf":
+        # Test table -> flag it complete
+        data.status = "complete"
+        data.completed_at = datetime.utcnow()
+
     order = order_crud.create(obj_in=data)
 
     created_order = OrderCreated(
@@ -188,23 +219,27 @@ def create(data: OrderCreate = Body(...)) -> OrderCreated:
         completed_at=order.completed_at,
         table_name=None,
     )
-    invalidatePendingOrdersCache(created_order.id)
+    if str(data.table_id) == "0999fbcd-a72b-4cc2-abbe-41ccd466cdaf":
+        # Test table -> invalidate completed orders
+        invalidateCompletedOrdersCache(created_order.id)
+    else:
+        invalidatePendingOrdersCache(created_order.id)
     return created_order
 
 
 @router.patch("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def patch(
-    *, order_id: UUID, item_in: OrderBase, current_user: UsersTable = Depends(deps.get_current_active_user)
+        *, order_id: UUID, item_in: OrderBase, current_user: UsersTable = Depends(deps.get_current_active_user)
 ) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
     if (
-        "complete" not in order.status
-        and item_in.status
-        and (item_in.status == "complete" or item_in.status == "cancelled")
-        and not order.completed_at
+            "complete" not in order.status
+            and item_in.status
+            and (item_in.status == "complete" or item_in.status == "cancelled")
+            and not order.completed_at
     ):
         order.completed_at = datetime.utcnow()
         order.completed_by = current_user.id
@@ -229,7 +264,7 @@ def patch(
 
 @router.put("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def update(
-    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+        *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:

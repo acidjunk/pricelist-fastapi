@@ -12,11 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 import logging
 import os
 
 import structlog
 from fastapi.applications import FastAPI
+from fastapi import Request
 from mangum import Mangum
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -87,6 +89,11 @@ app.add_exception_handler(ProblemDetailException, problem_detail_handler)
 @app.router.get("/", response_model=str, response_class=JSONResponse, include_in_schema=False)
 def index() -> str:
     return "FastAPI boilerplate backend root"
+
+
+@app.router.get("/get_my_ip", include_in_schema=False)
+def get_my_ip(request: Request):
+    return {"ip": str(request.client.host), "alt": request.client}
 
 
 logger.info("App is running")

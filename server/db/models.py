@@ -165,7 +165,7 @@ class Shop(BaseModel):
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow())
     last_pending_order = Column(String(255), unique=True)  # order id of last pending order for this shop (UUID)
     last_completed_order = Column(String(255), unique=True)  # order id of last completed order for this shop (UUID)
-
+    allowed_ips = Column(JSON)
     shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
     shop_to_category = relationship("Category", cascade="save-update, merge, delete")
 

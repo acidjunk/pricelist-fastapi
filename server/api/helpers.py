@@ -105,7 +105,6 @@ def _query_with_filters(
                     query = query.order_by(expression.desc(model.__dict__[sort[0]]))
                 else:
                     query = query.order_by(expression.asc(model.__dict__[sort[0]]))
-
     if range is not None and len(range) == 2:
         try:
             range_start = int(range[0])

@@ -9,15 +9,16 @@ from server.schemas.base import BoilerplateBaseModel
 from server.types import JSON
 
 
+# Made them optional for now because there are some empty order_info fields in DB
 class OrderItem(BaseModel):
-    description: str
-    price: float
+    description: Optional[str]
+    price: Optional[float]
     kind_id: Optional[str]
     kind_name: Optional[str]
     product_id: Optional[str]
     product_name: Optional[str]
-    internal_product_id: str
-    quantity: int
+    internal_product_id: Optional[str]
+    quantity: Optional[int]
 
     @root_validator
     def check_order_item_if_has_both(cls, values):
@@ -43,6 +44,7 @@ class OrderBase(BoilerplateBaseModel):
 class OrderCreate(OrderBase):
     shop_id: UUID
     order_info: List[OrderItem]
+    completed_at: Optional[datetime] = None
 
 
 # Properties to receive via API after creation
