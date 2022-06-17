@@ -1,6 +1,6 @@
 import structlog
 
-from server.crud import user_crud
+from server.crud.crud_user import user_crud
 from server.crud.crud_role import role_crud
 from server.crud.crud_role_user import role_user_crud
 from server.schemas import RoleCreate, UserCreate

@@ -171,7 +171,6 @@ def update(
     return "seedb"
 
 
-
 @router.put("/availability/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def update(
     *,

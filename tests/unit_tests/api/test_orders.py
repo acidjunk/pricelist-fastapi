@@ -21,6 +21,22 @@ def test_mixed_order_list(test_client, shop_with_mixed_orders, superuser_token_h
     assert len(response.json()) == 2
 
 
+def test_orders_pending_list(test_client, shop_with_different_statuses_orders, shop_1, superuser_token_headers):
+    response = test_client.get(f"/api/orders/shop/{shop_1.id}/pending", headers=superuser_token_headers)
+    response_json = response.json()
+    assert response.status_code == 200
+    assert len(response_json) == 1
+    assert response_json[0]["status"] == "pending"
+
+
+def test_orders_complete_list(test_client, shop_with_different_statuses_orders, shop_1, superuser_token_headers):
+    response = test_client.get(f"/api/orders/shop/{shop_1.id}/complete", headers=superuser_token_headers)
+    response_json = response.json()
+    assert response.status_code == 200
+    assert len(response_json) == 1
+    assert response_json[0]["status"] == "complete"
+
+
 def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_products):
     items = [
         {

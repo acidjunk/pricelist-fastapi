@@ -542,6 +542,59 @@ def shop_with_orders(shop_with_products, kind_1, kind_2, price_1, price_2):
 
 
 @pytest.fixture
+def shop_with_different_statuses_orders(shop_with_products, kind_1, kind_2, price_1, price_2):
+    items = [
+        {
+            "description": "1 gram",
+            "price": price_1.one,
+            "kind_id": str(kind_1.id),
+            "kind_name": kind_1.name,
+            "internal_product_id": "01",
+            "quantity": 2,
+        },
+        {
+            "description": "1 joint",
+            "price": price_2.joint,
+            "kind_id": str(kind_2.id),
+            "kind_name": kind_2.name,
+            "internal_product_id": "02",
+            "quantity": 1,
+        },
+    ]
+    order = Order(
+        id=str(uuid.uuid4()),
+        shop_id=str(shop_with_products.id),
+        order_info=items,
+        total=24.0,
+        customer_order_id=1,
+        status="pending",
+    )
+    db.session.add(order)
+    order = Order(
+        id=str(uuid.uuid4()),
+        shop_id=str(shop_with_products.id),
+        order_info=items,
+        total=24.0,
+        customer_order_id=2,
+        completed_at=datetime.utcnow(),
+        status="complete",
+    )
+    db.session.add(order)
+    order = Order(
+        id=str(uuid.uuid4()),
+        shop_id=str(shop_with_products.id),
+        order_info=items,
+        total=24.0,
+        customer_order_id=3,
+        completed_at=datetime.utcnow(),
+        status="cancelled",
+    )
+    db.session.add(order)
+    db.session.commit()
+    return shop_1
+
+
+@pytest.fixture
 def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2, price_3, product_1):
     items = [
         {

@@ -1,5 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
+from operator import or_
 from typing import Any, List, Optional
 from uuid import UUID
 
@@ -87,9 +88,9 @@ def get_first_unavailable_product_name(order_items, shop_id):
 
 @router.get("/", response_model=List[OrderSchema])
 def get_multi(
-        response: Response,
-        common: dict = Depends(common_parameters),
-        current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    response: Response,
+    common: dict = Depends(common_parameters),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
     orders, header_range = order_crud.get_multi(
         skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
@@ -105,21 +106,48 @@ def get_multi(
 
 @router.get("/shop/{shop_id}/pending", response_model=List[OrderSchema])
 def show_all_pending_orders_per_shop(
-        shop_id: UUID,
-        response: Response,
-        common: dict = Depends(common_parameters),
-        # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    shop_id: UUID,
+    response: Response,
+    common: dict = Depends(common_parameters),
+    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
-    # orders = order_crud.get_all_orders_filtered_by(status="pending", shop_id=shop_id)
-    orders = _query_with_filters(
-        response=response,
-        model=Order,
-        query=Order.query.filter(Order.shop_id == shop_id).filter(Order.status == "pending"),
-        range=[common["skip"], common["limit"]],
-        sort=common["sort"],
-        filters=common["filter"]
+    query = Order.query.filter(Order.shop_id == shop_id).filter(Order.status == "pending")
+    orders, header_range = order_crud.get_multi(
+        query_parameter=query,
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
     )
-    # response.headers["Content-Range"] = header_range
+    response.headers["Content-Range"] = header_range
+    return orders
+
+
+@router.get("/shop/{shop_id}/complete", response_model=List[OrderSchema])
+def show_all_complete_orders_per_shop(
+    shop_id: UUID,
+    response: Response,
+    common: dict = Depends(common_parameters),
+    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> List[OrderSchema]:
+    query = Order.query.filter(Order.shop_id == shop_id).filter(
+        or_(Order.status == "complete", Order.status == "cancelled")
+    )
+    orders, header_range = order_crud.get_multi(
+        query_parameter=query,
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
+    )
+
+    for order in orders:
+        if (order.status == "complete" or order.status == "cancelled") and order.completed_by:
+            order.completed_by_name = order.user.first_name
+        if order.table_id:
+            order.table_name = order.table.name
+
+    response.headers["Content-Range"] = header_range
     return orders
 
 
@@ -133,7 +161,7 @@ def get_by_id(id: UUID, current_user: UsersTable = Depends(deps.get_current_acti
 
 @router.get("/check/{ids}", response_model=List[OrderCreated])
 def check(
-        ids: str,
+    ids: str,
 ) -> List[OrderCreated]:
     id_list = ids.split(",")
 
@@ -229,17 +257,17 @@ def create(request: Request, data: OrderCreate = Body(...)) -> OrderCreated:
 
 @router.patch("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def patch(
-        *, order_id: UUID, item_in: OrderBase, current_user: UsersTable = Depends(deps.get_current_active_user)
+    *, order_id: UUID, item_in: OrderBase, current_user: UsersTable = Depends(deps.get_current_active_user)
 ) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
     if (
-            "complete" not in order.status
-            and item_in.status
-            and (item_in.status == "complete" or item_in.status == "cancelled")
-            and not order.completed_at
+        "complete" not in order.status
+        and item_in.status
+        and (item_in.status == "complete" or item_in.status == "cancelled")
+        and not order.completed_at
     ):
         order.completed_at = datetime.utcnow()
         order.completed_by = current_user.id
@@ -264,7 +292,7 @@ def patch(
 
 @router.put("/{order_id}", response_model=OrderUpdated, status_code=HTTPStatus.CREATED)
 def update(
-        *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    *, order_id: UUID, item_in: OrderUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ) -> OrderUpdated:
     order = order_crud.get(order_id)
     if not order:
@@ -272,7 +300,7 @@ def update(
 
     if item_in.status and (item_in.status == "complete" or item_in.status == "cancelled") and not order.completed_at:
         order.completed_at = datetime.utcnow()
-        # order.completed_by = current_user.id
+        order.completed_by = current_user.id
 
     order = order_crud.update(
         db_obj=order,

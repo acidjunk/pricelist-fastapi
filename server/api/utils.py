@@ -106,4 +106,3 @@ def is_ip_allowed(request: Request, shop):
         return True
     logger.warning("IP is not allowed to order", shop_name=shop.name, shop_id=shop_id, ip=ip, allowed_ips=allowed_ips)
     return False
-

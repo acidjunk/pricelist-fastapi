@@ -172,7 +172,7 @@ def invalidateShopCache(shop_id):
         description=item.description,
         modified_at=datetime.utcnow(),
         last_pending_order=item.last_pending_order,
-        last_completed_order=item.last_completed_order
+        last_completed_order=item.last_completed_order,
     )
     payload = {"connectionType": "shop", "shopId": str(shop_id)}
     # sendMessageToWebSocketServer(payload)
