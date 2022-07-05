@@ -13,12 +13,12 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
-from server.api.helpers import invalidateCompletedOrdersCache, invalidatePendingOrdersCache, _query_with_filters
-from server.api.utils import validate_uuid4, is_ip_allowed
+from server.api.helpers import _query_with_filters, invalidateCompletedOrdersCache, invalidatePendingOrdersCache
+from server.api.utils import is_ip_allowed, validate_uuid4
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
-from server.db.models import UsersTable, Order
+from server.db.models import Order, UsersTable
 from server.schemas.order import OrderBase, OrderCreate, OrderCreated, OrderSchema, OrderUpdate, OrderUpdated
 
 logger = structlog.get_logger(__name__)
@@ -109,7 +109,7 @@ def show_all_pending_orders_per_shop(
     shop_id: UUID,
     response: Response,
     common: dict = Depends(common_parameters),
-    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
     query = Order.query.filter(Order.shop_id == shop_id).filter(Order.status == "pending")
     orders, header_range = order_crud.get_multi(
@@ -128,7 +128,7 @@ def show_all_complete_orders_per_shop(
     shop_id: UUID,
     response: Response,
     common: dict = Depends(common_parameters),
-    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> List[OrderSchema]:
     query = Order.query.filter(Order.shop_id == shop_id).filter(
         or_(Order.status == "complete", Order.status == "cancelled")

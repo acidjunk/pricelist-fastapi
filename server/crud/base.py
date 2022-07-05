@@ -1,4 +1,4 @@
-from typing import Generic, List, Optional, Tuple, Type, TypeVar, Union, Any
+from typing import Any, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
 import structlog
 from fastapi.encoders import jsonable_encoder

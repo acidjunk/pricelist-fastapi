@@ -1,6 +1,4 @@
 from datetime import datetime
-
-import time
 from http import HTTPStatus
 from typing import Any, List
 from uuid import UUID
@@ -22,8 +20,7 @@ from server.crud.crud_price import price_crud
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
-from server.db.models import UsersTable, Shop
-from server.schemas.shop import ShopUpdate
+from server.db.models import Shop, UsersTable
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
@@ -127,7 +124,7 @@ def update(
     *,
     shop_to_price_id: UUID,
     item_in: ShopToPriceUpdate,
-    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 

@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+
 from server.crud.crud_user import user_crud
 from server.schemas import UserUpdate
 

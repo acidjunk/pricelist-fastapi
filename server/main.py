@@ -17,8 +17,8 @@ import logging
 import os
 
 import structlog
-from fastapi.applications import FastAPI
 from fastapi import Request
+from fastapi.applications import FastAPI
 from mangum import Mangum
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware

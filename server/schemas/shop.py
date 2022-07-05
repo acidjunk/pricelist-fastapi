@@ -5,6 +5,13 @@ from uuid import UUID
 from server.schemas.base import BoilerplateBaseModel
 
 
+class ShopEmptyBase(BoilerplateBaseModel):
+    pass
+
+    class Config:
+        orm_mode = True
+
+
 class ShopBase(BoilerplateBaseModel):
     name: str
     description: str
@@ -20,6 +27,7 @@ class ShopUpdate(ShopBase):
     modified_at: Optional[datetime]
     last_pending_order: Optional[str]
     last_completed_order: Optional[str]
+    allowed_ips: Optional[List[str]] = None
 
 
 class ShopInDBBase(ShopBase):
@@ -38,5 +46,17 @@ class ShopWithPrices(ShopInDBBase):
     prices: List[dict]
 
 
-class ShopCacheStatus(ShopInDBBase):
+class ShopCacheStatus(ShopEmptyBase):
     modified_at: Optional[datetime]
+
+
+class ShopLastCompletedOrder(ShopEmptyBase):
+    last_completed_order: Optional[str]
+
+
+class ShopLastPendingOrder(ShopEmptyBase):
+    last_pending_order: Optional[str]
+
+
+class ShopIp(BoilerplateBaseModel):
+    ip: str

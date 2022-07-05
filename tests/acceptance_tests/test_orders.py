@@ -12,10 +12,13 @@ from tests.acceptance_tests.helpers import get_difference_in_json_list, info_mes
 PRD_BACKEND_URI = acceptance_settings.PRD_BACKEND_URI
 ACC_BACKEND_URI = acceptance_settings.ACC_BACKEND_URI
 ACC_SUPERUSER_TOKEN_HEADERS = acceptance_settings.ACC_SUPERUSER_TOKEN_HEADERS
+PRD_SUPERUSER_TOKEN_HEADERS = acceptance_settings.PRD_SUPERUSER_TOKEN_HEADERS
 
 
 def test_orders_get_multi():
-    response_prd = requests.get(PRD_BACKEND_URI + "orders/?range=%5B0%2C249%5D").json()
+    response_prd = requests.get(
+        PRD_BACKEND_URI + "orders/?range=%5B0%2C249%5D", headers=PRD_SUPERUSER_TOKEN_HEADERS
+    ).json()
     response_acc = requests.get(ACC_BACKEND_URI + "orders?limit=250", headers=ACC_SUPERUSER_TOKEN_HEADERS).json()
 
     assert len(response_acc) == len(response_prd)

@@ -312,6 +312,24 @@ def shop_1():
 
 
 @pytest.fixture
+def shop_with_testclient_ip():
+    fixture = Shop(id=str(uuid.uuid4()), name="IpShop", description="IpShop description", allowed_ips=["testclient"])
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_with_custom_ip():
+    fixture = Shop(
+        id=str(uuid.uuid4()), name="CustomIpShop", description="CustomIpShop description", allowed_ips=["123.45.67.89"]
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def shop_2():
     fixture = Shop(id=str(uuid.uuid4()), name="Head Shop", description="Shop description 2")
     db.session.add(fixture)
@@ -477,6 +495,26 @@ def shop_with_products(shop_1, kind_1, kind_2, price_1, price_2, price_3, produc
     db.session.add(shop_to_price3)
     db.session.commit()
     return shop_1
+
+
+@pytest.fixture
+def shop_with_testclient_ip_with_products(shop_with_testclient_ip, kind_1, price_1, category_1):
+    shop_to_price1 = ShopToPrice(
+        price_id=price_1.id, shop_id=shop_with_testclient_ip.id, category_id=category_1.id, kind_id=kind_1.id
+    )
+    db.session.add(shop_to_price1)
+    db.session.commit()
+    return shop_with_testclient_ip
+
+
+@pytest.fixture
+def shop_with_custom_ip_with_products(shop_with_custom_ip, kind_1, price_1, category_1):
+    shop_to_price1 = ShopToPrice(
+        price_id=price_1.id, shop_id=shop_with_custom_ip.id, category_id=category_1.id, kind_id=kind_1.id
+    )
+    db.session.add(shop_to_price1)
+    db.session.commit()
+    return shop_with_custom_ip
 
 
 @pytest.fixture
