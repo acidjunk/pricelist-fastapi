@@ -111,7 +111,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.session.refresh(db_obj)
         return db_obj
 
-    def update(self, *, db_obj: ModelType, obj_in: UpdateSchemaType) -> ModelType:
+    def update(self, *, db_obj: ModelType, obj_in: UpdateSchemaType, commit: bool = True) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
         update_data = obj_in.dict(exclude_unset=True)
 
@@ -125,8 +125,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field != "id" and field in update_data:
                 setattr(db_obj, field, update_data[field])
         db.session.add(db_obj)
-        db.session.commit()
-        # db.session.refresh(db_obj)
+
+        # Set to false if you make two or more updates consecutively
+        if commit:
+            db.session.commit()
+
         return db_obj
 
     def delete(self, *, id: str) -> None:
