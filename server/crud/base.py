@@ -1,4 +1,4 @@
-from typing import Generic, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
 import structlog
 from fastapi.encoders import jsonable_encoder
@@ -45,9 +45,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         limit: int = 100,
         filter_parameters: Optional[List[str]],
         sort_parameters: Optional[List[str]],
+        query_parameter: Optional[Any] = None,
     ) -> Tuple[List[ModelType], str]:
-        query = db.session.query(self.model)
+        query = query_parameter
+        if query is None:
+            query = db.session.query(self.model)
 
+        print(query)
         logger.debug(
             f"Filter and Sort parameters model={self.model}, sort_parameters={sort_parameters}, filter_parameters={filter_parameters}",
         )
@@ -107,7 +111,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.session.refresh(db_obj)
         return db_obj
 
-    def update(self, *, db_obj: ModelType, obj_in: UpdateSchemaType) -> ModelType:
+    def update(self, *, db_obj: ModelType, obj_in: UpdateSchemaType, commit: bool = True) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
         update_data = obj_in.dict(exclude_unset=True)
 
@@ -121,8 +125,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field != "id" and field in update_data:
                 setattr(db_obj, field, update_data[field])
         db.session.add(db_obj)
-        db.session.commit()
-        db.session.refresh(db_obj)
+
+        # Set to false if you make two or more updates consecutively
+        if commit:
+            db.session.commit()
+
         return db_obj
 
     def delete(self, *, id: str) -> None:

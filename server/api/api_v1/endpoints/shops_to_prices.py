@@ -11,6 +11,7 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.helpers import invalidateShopCache
 from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
@@ -112,17 +113,17 @@ def create(
         use_piece=data.use_piece if data.use_piece else False,
     )
 
+    invalidateShopCache(shop_to_price.shop_id)
     return shop_to_price_crud.create(obj_in=shop_to_price)
-    # invalidateShopCache(shop_to_price.shop_id)
 
 
-@router.put("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{shop_to_price_id}", response_model=ShopToPriceSchema, status_code=HTTPStatus.CREATED)
 def update(
     *,
     shop_to_price_id: UUID,
     item_in: ShopToPriceUpdate,
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
-) -> Any:
+) -> ShopToPriceSchema:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
     logger.info("Updating shop_to_price", data=shop_to_price)
@@ -140,12 +141,9 @@ def update(
     if (product and kind) or not product and not kind:
         raise_status(HTTPStatus.BAD_REQUEST, "One Cannabis or one Horeca product has to be provided")
 
-    # invalidateShopCache(item.shop_id)
-    # Ok we survived all that: let's save it:
-    return shop_crud.update(
-        db_obj=shop_to_price,
-        obj_in=item_in,
-    )
+    updated = shop_to_price_crud.update(db_obj=shop_to_price, obj_in=item_in, commit=False)
+    invalidateShopCache(item_in.shop_id)
+    return updated
 
 
 @router.put("/availability/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
@@ -156,8 +154,8 @@ def update(
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
-
-    return shop_crud.update(
+    invalidateShopCache(shop_to_price.shop_id)
+    return shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
     )
@@ -165,4 +163,8 @@ def update(
 
 @router.delete("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
+    shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+    if not shop_to_price:
+        raise HTTPException(status_code=404, detail="Shop to price not found")
+    invalidateShopCache(shop_to_price.shop_id)
     return shop_to_price_crud.delete(id=shop_to_price_id)

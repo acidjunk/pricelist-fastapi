@@ -21,6 +21,23 @@ def test_mixed_order_list(test_client, shop_with_mixed_orders, superuser_token_h
     assert len(response.json()) == 2
 
 
+def test_orders_pending_list(test_client, shop_with_different_statuses_orders, shop_1, superuser_token_headers):
+    response = test_client.get(f"/api/orders/shop/{shop_1.id}/pending", headers=superuser_token_headers)
+    response_json = response.json()
+    assert response.status_code == 200
+    assert len(response_json) == 1
+    assert response_json[0]["status"] == "pending"
+
+
+def test_orders_complete_list(test_client, shop_with_different_statuses_orders, shop_1, superuser_token_headers):
+    response = test_client.get(f"/api/orders/shop/{shop_1.id}/complete", headers=superuser_token_headers)
+    response_json = response.json()
+    assert response.status_code == 200
+    assert len(response_json) == 2
+    assert response_json[0]["status"] == "complete"
+    assert response_json[1]["status"] == "cancelled"
+
+
 def test_create_order(test_client, price_1, price_2, kind_1, kind_2, shop_with_products):
     items = [
         {
@@ -302,6 +319,58 @@ def test_price_rules():
         ),
     ]
     assert get_price_rules_total(order_info) == 5.4
+
+
+def test_create_order_with_ip_allowed(test_client, price_1, kind_1, shop_with_testclient_ip_with_products):
+    items = [
+        {
+            "description": "1 gram",
+            "price": price_1.one,
+            "kind_id": str(kind_1.id),
+            "kind_name": kind_1.name,
+            "internal_product_id": "01",
+            "quantity": 2,
+        }
+    ]
+    body = {
+        "shop_id": str(shop_with_testclient_ip_with_products.id),
+        "total": 10.0,
+        "order_info": items,
+    }
+    response = test_client.post(f"/api/orders", json=body)
+    assert response.status_code == 201, response.json()
+    response_json = response.json()
+    assert response_json["customer_order_id"] == 1
+    assert response_json["total"] == 10.0
+
+    order = order_crud.get_first_order_filtered_by(customer_order_id=1)
+    assert order.shop_id == shop_with_testclient_ip_with_products.id
+    assert order.total == 10.0
+    assert order.customer_order_id == 1
+    assert order.status == "pending"
+    assert order.order_info == items
+
+
+def test_create_order_with_ip_not_allowed(test_client, price_1, kind_1, shop_with_custom_ip_with_products):
+    items = [
+        {
+            "description": "1 gram",
+            "price": price_1.one,
+            "kind_id": str(kind_1.id),
+            "kind_name": kind_1.name,
+            "internal_product_id": "01",
+            "quantity": 2,
+        }
+    ]
+    body = {
+        "shop_id": str(shop_with_custom_ip_with_products.id),
+        "total": 10.0,
+        "order_info": items,
+    }
+    response = test_client.post(f"/api/orders", json=body)
+    assert response.status_code == 400, response.json()
+    response_json = response.json()
+    assert response_json["detail"] == "NOT_ON_SHOP_WIFI"
 
 
 def test_patch_order_to_complete(test_client, shop_with_orders, superuser_token_headers):

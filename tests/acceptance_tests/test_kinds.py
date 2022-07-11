@@ -25,8 +25,10 @@ def test_kinds_get_by_id():
 
 
 def test_kinds_get_multi():
-    response_prd = requests.get(PRD_BACKEND_URI + "kinds/?range=%5B0%2C249%5D").json()
-    response_acc = requests.get(ACC_BACKEND_URI + "kinds?limit=250", headers=ACC_SUPERUSER_TOKEN_HEADERS).json()
+    response_prd = requests.get(PRD_BACKEND_URI + "kinds/?range=%5B0%2C250%5D&sort=%5B%22name%22%2C%22ASC%22%5D").json()
+    response_acc = requests.get(
+        ACC_BACKEND_URI + "kinds?skip=0&limit=250&sort=name%3AASC", headers=ACC_SUPERUSER_TOKEN_HEADERS
+    ).json()
 
     assert len(response_acc) == len(response_prd)
 

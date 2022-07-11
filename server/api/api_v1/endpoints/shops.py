@@ -14,7 +14,16 @@ from server.api.error_handling import raise_status
 from server.apis.v1.helpers import load
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice, UsersTable
-from server.schemas.shop import ShopCacheStatus, ShopCreate, ShopSchema, ShopUpdate, ShopWithPrices
+from server.schemas.shop import (
+    ShopCacheStatus,
+    ShopCreate,
+    ShopIp,
+    ShopLastCompletedOrder,
+    ShopLastPendingOrder,
+    ShopSchema,
+    ShopUpdate,
+    ShopWithPrices,
+)
 
 router = APIRouter()
 logger = structlog.get_logger(__name__)
@@ -54,6 +63,24 @@ def get_cache_status(id: UUID) -> ShopCacheStatus:
     return shop
 
 
+@router.get("/last-completed-order/{id}", response_model=ShopLastCompletedOrder)
+def get_last_completed_order(id: UUID) -> ShopLastCompletedOrder:
+    """Show date of last change in data that could be visible in this shop"""
+    shop = shop_crud.get(id)
+    if not shop:
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
+    return shop
+
+
+@router.get("/last-pending-order/{id}", response_model=ShopLastPendingOrder)
+def get_last_pending_order(id: UUID) -> ShopLastPendingOrder:
+    """Show date of last change in data that could be visible in this shop"""
+    shop = shop_crud.get(id)
+    if not shop:
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
+    return shop
+
+
 @router.get("/{id}", response_model=ShopWithPrices)
 def get_by_id(id: UUID):
     """List Shop"""
@@ -68,7 +95,7 @@ def get_by_id(id: UUID):
     item.prices = [
         {
             "id": pr.id,
-            "internal_product_id": int(pr.price.internal_product_id),
+            "internal_product_id": pr.price.internal_product_id,
             "active": pr.active,
             "new": pr.new,
             "category_id": pr.category_id,
@@ -132,3 +159,56 @@ def update(
 @router.delete("/{shop_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(shop_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
     return shop_crud.delete(id=shop_id)
+
+
+@router.get("/allowed-ips/{id}", response_model=List[str])
+def get_allowed_ips(
+    id: UUID,
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> List[str]:
+    shop = shop_crud.get(id)
+    if not shop:
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
+
+    if shop.allowed_ips:
+        return shop.allowed_ips
+    else:
+        return []
+
+
+@router.post("/allowed-ips/{id}", response_model=List[str])
+def add_new_ip(id: UUID, new_ip: ShopIp, current_user: UsersTable = Depends(deps.get_current_active_superuser)):
+    shop = shop_crud.get(id)
+    if not shop:
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
+
+    updated_shop = ShopUpdate(name=shop.name, description=shop.description, allowed_ips=shop.allowed_ips)
+
+    if shop.allowed_ips and new_ip.ip not in shop.allowed_ips:
+        updated_shop.allowed_ips.append(new_ip.ip)
+    elif shop.allowed_ips and new_ip.ip in shop.allowed_ips:
+        raise_status(HTTPStatus.BAD_REQUEST, f"IP {new_ip.ip} already exists")
+    else:
+        updated_shop.allowed_ips = [new_ip.ip]
+
+    shop_crud.update(db_obj=shop, obj_in=updated_shop)
+
+    return updated_shop.allowed_ips
+
+
+@router.post("/allowed-ips/{id}/remove", response_model=List[str])
+def remove_ip(id: UUID, old_ip: ShopIp, current_user: UsersTable = Depends(deps.get_current_active_superuser)):
+    shop = shop_crud.get(id)
+    if not shop:
+        raise_status(HTTPStatus.NOT_FOUND, f"Shop with id {id} not found")
+
+    updated_shop = ShopUpdate(name=shop.name, description=shop.description, allowed_ips=shop.allowed_ips)
+
+    if shop.allowed_ips and old_ip.ip in shop.allowed_ips:
+        updated_shop.allowed_ips.remove(old_ip.ip)
+    else:
+        raise_status(HTTPStatus.BAD_REQUEST, f"IP {old_ip.ip} not on list")
+
+    shop_crud.update(db_obj=shop, obj_in=updated_shop)
+
+    return updated_shop.allowed_ips

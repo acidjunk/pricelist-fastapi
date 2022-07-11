@@ -125,6 +125,9 @@ def test_shops_to_prices_create_shop_not_found(test_client, price_3, category_1,
 
 
 def test_shops_to_prices_update(test_client, shop_to_price_2, product_2, superuser_token_headers):
+    shop_modified_at = test_client.get(
+        f"/api/shops/cache-status/{shop_to_price_2.shop.id}", headers=superuser_token_headers
+    ).json()["modified_at"]
     body = {
         "active": shop_to_price_2.active,
         "new": shop_to_price_2.new,
@@ -142,10 +145,18 @@ def test_shops_to_prices_update(test_client, shop_to_price_2, product_2, superus
     response = test_client.put(
         f"/api/shops-to-prices/{shop_to_price_2.id}", data=json_dumps(body), headers=superuser_token_headers
     )
-    assert response.status_code == HTTPStatus.NO_CONTENT
-    updated_response = test_client.get(f"/api/shops-to-prices/{shop_to_price_2.id}", headers=superuser_token_headers)
-    updated_shop_to_price = updated_response.json()
+    assert response.status_code == HTTPStatus.CREATED
+
+    updated_shop_to_price = test_client.get(
+        f"/api/shops-to-prices/{shop_to_price_2.id}", headers=superuser_token_headers
+    ).json()
     assert updated_shop_to_price["product_id"] == str(product_2.id)
+
+    # Check if invalidateShopCache updates the modified_at
+    shop_modified_at_new = test_client.get(
+        f"/api/shops/cache-status/{shop_to_price_2.shop.id}", headers=superuser_token_headers
+    ).json()["modified_at"]
+    assert shop_modified_at_new > shop_modified_at
 
 
 def test_shops_to_prices_delete(test_client, shop_to_price_1, superuser_token_headers):

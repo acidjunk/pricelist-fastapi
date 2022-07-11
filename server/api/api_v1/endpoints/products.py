@@ -59,7 +59,7 @@ def get_by_id(id: UUID, shop: Optional[UUID] = None) -> ProductWithDetailsAndPri
                 product.prices.append(
                     {
                         "id": price_relation.price.id,
-                        "internal_product_id": int(price_relation.price.internal_product_id),
+                        "internal_product_id": price_relation.price.internal_product_id,
                         "active": price_relation.active,
                         "new": price_relation.new,
                         # In flask's serializer there is no half
