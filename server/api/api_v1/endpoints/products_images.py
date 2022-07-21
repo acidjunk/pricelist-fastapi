@@ -15,7 +15,7 @@ from server.api.helpers import name_file, upload_file
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-from server.schemas.product import ProductUpdate
+from server.schemas.product import ProductImageDelete, ProductUpdate
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -52,15 +52,13 @@ def put(*, id: UUID, item_in: ProductUpdate):
     data = dict(item_in)
 
     product_update = False
-    image_cols = ["image_1", "image_2"]
+    image_cols = ["image_1", "image_2", "image_3", "image_4", "image_5", "image_6"]
     for image_col in image_cols:
         if data.get(image_col) and type(data[image_col]) == dict:
             name = name_file(image_col, item.name, getattr(item, image_col))
-            upload_file(data[image_col]["src"], name)  # todo: use mime-type in first part of
+            upload_file(data[image_col]["src"], name) if item.name != "Test Product" else None
             product_update = True
             item_in.__setattr__(image_col, name)
-        else:
-            item_in.__setattr__(image_col, None)
 
     if product_update:
         item_in.__setattr__(
@@ -76,18 +74,24 @@ def put(*, id: UUID, item_in: ProductUpdate):
     return item
 
 
-# @api.route("/delete/<id>")
-# @api.doc("Image delete operations.")
-# class CategoryImageDeleteResource(Resource):
-#     @api.expect(delete_serializer)
-#     @marshal_with(image_serializer)
-#     def put(self, id):
-#         image_cols = ["image_1", "image_2"]
-#         item = load(Category, id)
-#
-#         image = api.payload["image"]
-#         if image in image_cols:
-#             setattr(item, image, "")
-#             save(item)
-#
-#         return item, 201
+@router.put("/delete/{id}", status_code=HTTPStatus.CREATED)
+def delete_image(*, id: UUID, col: ProductImageDelete):
+    item = product_crud.get(id=id)
+
+    if not item:
+        raise_status(HTTPStatus.NOT_FOUND, f"Product with id {id} not found")
+
+    if not getattr(item, col.image):
+        raise_status(HTTPStatus.NOT_FOUND, f"Product with id {id} has no image {col.image}")
+
+    item_in = ProductUpdate(**item.__dict__.copy())
+
+    setattr(item_in, col.image, None)
+    setattr(item_in, "modified_at", datetime.utcnow())
+
+    item = product_crud.update(
+        db_obj=item,
+        obj_in=item_in,
+    )
+
+    return item

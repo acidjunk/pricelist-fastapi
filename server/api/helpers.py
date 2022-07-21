@@ -127,7 +127,7 @@ def upload_file(blob, file_name):
     image = base64.b64decode(image_base64)
 
     # Todo: make dynamic
-    s3_object = s3.Object("images-georgi-prijslijst-info", file_name)
+    s3_object = s3.Object(os.getenv("S3_BUCKET_IMAGES_NAME"), file_name)
     resp = s3_object.put(Body=image, ContentType="image/png")
 
     if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
