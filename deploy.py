@@ -212,10 +212,3 @@ if __name__ == "__main__":
         logger.error("No AWS CLI found")
         sys.exit()
     main(environment_name=args[1])
-
-    # Set an env var:
-    # set_lambda_env_var(
-    #     "api-staging-prijslijst-info",
-    #     "DATBASE_URI",
-    #     "postgres://priceliststaging:0|s@3ZET2Fks@formatics-postgres-eu.cogvmrr9jpcc.eu-central-1.rds.amazonaws.com/priceliststaging",
-    # )
