@@ -5,6 +5,10 @@ from uuid import UUID
 from server.schemas.base import BoilerplateBaseModel
 
 
+class CategoryEmptyBase(BoilerplateBaseModel):
+    pass
+
+
 class CategoryBase(BoilerplateBaseModel):
     shop_id: UUID
     main_category_id: Optional[UUID] = None
@@ -45,3 +49,7 @@ class CategoryWithNames(CategoryInDBBase):
     main_category_name: str
     main_category_name_en: Optional[str] = None
     shop_name: str
+
+
+class CategoryImageDelete(CategoryEmptyBase):
+    image: str

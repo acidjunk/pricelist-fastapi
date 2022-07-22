@@ -354,6 +354,22 @@ def category_2(shop_1):
 
 
 @pytest.fixture
+def category_3(shop_1):
+    fixture = Category(
+        id=str(uuid.uuid4()),
+        name="Test Category",
+        description="Test Category description",
+        shop_id=shop_1.id,
+        color="#376E1A",
+        image_1="test-category-1-1.png",
+        image_2="test-category-2-1.png",
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def tag_1():
     fixture = Tag(id=str(uuid.uuid4()), name="GigglyTest")
     db.session.add(fixture)
@@ -452,6 +468,29 @@ def kind_2():
 
 
 @pytest.fixture
+def kind_3():
+    fixture_id = str(uuid.uuid4())
+    fixture = Kind(
+        id=fixture_id,
+        name="Test Kind",
+        c=False,
+        h=False,
+        i=False,
+        s=True,
+        short_description_nl="Test Kind description",
+        description_nl="Test Kind description",
+        short_description_en="Test Kind description",
+        description_en="Test Kind description",
+        image_1="test-kind-1-1.png",
+        image_2="test-kind-2-1.png",
+        image_3="test-kind-3-1.png",
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def product_1():
     fixture_id = str(uuid.uuid4())
     fixture = ProductsTable(
@@ -477,6 +516,25 @@ def product_2():
         description_nl="niet zo goed als coca cola",
         short_description_en="Pepsi Light",
         description_en="Not as good as coca cola",
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def product_3():
+    fixture_id = str(uuid.uuid4())
+    fixture = ProductsTable(
+        id=fixture_id,
+        name="Test Product",
+        short_description_nl="Test Product description",
+        description_nl="Test Product description",
+        short_description_en="Test Product description",
+        description_en="Test Product description",
+        image_1="test-product-1-1.png",
+        image_2="test-product-2-1.png",
+        image_3="test-product-3-1.png",
     )
     db.session.add(fixture)
     db.session.commit()

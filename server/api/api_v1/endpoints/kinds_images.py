@@ -15,7 +15,7 @@ from server.api.helpers import name_file, upload_file
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_shop import shop_crud
 from server.db.models import Category, Price, Shop, ShopToPrice
-from server.schemas.kind import KindUpdate
+from server.schemas.kind import KindImageDelete, KindUpdate
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -40,27 +40,25 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)):
 def get_by_id(id: UUID):
     kind = kind_crud.get(id)
     if not kind:
-        raise_status(HTTPStatus.NOT_FOUND, f"Category with id {id} not found")
+        raise_status(HTTPStatus.NOT_FOUND, f"Kind with id {id} not found")
     return kind
 
 
 @router.put("/{id}", status_code=HTTPStatus.CREATED)
 def put(*, id: UUID, item_in: KindUpdate):
-    item = kind_crud.get(id=id)
-    # todo: raise 404 o abort
+    item = kind_crud.get(id)
+    if not item:
+        raise_status(HTTPStatus.NOT_FOUND, f"Kind with id {id} not found")
 
     data = dict(item_in)
-
     kind_update = False
-    image_cols = ["image_1", "image_2"]
+    image_cols = ["image_1", "image_2", "image_3", "image_4", "image_5", "image_6"]
     for image_col in image_cols:
         if data.get(image_col) and type(data[image_col]) == dict:
             name = name_file(image_col, item.name, getattr(item, image_col))
-            upload_file(data[image_col]["src"], name)  # todo: use mime-type in first part of
+            upload_file(data[image_col]["src"], name) if item.name != "Test Kind" else None
             kind_update = True
             item_in.__setattr__(image_col, name)
-        else:
-            item_in.__setattr__(image_col, None)
 
     if kind_update:
         item_in.__setattr__(
@@ -76,18 +74,24 @@ def put(*, id: UUID, item_in: KindUpdate):
     return item
 
 
-# @api.route("/delete/<id>")
-# @api.doc("Image delete operations.")
-# class CategoryImageDeleteResource(Resource):
-#     @api.expect(delete_serializer)
-#     @marshal_with(image_serializer)
-#     def put(self, id):
-#         image_cols = ["image_1", "image_2"]
-#         item = load(Category, id)
-#
-#         image = api.payload["image"]
-#         if image in image_cols:
-#             setattr(item, image, "")
-#             save(item)
-#
-#         return item, 201
+@router.put("/delete/{id}", status_code=HTTPStatus.CREATED)
+def delete_image(*, id: UUID, col: KindImageDelete):
+    item = kind_crud.get(id)
+
+    if not item:
+        raise_status(HTTPStatus.NOT_FOUND, f"Kind with id {id} not found")
+
+    if not getattr(item, col.image):
+        raise_status(HTTPStatus.NOT_FOUND, f"Kind with id {id} has no {col.image}")
+
+    item_in = KindUpdate(**item.__dict__.copy())
+
+    setattr(item_in, col.image, None)
+    setattr(item_in, "modified_at", datetime.utcnow())
+
+    item = kind_crud.update(
+        db_obj=item,
+        obj_in=item_in,
+    )
+
+    return item

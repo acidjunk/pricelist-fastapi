@@ -1,9 +1,13 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
 from server.schemas.price import DefaultPrice
+
+
+class ProductEmptyBase(BoilerplateBaseModel):
+    pass
 
 
 class ProductBase(BoilerplateBaseModel):
@@ -13,12 +17,12 @@ class ProductBase(BoilerplateBaseModel):
     short_description_en: Optional[str] = None
     description_en: Optional[str] = None
     complete: bool = False
-    image_1: Optional[str] = None
-    image_2: Optional[str] = None
-    image_3: Optional[str] = None
-    image_4: Optional[str] = None
-    image_5: Optional[str] = None
-    image_6: Optional[str] = None
+    image_1: Union[Optional[dict], Optional[str]]
+    image_2: Union[Optional[dict], Optional[str]]
+    image_3: Union[Optional[dict], Optional[str]]
+    image_4: Union[Optional[dict], Optional[str]]
+    image_5: Union[Optional[dict], Optional[str]]
+    image_6: Union[Optional[dict], Optional[str]]
 
 
 # Properties to receive via API on creation
@@ -28,7 +32,7 @@ class ProductCreate(ProductBase):
 
 # Properties to receive via API on update
 class ProductUpdate(ProductBase):
-    pass
+    modified_at: Optional[datetime] = None
 
 
 class ProductInDBBase(ProductBase):
@@ -59,3 +63,7 @@ class ProductWithDefaultPrice(ProductWithDetails):
 
 class ProductWithDetailsAndPrices(ProductWithDetails):
     prices: List[dict] = []
+
+
+class ProductImageDelete(ProductEmptyBase):
+    image: str
