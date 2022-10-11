@@ -1,3 +1,32 @@
+#!/usr/bin/env python3
+
+# Copyright 2019-2022 Formatics.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# -----------------------------------------------------------------------------
+# USAGE/INSTRUCTIONS: 
+# -----------------------------------------------------------------------------
+# This script can be used to setup the needed AWS infra structure
+# to run and deploy FastAPI to the Amazon Lamda gateway. You typically
+# use it just once and after that you can use the deploy-staging.sh or
+# deploy-production.sh script to update a running FastAPI instance with
+# the latest version
+#
+# You'll need a python with these packages to use the script:
+# pydantic, structlog, python-dotenv, sqlalchemy, pydantic, boto3, aws-sam-cli
+#
+#
+
 import logging
 import os
 import shutil
@@ -22,12 +51,6 @@ DEPLOY_NEEDED = True
 
 
 logger = structlog.get_logger(__name__)
-
-# Todo's
-# - try to be describing about how trhis script should be used
-# - there are a couple of names that will be generated: it would be nice to have them in the log
-# - fix script for prod (and template also)
-
 
 def env_database_uri():
     if (env_var := os.environ.get("DATABASE_URI")) is not None:
@@ -106,19 +129,17 @@ def deploy(new_bucket_name, environment_name, db_conn_str):
         #     os.mkdir(BUILD_DIR)
 
         if DEPLOY_NEEDED:
-            os.system("cd %s && sam validate" % (BASE_PATH))
-            os.system("cd %s && sam build --use-container --debug" % (BASE_PATH))
+            os.system(f"cd {BASE_PATH} && sam validate --template-file template-{environment_name}.yml")
+            os.system(f"cd {BASE_PATH} && sam build --use-container --debug --template-file template-{environment_name}.yml")
             os.system(
-                "cd %s && sam package --s3-bucket %s --output-template-file out.yml --region %s"
-                % (BASE_PATH, new_bucket_name, REGION_NAME)
+                f"cd {BASE_PATH} && sam package --s3-bucket {new_bucket_name} --template-file template-{environment_name}.yml --output-template-file out.yml --region {REGION_NAME}"
             )
             os.system(
-                "cd %s && sam deploy --template-file out.yml --stack-name %s --region %s --no-fail-on-empty-changeset "
-                "--capabilities CAPABILITY_IAM" % (BASE_PATH, stack_name, REGION_NAME)
+                f"cd {BASE_PATH} && sam deploy --template-file out.yml --stack-name {stack_name} --region {REGION_NAME} --no-fail-on-empty-changeset "
+                "--capabilities CAPABILITY_IAM"
             )
             os.system(
-                "cd %s && aws lambda get-function-configuration --function-name %s --region %s"
-                % (BASE_PATH, stack_name, REGION_NAME)
+                f"cd {BASE_PATH} && aws lambda get-function-configuration --function-name {stack_name} --region {REGION_NAME}"
             )
 
         # Todo: extract to a separate function that can handle setting env vars
@@ -167,6 +188,10 @@ def check_environment_before_deploy():
         sys.exit(1)
 
 
+def check_aws_tooling():
+    return shutil.which("aws") is not None
+
+
 def main(environment_name):
     check_environment_before_deploy()
     client = boto3.client(
@@ -194,17 +219,13 @@ def main(environment_name):
     if answer == "y":
         deploy(new_bucket_name, environment_name, db_conn_str)
 
-
-def check_aws_tooling():
-    return shutil.which("aws") is not None
-
-
 if __name__ == "__main__":
     load_dotenv()
     args = sys.argv
 
     if len(args) <= 1:
         logger.error("Please provide a full env name: e.g. PYTHONPATH=. python deploy.py staging")
+        logger.info("NOTE: for now only 'staging' and 'production' are supported.")
         sys.exit()
 
     logger.info("Starting deployment for env", env=args[1])

@@ -113,7 +113,7 @@ sam deploy --template-file out.yml \
 --capabilities CAPABILITY_IAM
 ```
 
-An more detailed explanation about the deployment on Amazon lambda can be found on: 
+A more detailed explanation about the deployment on Amazon lambda can be found on: 
 [renedohmen.nl/deploy-fastapi-on-amazon-serverless](https://www.renedohmen.nl/deploy-fastapi-on-amazon-serverless/)
 
 ## Reset staging DB
@@ -134,4 +134,3 @@ Workshop:
 - deliver the tests for DB model: `maps`
 - get it running on AWS yourself
 - fix db default and product save() problem
-
