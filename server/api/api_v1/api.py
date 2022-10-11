@@ -69,7 +69,7 @@ api_router.include_router(
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    categories_images.router,
+    kinds_images.router,
     prefix="/kinds-images",
     tags=["kinds-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],

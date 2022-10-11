@@ -1,9 +1,13 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
 from server.schemas.price import DefaultPrice
+
+
+class KindEmptyBase(BoilerplateBaseModel):
+    pass
 
 
 class KindBase(BoilerplateBaseModel):
@@ -17,12 +21,12 @@ class KindBase(BoilerplateBaseModel):
     i: bool = False
     s: bool = False
     complete: bool = False
-    image_1: Optional[str] = None
-    image_2: Optional[str] = None
-    image_3: Optional[str] = None
-    image_4: Optional[str] = None
-    image_5: Optional[str] = None
-    image_6: Optional[str] = None
+    image_1: Union[Optional[dict], Optional[str]]
+    image_2: Union[Optional[dict], Optional[str]]
+    image_3: Union[Optional[dict], Optional[str]]
+    image_4: Union[Optional[dict], Optional[str]]
+    image_5: Union[Optional[dict], Optional[str]]
+    image_6: Union[Optional[dict], Optional[str]]
 
 
 # Properties to receive via API on creation
@@ -32,7 +36,7 @@ class KindCreate(KindBase):
 
 # Properties to receive via API on update
 class KindUpdate(KindBase):
-    pass
+    modified_at: Optional[datetime] = None
 
 
 class KindInDBBase(KindBase):
@@ -71,3 +75,7 @@ class KindWithDefaultPrice(KindWithDetails):
 
 class KindWithDetailsAndPrices(KindWithDetails):
     prices: List[dict] = []
+
+
+class KindImageDelete(KindEmptyBase):
+    image: str
