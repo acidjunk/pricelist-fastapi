@@ -14,7 +14,7 @@ Resources:
                         Method: ANY
                     Type: Api
             FunctionName: api-staging-prijslijst-info
-            CodeUri: server
+            CodeUri: ./
             Handler: server.main.handler
             Runtime: python3.9
             Timeout: 300 # timeout of your lambda function
