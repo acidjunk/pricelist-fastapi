@@ -36,6 +36,7 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
+    return VERSION
     if os.environ.get("ENVIRONMENT") == "production":
         return VERSION
 
