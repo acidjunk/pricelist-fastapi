@@ -1,3 +1,2 @@
 -r base.txt
-mangum>=0.11.0
-aws-sam-cli==1.36.0
+mangum>=0.15.1
