@@ -1,11 +1,10 @@
-name: Deploy to AWS Lambda staging
+name: Deploy to AWS Lambda production
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [created]
 jobs:
   build-deploy:
-    environment: staging
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,4 +16,4 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
       - name: deploy
-        run: ./deploy-staging.sh
+        run: ./deploy-production.sh
