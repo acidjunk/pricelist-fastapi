@@ -59,12 +59,7 @@ app = FastAPI(
     default_response_class=JSONResponse,
     #root_path="/backend",
     servers=[
-        {
-            "url": "https://api.prijslijst.info",
-            "description": "Prod environment",
-        }
-        if os.getenv("ENVIRONMENT") == "production"
-        else {"url": "/", "description": "Local environment"},
+        {"url": "/"},
     ],
 )
 
