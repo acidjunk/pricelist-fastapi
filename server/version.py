@@ -18,7 +18,7 @@ import structlog
 
 logger = structlog.getLogger(__name__)
 
-VERSION = "1.0"
+VERSION = "2.0"
 
 
 def __getattr__(name: str) -> Optional[str]:
@@ -36,7 +36,6 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
-    return VERSION
     if os.environ.get("ENVIRONMENT") == "production":
         return VERSION
 
