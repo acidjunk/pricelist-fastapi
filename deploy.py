@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # -----------------------------------------------------------------------------
-# USAGE/INSTRUCTIONS: 
+# USAGE/INSTRUCTIONS:
 # -----------------------------------------------------------------------------
 # This script can be used to setup the needed AWS infra structure
 # to run and deploy FastAPI to the Amazon Lamda gateway. You typically
@@ -51,6 +51,7 @@ DEPLOY_NEEDED = True
 
 
 logger = structlog.get_logger(__name__)
+
 
 def env_database_uri():
     if (env_var := os.environ.get("DATABASE_URI")) is not None:
@@ -130,7 +131,9 @@ def deploy(new_bucket_name, environment_name, db_conn_str):
 
         if DEPLOY_NEEDED:
             os.system(f"cd {BASE_PATH} && sam validate --template-file template-{environment_name}.yml")
-            os.system(f"cd {BASE_PATH} && sam build --use-container --debug --template-file template-{environment_name}.yml")
+            os.system(
+                f"cd {BASE_PATH} && sam build --use-container --debug --template-file template-{environment_name}.yml"
+            )
             os.system(
                 f"cd {BASE_PATH} && sam package --s3-bucket {new_bucket_name} --template-file template-{environment_name}.yml --output-template-file out.yml --region {REGION_NAME}"
             )
@@ -218,6 +221,7 @@ def main(environment_name):
     answer = input("Are you sure you want to continue? y/n ")
     if answer == "y":
         deploy(new_bucket_name, environment_name, db_conn_str)
+
 
 if __name__ == "__main__":
     load_dotenv()

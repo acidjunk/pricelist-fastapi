@@ -2,11 +2,11 @@
 if [ -d ".venv" ]; then
     echo "Activating venv found in '.venv/'"
     # shellcheck disable=SC1091
-    source ..venv/bin/activate
+    source .venv/bin/activate
 else
     echo "Activating venv found in 'venv/'"
     # shellcheck disable=SC1091
-    source .venv/bin/activate
+    source venv/bin/activate
 fi
 
 # FastAPI will autoload .env so this will only handle other known locations that devs can have

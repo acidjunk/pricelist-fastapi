@@ -40,7 +40,7 @@ def get_multi(
 def create(
     *,
     user_in: UserCreate,
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    # current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     Create new user.

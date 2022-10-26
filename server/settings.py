@@ -34,7 +34,7 @@ class AppSettings(BaseSettings):
     TESTING, LOGLEVEL and EMAILS_ENABLED + mail server settings if needed.
     """
 
-    PROJECT_NAME: str = "Boilerplate webservice"
+    PROJECT_NAME: str = "Prijslijst backend"
     TESTING: bool = True
     EMAILS_ENABLED: bool = False
     # SESSION_SECRET: str = "".join(secrets.choice(string.ascii_letters) for i in range(16))  # noqa: S311
@@ -93,7 +93,7 @@ class AppSettings(BaseSettings):
     CACHE_HOST: str = "127.0.0.1"
     CACHE_PORT: int = 6379
     POST_MORTEM_DEBUGGER: str = ""
-    SERVICE_NAME: str = "Boilerplate"
+    SERVICE_NAME: str = "Prijslijst backend"
     LOGGING_HOST: str = "localhost"
     LOG_LEVEL: str = "DEBUG"
 
