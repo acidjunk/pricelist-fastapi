@@ -50,7 +50,7 @@ def recover_password(email: str) -> Any:
     """
     Password Recovery
     """
-    user = user_crud.get_by_email(db, email=email)
+    user = user_crud.get_by_email(email=email)
 
     if not user:
         raise HTTPException(
@@ -73,7 +73,7 @@ def reset_password(
     email = verify_password_reset_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid token")
-    user = user_crud.get_by_email(db, email=email)
+    user = user_crud.get_by_email(email=email)
     if not user:
         raise HTTPException(
             status_code=404,
@@ -82,7 +82,7 @@ def reset_password(
     elif not user_crud.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     hashed_password = get_password_hash(new_password)
-    user.hashed_password = hashed_password
-    db.add(user)
-    db.commit()
+    user.password = hashed_password
+    db.session.add(user)
+    db.session.commit()
     return {"msg": "Password updated successfully"}

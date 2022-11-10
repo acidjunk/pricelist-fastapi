@@ -99,12 +99,13 @@ class AppSettings(BaseSettings):
 
     # Mail settings
     SMTP_TLS: bool = True
-    SMTP_PORT: Optional[int] = None
+    SMTP_ENABLED: bool = False
+    SMTP_PORT: Optional[int] = 587
     SMTP_HOST: Optional[str] = None
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[EmailStr] = None
-    EMAILS_FROM_NAME: Optional[str] = None
+    EMAILS_FROM_EMAIL: Optional[EmailStr] = "no-reply@prijslijst.info"
+    EMAILS_FROM_NAME: Optional[str] = "Prijslijst Backend"
 
     FIRST_SUPERUSER = "admin@banaan.org"
     FIRST_SUPERUSER_PASSWORD = "CHANGEME"
@@ -119,7 +120,7 @@ class AppSettings(BaseSettings):
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
     # Todo: check path. The original had one extra folder "app"
-    EMAIL_TEMPLATES_DIR: str = "/server/email-templates/build"
+    EMAIL_TEMPLATES_DIR: str = "server/email-templates/build"
 
     @validator("EMAILS_ENABLED", pre=True)
     def get_emails_enabled(cls, v: bool, values: Dict[str, Any]) -> bool:
