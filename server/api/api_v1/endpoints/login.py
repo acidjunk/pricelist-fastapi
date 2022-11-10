@@ -50,7 +50,7 @@ def recover_password(email: str) -> Any:
     """
     Password Recovery
     """
-    user = user_crud.get_by_email(db, email=email)
+    user = user_crud.get_by_email(email=email)
 
     if not user:
         raise HTTPException(
