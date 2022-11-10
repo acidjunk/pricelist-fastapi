@@ -50,6 +50,7 @@ ENV_VARS = [
     "SMTP_PASSWORD",
     "GUI_URI",
     "SMTP_ENABLED",
+    "EMAILS_CC",
 ]
 
 

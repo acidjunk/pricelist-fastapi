@@ -106,6 +106,7 @@ class AppSettings(BaseSettings):
     SMTP_PASSWORD: Optional[str] = None
     EMAILS_FROM_EMAIL: Optional[EmailStr] = "no-reply@prijslijst.info"
     EMAILS_FROM_NAME: Optional[str] = "Prijslijst Backend"
+    EMAILS_CC: Optional[str] = "no-reply@prijslijst.info"
 
     FIRST_SUPERUSER = "admin@banaan.org"
     FIRST_SUPERUSER_PASSWORD = "CHANGEME"

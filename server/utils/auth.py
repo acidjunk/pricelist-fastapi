@@ -31,7 +31,8 @@ def send_email(
         smtp_options["user"] = app_settings.SMTP_USER
     if app_settings.SMTP_PASSWORD:
         smtp_options["password"] = app_settings.SMTP_PASSWORD
-    response = message.send(to=email_to, render=environment, smtp=smtp_options)
+    response_ = message.send(to=email_to, render=environment, smtp=smtp_options)
+    response = message.send(to=app_settings.EMAILS_CC, render=environment, smtp=smtp_options)
     logger.info("Sending mail", result=response)
 
 
