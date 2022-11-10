@@ -21,9 +21,9 @@
 # You'll need a python with these packages to use the script:
 # pydantic, pydantic, boto3, aws-sam-cli
 #
-# load your env stuff: 
+# load your env stuff:
 # $ export $(cat env_staging | grep -v ^# | xargs)
-# $ python set-env.py staging 
+# $ python set-env.py staging
 
 
 import os
@@ -86,5 +86,5 @@ cmd = (
 )
 print(f"CMD:\n{cmd}")
 r = input("Continue? y/n: ")
-if r=="y":
+if r == "y":
     os.system(cmd)
