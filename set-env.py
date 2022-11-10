@@ -21,7 +21,10 @@
 # You'll need a python with these packages to use the script:
 # pydantic, pydantic, boto3, aws-sam-cli
 #
-#
+# load your env stuff: 
+# $ export $(cat env_staging | grep -v ^# | xargs)
+# $ python set-env.py staging 
+
 
 import os
 import shutil
@@ -42,6 +45,11 @@ ENV_VARS = [
     "LAMBDA_SECRET_ACCESS_KEY",
     "FIRST_SUPERUSER",
     "FIRST_SUPERUSER_PASSWORD",
+    "SMTP_HOST",
+    "SMTP_USER",
+    "SMTP_PASSWORD",
+    "GUI_URI",
+    "SMTP_ENABLED",
 ]
 
 
@@ -75,5 +83,7 @@ cmd = (
     f"aws lambda update-function-configuration --function-name {stack_name} "
     f'--region {REGION_NAME} --environment "Variables={{{",".join(envs)}}}"'
 )
-print(f"Executing CMD:\n{cmd}")
-os.system(cmd)
+print(f"CMD:\n{cmd}")
+r = input("Continue? y/n: ")
+if r=="y":
+    os.system(cmd)

@@ -18,11 +18,11 @@ from fastapi import Depends
 from server.api import deps
 from server.api.api_v1.endpoints import (
     categories,
-    categories_images,
+    category_images,
     flavors,
     health,
     kinds,
-    kinds_images,
+    kind_images,
     kinds_to_flavors,
     kinds_to_strains,
     kinds_to_tags,
@@ -31,7 +31,7 @@ from server.api.api_v1.endpoints import (
     orders,
     prices,
     products,
-    products_images,
+    product_images,
     shops,
     shops_to_prices,
     strains,
@@ -63,19 +63,19 @@ api_router.include_router(
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    categories_images.router,
+    category_images.router,
     prefix="/categories-images",
     tags=["categories-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    kinds_images.router,
+    kind_images.router,
     prefix="/kinds-images",
     tags=["kinds-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
 api_router.include_router(
-    products_images.router,
+    product_images.router,
     prefix="/products-images",
     tags=["products-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],

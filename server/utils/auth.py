@@ -54,7 +54,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
     with open(Path(app_settings.EMAIL_TEMPLATES_DIR) / "reset_password.html") as f:
         template_str = f.read()
     server_host = app_settings.GUI_URI
-    link = f"https://{server_host}/reset-password?token={token}"
+    link = f"{server_host}/reset-password?token={token}"
     send_email(
         email_to=email_to,
         subject_template=subject,
