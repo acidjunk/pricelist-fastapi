@@ -11,6 +11,7 @@ from server.settings import app_settings
 
 logger = structlog.get_logger(__name__)
 
+
 def send_email(
     email_to: str,
     subject_template: str = "",
@@ -104,6 +105,6 @@ def generate_password_reset_token(email: str) -> str:
 def verify_password_reset_token(token: str) -> Optional[str]:
     try:
         decoded_token = jwt.decode(token, app_settings.SESSION_SECRET, algorithms=["HS256"])
-        return decoded_token["email"]
+        return decoded_token["sub"]
     except jwt.JWTError:
         return None

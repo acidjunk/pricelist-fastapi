@@ -27,11 +27,22 @@ import os
 import shutil
 import sys
 
-
 REGION_NAME = "eu-central-1"
 ENV_PREFIX = "api-"
 ENV_SUFFIX = "-prijslijst-info"
-ENV_VARS = ['ENVIRONMENT', 'TESTING', 'DATABASE_URI', 'SESSION_SECRET', 'JWT_ALGORITHM', 'IMAGE_S3_ACCESS_KEY_ID', 'IMAGE_S3_SECRET_ACCESS_KEY', 'LAMBDA_ACCESS_KEY_ID', 'LAMBDA_SECRET_ACCESS_KEY', 'FIRST_SUPERUSER', 'FIRST_SUPERUSER_PASSWORD']
+ENV_VARS = [
+    "ENVIRONMENT",
+    "TESTING",
+    "DATABASE_URI",
+    "SESSION_SECRET",
+    "JWT_ALGORITHM",
+    "IMAGE_S3_ACCESS_KEY_ID",
+    "IMAGE_S3_SECRET_ACCESS_KEY",
+    "LAMBDA_ACCESS_KEY_ID",
+    "LAMBDA_SECRET_ACCESS_KEY",
+    "FIRST_SUPERUSER",
+    "FIRST_SUPERUSER_PASSWORD",
+]
 
 
 def return_lambda_env_var(name, value):
@@ -42,8 +53,10 @@ def check_environment_before_deploy():
     for env in ENV_VARS:
         if not os.getenv(env):
             print(f"Please Ensure all needed ENV vars are inited. Could not find: {env}")
-            print("Hint; when using this by hand you can probably load the env vars with: "
-                  "'export $(cat env_staging | grep -v ^# | xargs)'")
+            print(
+                "Hint; when using this by hand you can probably load the env vars with: "
+                "'export $(cat env_staging | grep -v ^# | xargs)'"
+            )
             sys.exit(1)
 
 
