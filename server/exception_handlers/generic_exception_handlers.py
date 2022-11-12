@@ -17,7 +17,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from server.api.error_handling import ProblemDetailException
-from server.forms import FormException, FormNotCompleteError, FormValidationError
 from server.utils.errors import show_ex
 
 PROBLEM_DETAIL_FIELDS = ("title", "type")
@@ -37,40 +36,3 @@ async def problem_detail_handler(request: Request, exc: ProblemDetailException) 
         return JSONResponse(body, status_code=exc.status_code, headers=headers)
     else:
         return JSONResponse(body, status_code=exc.status_code)
-
-
-async def form_error_handler(request: Request, exc: FormException) -> JSONResponse:
-    if isinstance(exc, FormValidationError):
-        return JSONResponse(
-            {
-                "type": type(exc).__name__,
-                "detail": str(exc),
-                "traceback": show_ex(exc),
-                "title": "Form not valid",
-                "validation_errors": exc.errors,
-                "status": HTTPStatus.BAD_REQUEST,
-            },
-            status_code=HTTPStatus.BAD_REQUEST,
-        )
-    elif isinstance(exc, FormNotCompleteError):
-        return JSONResponse(
-            {
-                "type": type(exc).__name__,
-                "detail": str(exc),
-                "traceback": show_ex(exc),
-                "form": exc.form,
-                "title": "Form not complete",
-                "status": HTTPStatus.NOT_EXTENDED,
-            },
-            status_code=HTTPStatus.NOT_EXTENDED,
-        )
-    else:
-        return JSONResponse(
-            {
-                "detail": str(exc),
-                "title": "Internal Server Error",
-                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
-                "type": type(exc).__name__,
-            },
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
