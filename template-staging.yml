@@ -16,7 +16,7 @@ Resources:
             FunctionName: api-staging-prijslijst-info
             CodeUri: ./
             Handler: server.main.handler
-            Runtime: python3.8
+            Runtime: python3.9
             Timeout: 300 # timeout of your lambda function
             MemorySize: 128 # memory size of your lambda function
             Description: Staging API environment for Pricelist

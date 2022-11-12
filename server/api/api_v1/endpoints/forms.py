@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi.routing import APIRouter
-from pydantic_forms.core import list_forms, start_form
+from server.pydantic_forms.core import list_forms, start_form
 
 import server.forms  # noqa -> Needed to register all forms
 
