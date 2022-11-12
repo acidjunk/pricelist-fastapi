@@ -20,7 +20,7 @@ from server.api.api_v1.endpoints import (
     categories,
     category_images,
     flavors,
-    forms,
+    # forms,
     health,
     kind_images,
     kinds,
@@ -118,9 +118,9 @@ api_router.include_router(
 )
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
-api_router.include_router(
-    forms.router,
-    prefix="/forms",
-    tags=["forms"],
-    dependencies=[Depends(deps.get_current_active_user)],
-)
+# api_router.include_router(
+#     forms.router,
+#     prefix="/forms",
+#     tags=["forms"],
+#     dependencies=[Depends(deps.get_current_active_user)],
+# )

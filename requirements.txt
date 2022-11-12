@@ -27,4 +27,3 @@ structlog~=22.1.0
 typer-cli~=0.0.11
 uvicorn[standard]~=0.13.4
 mangum>=0.11.0
--e git+https://github.com/workfloworchestrator/pydantic-forms.git@3454c8444b31405cb589426c05cae1a5dde4e03a#egg=pydantic-forms
