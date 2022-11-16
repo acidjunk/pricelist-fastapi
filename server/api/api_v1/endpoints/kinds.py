@@ -11,6 +11,7 @@ from server.api import deps
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.helpers import invalidateShopCache
 from server.crud.crud_kind import kind_crud
 from server.db.models import UsersTable
 from server.schemas.kind import (
@@ -116,6 +117,7 @@ def get_by_id(id: UUID, shop: Optional[UUID] = None) -> KindWithDetailsAndPrices
 def create(data: KindCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_employee)) -> None:
     logger.info("Saving kind", data=data)
     kind = kind_crud.create(obj_in=data)
+
     return kind
 
 
@@ -132,6 +134,9 @@ def update(
         db_obj=kind,
         obj_in=item_in,
     )
+
+    # Todo fix for real
+    invalidateShopCache("19149768-691c-40d8-a08e-fe900fd23bc0")
     return kind
 
 

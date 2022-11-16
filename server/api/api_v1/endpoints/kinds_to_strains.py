@@ -10,6 +10,7 @@ from starlette.responses import Response
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.helpers import invalidateShopCache
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_kind_to_strain import kind_to_strain_crud
 from server.crud.crud_strain import strain_crud
@@ -50,7 +51,13 @@ def create(data: KindToStrainCreate = Body(...)) -> None:
         raise_status(HTTPStatus.NOT_FOUND, "Strain or kind not found")
 
     logger.info("Saving kind_to_strain", data=data)
-    return kind_to_strain_crud.create(obj_in=data)
+
+    result = kind_to_strain_crud.create(obj_in=data)
+
+    # Todo fix for real
+    invalidateShopCache("19149768-691c-40d8-a08e-fe900fd23bc0")
+
+    return result
 
 
 @router.put("/{kind_to_strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
@@ -64,6 +71,10 @@ def update(*, kind_to_strain_id: UUID, item_in: KindToStrainUpdate) -> Any:
         db_obj=kind_to_strain,
         obj_in=item_in,
     )
+
+    # Todo fix for real
+    invalidateShopCache("19149768-691c-40d8-a08e-fe900fd23bc0")
+
     return kind_to_strain
 
 

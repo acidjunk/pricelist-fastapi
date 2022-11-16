@@ -1,6 +1,6 @@
 -r base.txt
 apache-license-check
-black~=21.12b0
+black
 blinker
 flake8
 flake8-bandit
