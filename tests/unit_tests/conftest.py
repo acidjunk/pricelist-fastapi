@@ -26,8 +26,23 @@ from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import db
 from server.db.database import ENGINE_ARGUMENTS, SESSION_ARGUMENTS, BaseModel, DBSessionMiddleware, SearchQuery
-from server.db.models import (Category, Flavor, Kind, KindToFlavor, KindToStrain, KindToTag, Order, Price,
-                              ProductsTable, RolesTable, Shop, ShopToPrice, Strain, Tag, UsersTable)
+from server.db.models import (
+    Category,
+    Flavor,
+    Kind,
+    KindToFlavor,
+    KindToStrain,
+    KindToTag,
+    Order,
+    Price,
+    ProductsTable,
+    RolesTable,
+    Shop,
+    ShopToPrice,
+    Strain,
+    Tag,
+    UsersTable,
+)
 from server.exception_handlers.generic_exception_handlers import form_error_handler, problem_detail_handler
 from server.forms import FormException
 from server.security import get_password_hash
