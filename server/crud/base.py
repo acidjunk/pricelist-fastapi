@@ -51,7 +51,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if query is None:
             query = db.session.query(self.model)
 
-        print(query)
         logger.debug(
             f"Filter and Sort parameters model={self.model}, sort_parameters={sort_parameters}, filter_parameters={filter_parameters}",
         )

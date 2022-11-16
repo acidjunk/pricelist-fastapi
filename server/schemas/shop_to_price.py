@@ -33,6 +33,7 @@ class ShopToPriceAvailability(BoilerplateBaseModel):
 
 # Properties to receive via API on creation
 class ShopToPriceCreate(ShopToPriceBase):
+
     pass
 
 

@@ -38,7 +38,8 @@ from server.api.api_v1.endpoints import (
     strains,
     tables,
     tags,
-    users, forms,
+    users,
+    forms,
 )
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
@@ -69,18 +70,18 @@ api_router.include_router(
     tags=["categories-images"],
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
-api_router.include_router(
-    kind_images.router,
-    prefix="/kinds-images",
-    tags=["kinds-images"],
-    dependencies=[Depends(deps.get_current_active_superuser)],
-)
-api_router.include_router(
-    product_images.router,
-    prefix="/products-images",
-    tags=["products-images"],
-    dependencies=[Depends(deps.get_current_active_superuser)],
-)
+# api_router.include_router(
+#     kind_images.router,
+#     prefix="/kinds-images",
+#     tags=["kinds-images"],
+#     dependencies=[Depends(deps.get_current_active_superuser)],
+# )
+# api_router.include_router(
+#     product_images.router,
+#     prefix="/products-images",
+#     tags=["products-images"],
+#     dependencies=[Depends(deps.get_current_active_superuser)],
+# )
 api_router.include_router(products.router, prefix="/products", tags=["products"])
 api_router.include_router(kinds.router, prefix="/kinds", tags=["kinds"])
 api_router.include_router(
@@ -117,7 +118,7 @@ api_router.include_router(
     prices.router, prefix="/prices", tags=["prices"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(users.router, prefix="/users", tags=["users"])
-api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
+# api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
 api_router.include_router(
     forms.router,
     prefix="/forms",

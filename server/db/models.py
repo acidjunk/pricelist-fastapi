@@ -383,6 +383,9 @@ class ShopToPrice(BaseModel):
     use_five = Column("use_five", Boolean(), default=True)
     use_joint = Column("use_joint", Boolean(), default=True)
     use_piece = Column("use_piece", Boolean(), default=True)
+    order_number = Column(Integer, default=0)
+    joint_grams = Column(Float, default=0)
+    piece_grams = Column(Float, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

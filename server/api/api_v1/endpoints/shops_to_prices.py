@@ -113,8 +113,9 @@ def create(
         use_piece=data.use_piece if data.use_piece else False,
     )
 
+    result = shop_to_price_crud.create(obj_in=shop_to_price)
     invalidateShopCache(shop_to_price.shop_id)
-    return shop_to_price_crud.create(obj_in=shop_to_price)
+    return result
 
 
 @router.put("/{shop_to_price_id}", response_model=ShopToPriceSchema, status_code=HTTPStatus.CREATED)
@@ -154,11 +155,12 @@ def update(
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
-    invalidateShopCache(shop_to_price.shop_id)
-    return shop_to_price_crud.update(
+    result = shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
     )
+    invalidateShopCache(shop_to_price.shop_id)
+    return result
 
 
 @router.delete("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)

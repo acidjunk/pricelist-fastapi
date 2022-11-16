@@ -60,3 +60,11 @@ def get_current_active_superuser(
     if not user_crud.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
     return current_user
+
+
+def get_current_active_employee(
+    current_user: UsersTable = Depends(get_current_user),
+) -> UsersTable:
+    if not user_crud.is_superuser(current_user) and not "employee" in current_user.roles:
+        raise HTTPException(status_code=403, detail="The user does need at least employee permissions")
+    return current_user

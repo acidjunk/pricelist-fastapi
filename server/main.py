@@ -52,11 +52,11 @@ logger = structlog.get_logger(__name__)
 
 app = FastAPI(
     title="Pricelist FastAPI",
-    description="The boilerplate is a project that can be copied and adapted.",
+    description="Backend for price-lists.",
     openapi_url="/v1/openapi.json",
     docs_url="/v1/docs",
     redoc_url="/v1/redoc",
-    version=GIT_COMMIT_HASH if GIT_COMMIT_HASH else "0.1.0",
+    version=GIT_COMMIT_HASH,
     default_response_class=JSONResponse,
     # root_path="/backend",
     servers=[

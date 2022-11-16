@@ -86,7 +86,7 @@ def get_by_id(id: UUID, shop: Optional[UUID] = None) -> ProductWithDetailsAndPri
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(
-    data: ProductCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    data: ProductCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_employee)
 ) -> None:
     logger.info("Saving product", data=data)
     product = product_crud.create(obj_in=data)
@@ -95,7 +95,7 @@ def create(
 
 @router.put("/{product_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(
-    *, product_id: UUID, item_in: ProductUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    *, product_id: UUID, item_in: ProductUpdate, current_user: UsersTable = Depends(deps.get_current_active_employee)
 ) -> Any:
     product = product_crud.get(id=product_id)
     logger.info("Updating product", data=product)

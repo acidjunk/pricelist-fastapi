@@ -113,7 +113,7 @@ def get_by_id(id: UUID, shop: Optional[UUID] = None) -> KindWithDetailsAndPrices
 
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
-def create(data: KindCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
+def create(data: KindCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_employee)) -> None:
     logger.info("Saving kind", data=data)
     kind = kind_crud.create(obj_in=data)
     return kind
@@ -121,7 +121,7 @@ def create(data: KindCreate = Body(...), current_user: UsersTable = Depends(deps
 
 @router.put("/{kind_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(
-    *, kind_id: UUID, item_in: KindUpdate, current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    *, kind_id: UUID, item_in: KindUpdate, current_user: UsersTable = Depends(deps.get_current_active_employee)
 ) -> Any:
     kind = kind_crud.get(id=kind_id)
     logger.info("Updating kind", data=kind)
