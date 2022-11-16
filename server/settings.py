@@ -40,7 +40,7 @@ class AppSettings(BaseSettings):
     # SESSION_SECRET: str = "".join(secrets.choice(string.ascii_letters) for i in range(16))  # noqa: S311
     SESSION_SECRET: str = "CHANGEME"
     # OAUTH settings
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
     JWT_ALGORITHM = "HS256"
     # CORS settings
     CORS_ORIGINS: str = "*"
