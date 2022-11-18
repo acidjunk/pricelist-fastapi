@@ -58,9 +58,9 @@ class AppSettings(BaseSettings):
         "Authorization",
         "If-Match",
         "Content-Type",
+        "Access-Control-Allow-Origin",
     ]
     CORS_EXPOSE_HEADERS: List[str] = [
-        "Access-Control-Allow-Origin",
         "Cache-Control",
         "Content-Language",
         "Content-Length",
