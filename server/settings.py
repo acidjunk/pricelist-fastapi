@@ -53,13 +53,16 @@ class AppSettings(BaseSettings):
         "OPTIONS",
         "HEAD",
     ]
-    CORS_ALLOW_HEADERS: List[str] = [
-        "If-None-Match",
-        "Authorization",
-        "If-Match",
-        "Content-Type",
-        "Access-Control-Allow-Origin",
-    ]
+    # Todo: find correct header settings for upload of file with:
+    #  No 'Access-Control-Allow-Origin' header is present on the requested resource.
+    # CORS_ALLOW_HEADERS: List[str] = [
+    #     "If-None-Match",
+    #     "Authorization",
+    #     "If-Match",
+    #     "Content-Type",
+    # ]
+    CORS_ALLOW_HEADERS: List[str] = ["*"]
+
     CORS_EXPOSE_HEADERS: List[str] = [
         "Cache-Control",
         "Content-Language",
