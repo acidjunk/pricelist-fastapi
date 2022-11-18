@@ -60,6 +60,7 @@ class AppSettings(BaseSettings):
         "Content-Type",
     ]
     CORS_EXPOSE_HEADERS: List[str] = [
+        "Access-Control-Allow-Origin",
         "Cache-Control",
         "Content-Language",
         "Content-Length",

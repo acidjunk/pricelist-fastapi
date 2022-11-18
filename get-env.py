@@ -16,14 +16,13 @@
 # -----------------------------------------------------------------------------
 # USAGE/INSTRUCTIONS:
 # -----------------------------------------------------------------------------
-# This script can be used to setup the needed AWS Lambda Environment variables.
+# This script can be used to query the current AWS Lambda Environment variables.
 #
 # You'll need a python with these packages to use the script:
 # pydantic, pydantic, boto3, aws-sam-cli
 #
 # load your env stuff:
-# $ export $(cat env_staging | grep -v ^# | xargs)
-# $ python set-env.py staging
+# $ python get-env.py staging
 
 
 import os
@@ -52,41 +51,22 @@ ENV_VARS = [
     "SMTP_ENABLED",
     "EMAILS_CC",
     "S3_BUCKET_IMAGES_NAME",
-    "S3_BUCKET_TEMPORARY_NAME",
-    "S3_TEMPORARY_ACCESS_KEY_ID",
-    "S3_TEMPORARY_ACCESS_KEY"
 ]
-
-
-def return_lambda_env_var(name, value):
-    return f"{name}={value}"
-
-
-def check_environment_before_deploy():
-    for env in ENV_VARS:
-        if not os.getenv(env):
-            print(f"Please Ensure all needed ENV vars are inited. Could not find: {env}")
-            print(
-                "Hint; when using this by hand you can probably load the env vars with: "
-                "'export $(cat env_staging | grep -v ^# | xargs)'"
-            )
-            sys.exit(1)
 
 
 def check_aws_tooling():
     return shutil.which("aws") is not None
 
 
-check_environment_before_deploy()
+check_aws_tooling()
 environment_name = sys.argv[1]
 stack_name = f"{ENV_PREFIX}{environment_name}{ENV_SUFFIX}"
 print(f"Derived stack name: {stack_name}")
 
 
-envs = [return_lambda_env_var(env, os.getenv(env)) for env in ENV_VARS]
 cmd = (
-    f"aws lambda update-function-configuration --function-name {stack_name} "
-    f'--region {REGION_NAME} --environment "Variables={{{",".join(envs)}}}"'
+    f"aws lambda get-function-configuration --function-name {stack_name} "
+    f'--region {REGION_NAME}'
 )
 print(f"CMD:\n{cmd}")
 r = input("Continue? y/n: ")
