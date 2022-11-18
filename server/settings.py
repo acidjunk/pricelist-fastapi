@@ -63,17 +63,17 @@ class AppSettings(BaseSettings):
     # ]
     CORS_ALLOW_HEADERS: List[str] = ["*"]
 
-    CORS_EXPOSE_HEADERS: List[str] = [
-        "Cache-Control",
-        "Content-Language",
-        "Content-Length",
-        "Content-Type",
-        "Expires",
-        "Last-Modified",
-        "Pragma",
-        "Content-Range",
-        "ETag",
-    ]
+    CORS_EXPOSE_HEADERS: List[str] = ["*"]
+    #     "Cache-Control",
+    #     "Content-Language",
+    #     "Content-Length",
+    #     "Content-Type",
+    #     "Expires",
+    #     "Last-Modified",
+    #     "Pragma",
+    #     "Content-Range",
+    #     "ETag",
+    # ]
     SWAGGER_PORT: int = 8080
     ENVIRONMENT: str = "local"
     SWAGGER_HOST: str = "localhost"
