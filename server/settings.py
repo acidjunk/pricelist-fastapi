@@ -112,7 +112,6 @@ class AppSettings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD = "CHANGEME"
     FIRST_SUPERUSER_ROLE = "admin"
     FIRST_SUPERUSER_ROLE_DESCRIPTION = "God Mode!"
-    S3_BUCKET_IMAGES_NAME = "CHANGE_THIS_FOR_UPLOAD"  # used to store images and to generate signed URI's
 
     @validator("EMAILS_FROM_NAME")
     def get_project_name(cls, v: Optional[str], values: Dict[str, Any]) -> str:
@@ -130,15 +129,20 @@ class AppSettings(BaseSettings):
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
 
+    # AWS Lambda settings
+    LAMBDA_ACCESS_KEY_ID = "CHANGEME"
+    LAMBDA_SECRET_ACCESS_KEY = "CHANGEME"
+
+    # TODO: think of better naming convention
     # Production S3 bucket
-    AWS_ACCESS_KEY_ID: str = ""
-    AWS_SECRET_ACCESS_KEY: str = ""
-    S3_BUCKET_IMAGES_NAME: str = ""
+    AWS_ACCESS_KEY_ID: str = "CHANGEME"
+    AWS_SECRET_ACCESS_KEY: str = "CHANGEME"
+    S3_BUCKET_IMAGES_NAME = "CHANGE_THIS_FOR_UPLOAD"  # used to store images and to generate signed URI's
 
     # Temporary S3 where images go before they are moved to the production bucket
-    S3_BUCKET_TEMPORARY_NAME: str = ""
-    S3_TEMPORARY_ACCESS_KEY_ID: str = ""
-    S3_TEMPORARY_ACCESS_KEY: str = ""
+    S3_BUCKET_TEMPORARY_NAME: str = "CHANGEME"
+    S3_TEMPORARY_ACCESS_KEY_ID: str = "CHANGEME"
+    S3_TEMPORARY_ACCESS_KEY: str = "CHANGEME"
 
     class Config:
         env_file = ".env"

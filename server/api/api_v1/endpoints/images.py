@@ -16,7 +16,7 @@ def get_signed_url(image_name: str):
     image_url = create_presigned_url(image_name)
     return image_url
 
+
 @router.post("/move")
 def move_images():
-    move_between_buckets()
-    return "yes"
+    return move_between_buckets()

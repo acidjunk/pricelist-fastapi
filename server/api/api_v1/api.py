@@ -126,6 +126,4 @@ api_router.include_router(
     tags=["forms"],
     dependencies=[Depends(deps.get_current_active_user)],
 )
-api_router.include_router(
-    images.router, prefix="/images", tags=["images"]
-)
+api_router.include_router(images.router, prefix="/images", tags=["images"])
