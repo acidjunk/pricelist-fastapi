@@ -130,6 +130,16 @@ class AppSettings(BaseSettings):
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
 
+    # Production S3 bucket
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_ACCESS_KEY: str = ""
+    S3_BUCKET_IMAGES_NAME: str = ""
+
+    # Temporary S3 where images go before they are moved to the production bucket
+    S3_BUCKET_TEMPORARY_NAME: str = ""
+    S3_TEMPORARY_ACCESS_KEY_ID: str = ""
+    S3_TEMPORARY_ACCESS_KEY: str = ""
+
     class Config:
         env_file = ".env"
 
