@@ -15,7 +15,6 @@ import json
 import os
 from datetime import datetime
 from http import HTTPStatus
-from typing import List, Optional
 
 import boto3 as boto3
 from fastapi import HTTPException
@@ -25,12 +24,14 @@ from sqlalchemy.orm import Query
 from sqlalchemy.sql import expression
 from starlette.responses import Response
 from structlog import get_logger
+from typing import List, Optional
 
 from server.api.error_handling import raise_status
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.db.database import BaseModel
 from server.schemas import ShopUpdate
+from server.settings import app_settings
 
 logger = get_logger(__name__)
 
@@ -46,15 +47,29 @@ VALID_SORT_KEYS = {
 
 s3 = boto3.resource(
     "s3",
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    aws_access_key_id=app_settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.AWS_SECRET_ACCESS_KEY,
+    region_name="eu-central-1",
+)
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=app_settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.AWS_SECRET_ACCESS_KEY,
+    region_name="eu-central-1",
+)
+
+s3_temporary = boto3.resource(
+    "s3",
+    aws_access_key_id=app_settings.S3_TEMPORARY_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.S3_TEMPORARY_ACCESS_KEY,
     region_name="eu-central-1",
 )
 
 sendMessageLambda = boto3.client(
     "lambda",
-    aws_access_key_id=os.getenv("LAMBDA_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("LAMBDA_SECRET_ACCESS_KEY"),
+    aws_access_key_id=app_settings.LAMBDA_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.LAMBDA_SECRET_ACCESS_KEY,
     region_name="eu-central-1",
 )
 
@@ -200,5 +215,40 @@ def invalidatePendingOrdersCache(order_id):
     sendMessageToWebSocketServer(payload)
     try:
         return shop_crud.update(db_obj=shop, obj_in=shop_in)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+
+def create_presigned_url(object_name, expiration=7200):
+    bucket_name = app_settings.S3_BUCKET_IMAGES_NAME
+    try:
+        response = s3_client.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket_name, "Key": object_name}, ExpiresIn=expiration
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+    return response
+
+
+def move_between_buckets():
+    temp_bucket_name = app_settings.S3_BUCKET_TEMPORARY_NAME
+    prod_bucket_name = app_settings.S3_BUCKET_IMAGES_NAME
+    prefix = "upload/"
+
+    try:
+        list_objects_response = s3_client.list_objects_v2(Bucket=temp_bucket_name, Prefix=prefix, Delimiter="/")
+        folder_content_info = list_objects_response.get("Contents")
+
+        if list_objects_response.get("KeyCount") < 1:
+            return {"message": "No files to move"}
+
+        for file in folder_content_info:
+            copy_source = {"Bucket": temp_bucket_name, "Key": file.get("Key")}
+            new_key = file.get("Key").replace(prefix, "")
+            s3.meta.client.copy(copy_source, prod_bucket_name, new_key)
+            s3_temporary.Object(temp_bucket_name, file.get("Key")).delete()
+
+        return {"message": "Moved files from temporary bucket to production bucket"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")
