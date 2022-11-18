@@ -1,5 +1,6 @@
-# fastapi-postgres-boilerplate
-My own fastapi postgres boilerplate
+# Pricelist backend
+
+A backend for serving pricelists.
 
 ## Server
 
@@ -128,9 +129,15 @@ REASSIGN OWNED BY rds_super_user TO priceliststaging;
 
 Now a prepared prod dump can be imported.
 
+## Deployment problems
 
-Workshop:
-=========
-- deliver the tests for DB model: `maps`
-- get it running on AWS yourself
-- fix db default and product save() problem
+Deployment is still a bit rough and I set the needed ENV vars from a local script.
+
+So after a deployment check if the login works in the swagger GUI. Sometimes the ENV var get reset and you have to 
+run the `set-env.py` script for that environment. 
+
+Currently, problems happened when:
+- upgrading to a new python version via the SAM template
+- when a build fails to deploy correctly (Noticed: when I added "-e requirement for pydantic-forms")
+
+Running the `set-env.py` sets vars immediately without the need to restart something.
