@@ -51,6 +51,7 @@ ENV_VARS = [
     "GUI_URI",
     "SMTP_ENABLED",
     "EMAILS_CC",
+    "S3_BUCKET_IMAGES_NAME",
 ]
 
 
