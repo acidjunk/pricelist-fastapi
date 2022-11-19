@@ -55,25 +55,26 @@ class AppSettings(BaseSettings):
     ]
     # Todo: find correct header settings for upload of file with:
     #  No 'Access-Control-Allow-Origin' header is present on the requested resource.
-    # CORS_ALLOW_HEADERS: List[str] = [
-    #     "If-None-Match",
-    #     "Authorization",
-    #     "If-Match",
-    #     "Content-Type",
-    # ]
-    CORS_ALLOW_HEADERS: List[str] = ["*"]
+    CORS_ALLOW_HEADERS: List[str] = [
+        "If-None-Match",
+        "Authorization",
+        "If-Match",
+        "Content-Type",
+        "Access-Control-Allow-Origin",
+    ]
+    # CORS_ALLOW_HEADERS: List[str] = ["*"]
 
-    CORS_EXPOSE_HEADERS: List[str] = ["*"]
-    #     "Cache-Control",
-    #     "Content-Language",
-    #     "Content-Length",
-    #     "Content-Type",
-    #     "Expires",
-    #     "Last-Modified",
-    #     "Pragma",
-    #     "Content-Range",
-    #     "ETag",
-    # ]
+    CORS_EXPOSE_HEADERS: List[str] = [
+        "Cache-Control",
+        "Content-Language",
+        "Content-Length",
+        "Content-Type",
+        "Expires",
+        "Last-Modified",
+        "Pragma",
+        "Content-Range",
+        "ETag",
+    ]
     SWAGGER_PORT: int = 8080
     ENVIRONMENT: str = "local"
     SWAGGER_HOST: str = "localhost"

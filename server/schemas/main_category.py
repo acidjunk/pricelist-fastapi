@@ -37,3 +37,4 @@ class MainCategorySchema(MainCategoryInDBBase):
 
 class MainCategoryWithNames(MainCategoryInDBBase):
     shop_name: str
+    main_category_and_shop: str

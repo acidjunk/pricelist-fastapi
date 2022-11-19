@@ -8,6 +8,7 @@ from server.schemas.base import BoilerplateBaseModel
 class KindToTagBase(BoilerplateBaseModel):
     kind_id: UUID
     tag_id: UUID
+    amount: int
 
 
 # Properties to receive via API on creation

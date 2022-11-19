@@ -69,9 +69,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                         logger.info(f"Key: not found in database model key={key}, model={self.model}")
                     query = query.filter(or_(*conditions))
                 else:
-                    for column in sa_inspect(self.model).columns.keys():
-                        conditions.append(cast(self.model.__dict__[column], String).ilike("%" + key + "%"))
-                    query = query.filter(or_(*conditions))
+                    if isinstance(value, list):
+                        logger.info("Query parameters set to GET_MANY, ID column only", value=value)
+                        conditions = []
+                        for item in value:
+                            conditions.append(self.model.__dict__["id"] == item)
+                        query = query.filter(or_(*conditions))
+                    else:
+                        for column in sa_inspect(self.model).columns.keys():
+                            conditions.append(cast(self.model.__dict__[column], String).ilike("%" + key + "%"))
+                            query = query.filter(or_(*conditions))
 
         if sort_parameters and len(sort_parameters):
             for sort_parameter in sort_parameters:

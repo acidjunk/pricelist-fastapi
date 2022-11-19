@@ -64,10 +64,7 @@ stack_name = f"{ENV_PREFIX}{environment_name}{ENV_SUFFIX}"
 print(f"Derived stack name: {stack_name}")
 
 
-cmd = (
-    f"aws lambda get-function-configuration --function-name {stack_name} "
-    f'--region {REGION_NAME}'
-)
+cmd = f"aws lambda get-function-configuration --function-name {stack_name} " f"--region {REGION_NAME}"
 print(f"CMD:\n{cmd}")
 r = input("Continue? y/n: ")
 if r == "y":

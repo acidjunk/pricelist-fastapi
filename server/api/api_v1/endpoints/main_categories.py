@@ -30,6 +30,7 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     )
     for main_category in main_categories:
         main_category.shop_name = main_category.shop.name
+        main_category.main_category_and_shop = f"{main_category.shop.name} - {main_category.name}"
     response.headers["Content-Range"] = header_range
     return main_categories
 
