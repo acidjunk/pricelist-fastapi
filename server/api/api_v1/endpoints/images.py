@@ -5,7 +5,7 @@ from uuid import UUID
 
 import structlog
 from server.api.api_v1.router_fix import APIRouter
-from server.api.helpers import create_presigned_url, move_between_buckets
+from server.api.helpers import create_presigned_url, move_between_buckets, delete_from_temporary_bucket
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -20,3 +20,8 @@ def get_signed_url(image_name: str):
 @router.post("/move")
 def move_images():
     return move_between_buckets()
+
+
+@router.post("/delete-temp")
+def delete_temporary_images():
+    return delete_from_temporary_bucket()
