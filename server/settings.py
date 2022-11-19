@@ -140,8 +140,8 @@ class AppSettings(BaseSettings):
 
     # TODO: think of better naming convention
     # Production S3 bucket
-    AWS_ACCESS_KEY_ID: str = "CHANGEME"
-    AWS_SECRET_ACCESS_KEY: str = "CHANGEME"
+    S3_BUCKET_IMAGES_ACCESS_KEY_ID: str = "CHANGEME"
+    S3_BUCKET_IMAGES_SECRET_ACCESS_KEY: str = "CHANGEME"
     S3_BUCKET_IMAGES_NAME = "CHANGE_THIS_FOR_UPLOAD"  # used to store images and to generate signed URI's
 
     # Temporary S3 where images go before they are moved to the production bucket

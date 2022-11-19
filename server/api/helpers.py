@@ -47,15 +47,15 @@ VALID_SORT_KEYS = {
 
 s3 = boto3.resource(
     "s3",
-    aws_access_key_id=app_settings.AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=app_settings.AWS_SECRET_ACCESS_KEY,
+    aws_access_key_id=app_settings.S3_BUCKET_IMAGES_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.S3_BUCKET_IMAGES_SECRET_ACCESS_KEY,
     region_name="eu-central-1",
 )
 
 s3_client = boto3.client(
     "s3",
-    aws_access_key_id=app_settings.AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=app_settings.AWS_SECRET_ACCESS_KEY,
+    aws_access_key_id=app_settings.S3_BUCKET_IMAGES_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.S3_BUCKET_IMAGES_SECRET_ACCESS_KEY,
     region_name="eu-central-1",
 )
 
