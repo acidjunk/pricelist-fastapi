@@ -89,7 +89,7 @@ def get_by_id(id: UUID):
         ShopToPrice.query.filter_by(shop_id=item.id)
         .join(ShopToPrice.price)
         .join(ShopToPrice.category)
-        .order_by(Category.name, Price.piece, Price.joint, Price.one, Price.five, Price.half, Price.two_five)
+        .order_by(Category.name, ShopToPrice.order_number, Price.piece, Price.joint, Price.one, Price.five, Price.half, Price.two_five)
         .all()
     )
     item.prices = [
@@ -134,6 +134,7 @@ def get_by_id(id: UUID):
             "piece": pr.price.piece if pr.use_piece else None,
             "created_at": pr.created_at,
             "modified_at": pr.modified_at,
+            "order_number": pr.order_number
         }
         for pr in price_relations
     ]
