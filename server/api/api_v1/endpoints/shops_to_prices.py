@@ -23,7 +23,8 @@ from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
     ShopToPriceSchema,
-    ShopToPriceUpdate, ShopToPriceSwap,
+    ShopToPriceUpdate,
+    ShopToPriceSwap,
 )
 
 logger = structlog.get_logger(__name__)
@@ -70,7 +71,7 @@ def get_by_id(id: UUID) -> ShopToPriceSchema:
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(
-        data: ShopToPriceCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    data: ShopToPriceCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ) -> None:
     logger.info("Saving shop to price relation", data=data)
     price = price_crud.get(data.price_id)
@@ -120,10 +121,10 @@ def create(
 
 @router.put("/{shop_to_price_id}", response_model=ShopToPriceSchema, status_code=HTTPStatus.CREATED)
 def update(
-        *,
-        shop_to_price_id: UUID,
-        item_in: ShopToPriceUpdate,
-        current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    *,
+    shop_to_price_id: UUID,
+    item_in: ShopToPriceUpdate,
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> ShopToPriceSchema:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
@@ -149,10 +150,10 @@ def update(
 
 @router.put("/availability/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def update(
-        *,
-        shop_to_price_id: UUID,
-        item_in: ShopToPriceAvailability,
-        current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    *,
+    shop_to_price_id: UUID,
+    item_in: ShopToPriceAvailability,
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
     result = shop_to_price_crud.update(
@@ -174,9 +175,9 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
 
 @router.patch("/swap/{shop_to_price_id}", status_code=HTTPStatus.CREATED)
 def swap_order_numbers(
-        shop_to_price_id: UUID,
-        move_up: bool,
-        # current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    shop_to_price_id: UUID,
+    move_up: bool,
+    # current_user: UsersTable = Depends(deps.get_current_active_superuser)
 ):
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
@@ -184,46 +185,30 @@ def swap_order_numbers(
         raise HTTPException(status_code=404, detail="Shop to price not found")
 
     last_shop_to_price = (
-            ShopToPrice.query
-            .filter_by(category_id=shop_to_price.category_id)
-            .order_by(ShopToPrice.order_number.desc()).first()
-        )
+        ShopToPrice.query.filter_by(category_id=shop_to_price.category_id)
+        .order_by(ShopToPrice.order_number.desc())
+        .first()
+    )
 
     old_order_number = shop_to_price.order_number
     new_order_number = None
 
     if move_up:
         if old_order_number == 0:
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot move up further - Minimum order number achieved."
-            )
+            raise HTTPException(status_code=400, detail="Cannot move up further - Minimum order number achieved.")
         new_order_number = old_order_number - 1
-        shop_to_price_to_swap = (
-            ShopToPrice.query
-                .filter_by(category_id=shop_to_price.category_id)
-                .filter_by(order_number=new_order_number)
-                .first()
-        )
     else:
         if old_order_number == last_shop_to_price.order_number:
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot move down further - Maximum order number achieved."
-            )
+            raise HTTPException(status_code=400, detail="Cannot move down further - Maximum order number achieved.")
         new_order_number = old_order_number + 1
-        shop_to_price_to_swap = (
-            ShopToPrice.query
-                .filter_by(category_id=shop_to_price.category_id)
-                .filter_by(order_number=new_order_number)
-                .first()
-        )
 
-    shop_to_price_crud.update(
-        db_obj=shop_to_price,
-        obj_in=ShopToPriceSwap(order_number=new_order_number),
-        commit=False
+    shop_to_price_to_swap = (
+        ShopToPrice.query.filter_by(category_id=shop_to_price.category_id)
+        .filter_by(order_number=new_order_number)
+        .first()
     )
+
+    shop_to_price_crud.update(db_obj=shop_to_price, obj_in=ShopToPriceSwap(order_number=new_order_number), commit=False)
 
     shop_to_price_crud.update(
         db_obj=shop_to_price_to_swap,
