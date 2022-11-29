@@ -3,6 +3,8 @@ from uuid import UUID
 
 from sqlalchemy.orm import contains_eager, defer
 
+from server.db import db
+from server.api.models import transform_json
 from server.crud.base import CRUDBase
 from server.db.models import ShopToPrice
 from server.schemas.shop_to_price import ShopToPriceCreate, ShopToPriceUpdate
@@ -10,6 +12,29 @@ from server.utils.json import json_dumps
 
 
 class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate]):
+    def create(self, *, obj_in: ShopToPriceCreate) -> ShopToPrice:
+        obj_in_data = transform_json(obj_in.dict())
+
+        # calculate new order number
+        if obj_in.kind_id:
+            order_number = -1
+        else:
+            product = (
+                ShopToPrice.query.filter_by(category_id=obj_in.category_id)
+                .filter(ShopToPrice.product_id.isnot(None))
+                .order_by(ShopToPrice.order_number.desc())
+                .first()
+            )
+            order_number = product.order_number + 1
+
+        obj_in_data["order_number"] = order_number
+
+        db_obj = self.model(**obj_in_data)
+        db.session.add(db_obj)
+        db.session.commit()
+        db.session.refresh(db_obj)
+        return db_obj
+
     def check_relation_by_kind(self, *, shop_id: UUID, price_id: UUID, kind_id: UUID) -> Optional[ShopToPrice]:
         check_query = (
             ShopToPrice.query.filter_by(shop_id=shop_id).filter_by(price_id=price_id).filter_by(kind_id=kind_id).all()

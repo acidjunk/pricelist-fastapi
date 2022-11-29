@@ -25,7 +25,6 @@ class ShopToPriceBase(BoilerplateBaseModel):
     joint: Optional[float] = None
     use_piece: bool = False
     piece: Optional[float] = None
-    order_number: int
 
 
 class ShopToPriceAvailability(BoilerplateBaseModel):
@@ -38,7 +37,6 @@ class ShopToPriceSwap(BoilerplateBaseModel):
 
 # Properties to receive via API on creation
 class ShopToPriceCreate(ShopToPriceBase):
-
     pass
 
 
@@ -51,6 +49,7 @@ class ShopToPriceInDBBase(ShopToPriceBase):
     id: UUID
     created_at: datetime
     modified_at: datetime
+    order_number: int
 
     class Config:
         orm_mode = True
