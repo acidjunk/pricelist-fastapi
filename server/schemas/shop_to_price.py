@@ -25,10 +25,15 @@ class ShopToPriceBase(BoilerplateBaseModel):
     joint: Optional[float] = None
     use_piece: bool = False
     piece: Optional[float] = None
+    order_number: int
 
 
 class ShopToPriceAvailability(BoilerplateBaseModel):
     active: bool
+
+
+class ShopToPriceSwap(BoilerplateBaseModel):
+    order_number: int
 
 
 # Properties to receive via API on creation

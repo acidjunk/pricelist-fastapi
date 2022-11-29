@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, List
+from typing import Any, List, Optional
 from uuid import UUID
 
 import structlog
@@ -82,16 +82,47 @@ def get_last_pending_order(id: UUID) -> ShopLastPendingOrder:
 
 
 @router.get("/{id}", response_model=ShopWithPrices)
-def get_by_id(id: UUID):
+def get_by_id(id: UUID, is_horeca: Optional[bool] = None):
     """List Shop"""
     item = load(Shop, id)
-    price_relations = (
-        ShopToPrice.query.filter_by(shop_id=item.id)
-        .join(ShopToPrice.price)
-        .join(ShopToPrice.category)
-        .order_by(Category.name, Price.piece, Price.joint, Price.one, Price.five, Price.half, Price.two_five)
-        .all()
-    )
+    price_relations = None
+
+    if is_horeca:
+        price_relations = (
+            ShopToPrice.query.filter_by(shop_id=item.id)
+            .filter_by(kind_id=None)
+            .join(ShopToPrice.price)
+            .join(ShopToPrice.category)
+            .order_by(Category.name, ShopToPrice.order_number, Price.piece)
+            .all()
+        )
+    elif is_horeca is not None:
+        price_relations = (
+            ShopToPrice.query.filter_by(shop_id=item.id)
+            .filter_by(product_id=None)
+            .join(ShopToPrice.price)
+            .join(ShopToPrice.category)
+            .order_by(Category.name, Price.piece, Price.joint, Price.one, Price.five, Price.half, Price.two_five)
+            .all()
+        )
+    else:
+        price_relations = (
+            ShopToPrice.query.filter_by(shop_id=item.id)
+            .join(ShopToPrice.price)
+            .join(ShopToPrice.category)
+            .order_by(
+                Category.name,
+                ShopToPrice.order_number,
+                Price.piece,
+                Price.joint,
+                Price.one,
+                Price.five,
+                Price.half,
+                Price.two_five,
+            )
+            .all()
+        )
+
     item.prices = [
         {
             "id": pr.id,
@@ -134,6 +165,7 @@ def get_by_id(id: UUID):
             "piece": pr.price.piece if pr.use_piece else None,
             "created_at": pr.created_at,
             "modified_at": pr.modified_at,
+            "order_number": pr.order_number,
         }
         for pr in price_relations
     ]
