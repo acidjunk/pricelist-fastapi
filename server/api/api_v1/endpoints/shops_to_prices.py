@@ -18,6 +18,7 @@ from server.crud.crud_price import price_crud
 from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
+from server.db import db
 from server.db.models import UsersTable, ShopToPrice
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
@@ -30,6 +31,13 @@ from server.schemas.shop_to_price import (
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+
+def fix_sort(category_id):
+    prices = ShopToPrice.query.filter_by(category_id=category_id).order_by(ShopToPrice.order_number).all()
+    for count, price in enumerate(prices):
+        shop_to_price_crud.update(db_obj=price, obj_in=ShopToPriceSwap(order_number=count), commit=False)
+    db.session.commit()
 
 
 @router.get("/", response_model=List[ShopToPriceSchema])
@@ -170,7 +178,8 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
     invalidateShopCache(shop_to_price.shop_id)
-    return shop_to_price_crud.delete(id=shop_to_price_id)
+    shop_to_price_crud.delete(id=shop_to_price_id)
+    return fix_sort(shop_to_price.category_id)
 
 
 @router.patch("/swap/{shop_to_price_id}", status_code=HTTPStatus.CREATED)
