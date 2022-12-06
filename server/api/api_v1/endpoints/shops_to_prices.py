@@ -34,7 +34,12 @@ router = APIRouter()
 
 
 def fix_sort(category_id):
-    prices = ShopToPrice.query.filter_by(category_id=category_id).order_by(ShopToPrice.order_number).all()
+    prices = (
+        ShopToPrice.query.filter_by(category_id=category_id)
+        .filter(ShopToPrice.product_id.isnot(None))
+        .order_by(ShopToPrice.order_number)
+        .all()
+    )
     for count, price in enumerate(prices):
         shop_to_price_crud.update(db_obj=price, obj_in=ShopToPriceSwap(order_number=count), commit=False)
     db.session.commit()
