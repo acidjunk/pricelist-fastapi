@@ -252,3 +252,22 @@ def move_between_buckets():
         return {"message": "Moved files from temporary bucket to production bucket"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+
+def delete_from_temporary_bucket():
+    temp_bucket_name = app_settings.S3_BUCKET_TEMPORARY_NAME
+    prefix = "upload/"
+
+    try:
+        list_objects_response = s3_client.list_objects_v2(Bucket=temp_bucket_name, Prefix=prefix, Delimiter="/")
+        folder_content_info = list_objects_response.get("Contents")
+
+        if list_objects_response.get("KeyCount") < 1:
+            return {"message": "No files to delete"}
+
+        for file in folder_content_info:
+            s3_temporary.Object(temp_bucket_name, file.get("Key")).delete()
+
+        return {"message": "Deleted files from temporary bucket"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
