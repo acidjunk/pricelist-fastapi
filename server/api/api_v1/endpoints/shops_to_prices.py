@@ -183,8 +183,9 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
     invalidateShopCache(shop_to_price.shop_id)
-    shop_to_price_crud.delete(id=shop_to_price_id)
-    return fix_sort(shop_to_price.category_id)
+    result = shop_to_price_crud.delete(id=shop_to_price_id)
+    fix_sort(shop_to_price.category_id)
+    return result
 
 
 @router.patch("/swap/{shop_to_price_id}", status_code=HTTPStatus.CREATED)
