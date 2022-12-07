@@ -8,6 +8,7 @@ from os import listdir
 from typing import Dict, cast
 
 import pytest
+import respx
 import structlog
 from alembic import command
 from alembic.config import Config
@@ -21,7 +22,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 
-import respx
 from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import db

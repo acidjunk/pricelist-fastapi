@@ -20,7 +20,6 @@ def test_kinds_get_multi(kind_1, kind_2, test_client, superuser_token_headers):
 
 def test_kind_get_by_id(kind_1, test_client, superuser_token_headers):
     response = test_client.get(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
-    print(response.__dict__)
     assert HTTPStatus.OK == response.status_code
     kind = response.json()
     assert kind["name"] == "Indica"

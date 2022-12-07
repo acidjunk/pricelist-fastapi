@@ -20,6 +20,9 @@ EXCLUDED_ENDPOINTS = [
     {"path": "/api/orders/check/{ids}/", "name": "check", "method": "GET"},
     {"path": "/api/orders/", "name": "create", "method": "POST"},
     {"path": "/api/chat/", "name": "get", "method": "GET"},
+    {"path": "/api/images/signed-url/{image_name}/", "name": "get_signed_url", "method": "GET"},
+    {"path": "/api/images/move/", "name": "move_images", "method": "POST"},
+    {"path": "/api/images/delete-temp/", "name": "delete_temporary_images", "method": "POST"},
 ]
 
 

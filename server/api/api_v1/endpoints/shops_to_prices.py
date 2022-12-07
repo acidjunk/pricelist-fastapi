@@ -19,13 +19,13 @@ from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db import db
-from server.db.models import UsersTable, ShopToPrice
+from server.db.models import ShopToPrice, UsersTable
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
     ShopToPriceSchema,
-    ShopToPriceUpdate,
     ShopToPriceSwap,
+    ShopToPriceUpdate,
 )
 
 logger = structlog.get_logger(__name__)

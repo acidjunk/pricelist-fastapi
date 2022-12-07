@@ -15,6 +15,7 @@ import json
 import os
 from datetime import datetime
 from http import HTTPStatus
+from typing import List, Optional
 
 import boto3 as boto3
 from fastapi import HTTPException
@@ -24,7 +25,6 @@ from sqlalchemy.orm import Query
 from sqlalchemy.sql import expression
 from starlette.responses import Response
 from structlog import get_logger
-from typing import List, Optional
 
 from server.api.error_handling import raise_status
 from server.crud.crud_order import order_crud

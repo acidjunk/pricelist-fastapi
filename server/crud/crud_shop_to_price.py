@@ -3,9 +3,9 @@ from uuid import UUID
 
 from sqlalchemy.orm import contains_eager, defer
 
-from server.db import db
 from server.api.models import transform_json
 from server.crud.base import CRUDBase
+from server.db import db
 from server.db.models import ShopToPrice
 from server.schemas.shop_to_price import ShopToPriceCreate, ShopToPriceUpdate
 from server.utils.json import json_dumps
