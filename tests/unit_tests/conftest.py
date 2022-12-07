@@ -43,8 +43,9 @@ from server.db.models import (
     Tag,
     UsersTable,
 )
-from server.exception_handlers.generic_exception_handlers import form_error_handler, problem_detail_handler
-from server.forms import FormException
+from server.exception_handlers.generic_exception_handlers import problem_detail_handler
+from server.pydantic_forms.exception_handlers.fastapi import form_error_handler
+from server.pydantic_forms.exceptions import FormException
 from server.security import get_password_hash
 from server.settings import app_settings
 from server.types import UUIDstr

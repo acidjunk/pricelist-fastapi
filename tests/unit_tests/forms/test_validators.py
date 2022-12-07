@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from server.forms.validators import unique_conlist
+from server.pydantic_forms.validators import unique_conlist
 
 
 def test_constrained_list_good():
