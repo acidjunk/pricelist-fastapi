@@ -1,6 +1,7 @@
+import pytest
+
 from server import crud
 from server.crud.crud_strain import strain_crud
-import pytest
 
 
 @pytest.mark.xfail(reason="blaat")

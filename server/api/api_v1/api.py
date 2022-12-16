@@ -36,6 +36,7 @@ from server.api.api_v1.endpoints import (  # forms,
     products,
     shops,
     shops_to_prices,
+    shops_users,
     strains,
     tables,
     tags,
@@ -126,3 +127,9 @@ api_router.include_router(
     dependencies=[Depends(deps.get_current_active_user)],
 )
 api_router.include_router(images.router, prefix="/images", tags=["images"])
+api_router.include_router(
+    shops_users.router,
+    prefix="/shops-users",
+    tags=["shops-users"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)

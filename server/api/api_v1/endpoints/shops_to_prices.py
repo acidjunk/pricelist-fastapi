@@ -12,6 +12,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import invalidateShopCache
+from server.api.utils import is_user_allowed_in_shop
 from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
@@ -140,10 +141,12 @@ def update(
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> ShopToPriceSchema:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
-
     logger.info("Updating shop_to_price", data=shop_to_price)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
+
+    # Check if user is allowed in shop
+    is_user_allowed_in_shop(current_user, shop_crud.get(shop_to_price.shop_id))
 
     price = price_crud.get(item_in.price_id)
     shop = shop_crud.get(item_in.shop_id)

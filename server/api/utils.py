@@ -4,9 +4,12 @@ from typing import Union
 from uuid import UUID
 
 import structlog
-from fastapi import Request
+from fastapi import HTTPException, Request
+
+from server.db.models import Shop, UsersTable
 
 logger = structlog.get_logger(__name__)
+
 
 # import qrcode
 # from database import Price, db
@@ -68,7 +71,6 @@ def convert_price_string_to_float(price: str) -> Union[float, None]:
 
 
 def validate_uuid4(uuid_string):
-
     """
     Validate that a UUID string is in
     fact a valid uuid4.
@@ -107,3 +109,12 @@ def is_ip_allowed(request: Request, shop):
         return True
     logger.warning("IP is not allowed to order", shop_name=shop.name, shop_id=shop_id, ip=ip, allowed_ips=allowed_ips)
     return False
+
+
+def is_user_allowed_in_shop(user: UsersTable, shop: Shop):
+    if user.shops.__contains__(shop):
+        return True
+    else:
+        raise HTTPException(
+            status_code=403, detail=f"User {user.username} doesn't have permissions for shop {shop.name}"
+        )
