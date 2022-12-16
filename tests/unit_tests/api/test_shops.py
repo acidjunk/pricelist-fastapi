@@ -25,7 +25,7 @@ def test_shop_get_by_id(shop_1, test_client):
 
 
 def test_shop_save(test_client, superuser_token_headers):
-    body = {"name": "New Shop", "description": "Shop description"}
+    body = {"name": "New Test Shop", "description": "New Test Shop description"}
 
     response = test_client.post("/api/shops/", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.CREATED == response.status_code
@@ -47,4 +47,4 @@ def test_shop_delete(shop_1, test_client, superuser_token_headers):
     response = test_client.delete(f"/api/shops/{shop_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code
     shops = test_client.get("/api/shops", headers=superuser_token_headers).json()
-    assert 0 == len(shops)
+    assert len(shops) == 1  # Changed to 1 because admin has 2 shops now

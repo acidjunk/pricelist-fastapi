@@ -54,6 +54,9 @@ def test_kind_update(kind_1, test_client, superuser_token_headers):
     assert kind["name"] == "Updated Kind"
 
 
+# TODO: Unit test for kind with 2 shops
+
+
 def test_kind_delete(kind_1, test_client, superuser_token_headers):
     response = test_client.delete(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
     assert HTTPStatus.NO_CONTENT == response.status_code

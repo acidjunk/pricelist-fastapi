@@ -69,6 +69,13 @@ class UtcTimestamp(TypeDecorator):
         return value
 
 
+class ShopsUsersTable(BaseModel):
+    __tablename__ = "shops_users"
+    id = Column(Integer(), primary_key=True)
+    user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id"))
+    shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"))
+
+
 class RolesUsersTable(BaseModel):
     __tablename__ = "roles_users"
     id = Column(Integer(), primary_key=True)
@@ -76,8 +83,6 @@ class RolesUsersTable(BaseModel):
     role_id = Column("role_id", UUID(as_uuid=True), ForeignKey("role.id"))
 
 
-# What RoleMixin does ?
-# class Role(BaseModel, RoleMixin):
 class RolesTable(BaseModel):
     __tablename__ = "role"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -93,7 +98,6 @@ class RolesTable(BaseModel):
         return hash(self.name)
 
 
-# Same here
 class UsersTable(BaseModel):
     __tablename__ = "user"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -107,6 +111,7 @@ class UsersTable(BaseModel):
     created_at = Column(DateTime, default=datetime.utcnow)
     confirmed_at = Column(DateTime())
     roles = relationship("RolesTable", secondary="roles_users", backref=backref("users", lazy="dynamic"))
+    shops = relationship("Shop", secondary="shops_users", backref=backref("users", lazy="dynamic"))
 
     mail_offers = Column(Boolean, default=False)
 

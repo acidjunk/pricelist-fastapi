@@ -229,13 +229,14 @@ def user_roles():
 
 
 @pytest.fixture
-def user_admin():
+def user_admin(shop_1, shop_2):
     admin = UsersTable(
         username="Admin",
         email="admin@admin",
         password=get_password_hash("admin"),
         active=True,
         roles=[RolesTable(name="admin", description="Admin Role")],
+        shops=[shop_1, shop_2],
     )
 
     db.session.add(admin)
