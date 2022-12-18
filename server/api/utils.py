@@ -1,11 +1,12 @@
 import csv
 import uuid
-from typing import Union
+from typing import List, Union
 from uuid import UUID
 
 import structlog
 from fastapi import HTTPException, Request
 
+from server.crud.crud_role import role_crud
 from server.db.models import Shop, UsersTable
 
 logger = structlog.get_logger(__name__)
@@ -111,10 +112,12 @@ def is_ip_allowed(request: Request, shop):
     return False
 
 
-def is_user_allowed_in_shop(user: UsersTable, shop: Shop):
+def is_user_allowed_in_shop(user: UsersTable, shop: Shop, roles_allowed: List[str]):
+    for role_str in roles_allowed:
+        role = role_crud.get_by_name(name=role_str)
+        if user.roles.__contains__(role):
+            return True
     if user.shops.__contains__(shop):
         return True
     else:
-        raise HTTPException(
-            status_code=403, detail=f"User {user.username} doesn't have permissions for shop {shop.name}"
-        )
+        return False

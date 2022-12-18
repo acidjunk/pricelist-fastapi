@@ -11,10 +11,12 @@ class ShopUserEmptyBase(BoilerplateBaseModel):
 
 
 class ShopId(ShopUserEmptyBase):
+    id: int
     shop_id: UUID
 
 
 class UserId(ShopUserEmptyBase):
+    id: int
     user_id: UUID
 
 

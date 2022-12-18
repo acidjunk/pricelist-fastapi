@@ -7,13 +7,7 @@ from server.schemas.shop_user import ShopUserCreate, ShopUserEmptyBase, ShopUser
 
 
 class CRUDShopUser(CRUDBase[ShopsUsersTable, ShopUserCreate, ShopUserUpdate]):
-    def get_shops_by_user(self, *, user_id: UUID) -> List[Optional[ShopUserSchema]]:
-        query = ShopsUsersTable.query.filter_by(user_id=user_id).all()
-        return query
-
-    def get_users_by_shop(self, *, shop_id: UUID) -> List[Optional[ShopUserSchema]]:
-        query = ShopsUsersTable.query.filter_by(shop_id=shop_id).all()
-        return query
+    pass
 
 
 shop_user_crud = CRUDShopUser(ShopsUsersTable)
