@@ -11,12 +11,12 @@ class ShopUserEmptyBase(BoilerplateBaseModel):
 
 
 class ShopId(ShopUserEmptyBase):
-    id: int
+    id: UUID
     shop_id: UUID
 
 
 class UserId(ShopUserEmptyBase):
-    id: int
+    id: UUID
     user_id: UUID
 
 
@@ -36,7 +36,7 @@ class ShopUserUpdate(ShopUserBase):
 
 
 class ShopUserInDBBase(ShopUserBase):
-    id: int
+    id: UUID
 
     class Config:
         orm_mode = True

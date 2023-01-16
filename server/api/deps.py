@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 
+from server.crud.crud_role import role_crud
 from server.crud.crud_user import user_crud
 from server.db.models import UsersTable
 from server.settings import app_settings
@@ -65,6 +66,6 @@ def get_current_active_superuser(
 def get_current_active_employee(
     current_user: UsersTable = Depends(get_current_user),
 ) -> UsersTable:
-    if not user_crud.is_superuser(current_user) and not "employee" in current_user.roles:
+    if not user_crud.is_superuser(current_user) and not role_crud.get_by_name(name="employee") in current_user.roles:
         raise HTTPException(status_code=403, detail="The user does need at least employee permissions")
     return current_user

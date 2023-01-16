@@ -261,6 +261,22 @@ def user_employee(shop_1):
 
 
 @pytest.fixture
+def user_employee_2(shop_2):
+    employee = UsersTable(
+        username="Employee2",
+        email="employee@employee2",
+        password=get_password_hash("employee2"),
+        active=True,
+        roles=[RolesTable(name="employee", description="Employee Role")],
+        shops=[shop_2],
+    )
+
+    db.session.add(employee)
+    db.session.commit()
+    return employee
+
+
+@pytest.fixture
 def superuser_token_headers(test_client, user_admin) -> Dict[str, str]:
     login_data = {
         "username": "Admin",
@@ -278,6 +294,19 @@ def employee_token_headers(test_client, user_employee) -> Dict[str, str]:
     login_data = {
         "username": "Employee",
         "password": "employee",
+    }
+    r = test_client.post("/api/login/access-token", data=login_data)
+    tokens = r.json()
+    a_token = tokens["access_token"]
+    headers = {"Authorization": f"Bearer {a_token}"}
+    return headers
+
+
+@pytest.fixture
+def employee_token_headers_2(test_client, user_employee_2) -> Dict[str, str]:
+    login_data = {
+        "username": "Employee2",
+        "password": "employee2",
     }
     r = test_client.post("/api/login/access-token", data=login_data)
     tokens = r.json()

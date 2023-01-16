@@ -179,6 +179,28 @@ def test_shop_to_prices_swap(test_client, shop_with_products, superuser_token_he
     assert shop_to_price_new["order_number"] == 0
 
 
+def test_shop_to_prices_swap_employee(test_client, shop_with_products, employee_token_headers):
+    shop_to_price = shop_with_products.shops_to_price[1]
+
+    response = test_client.patch(
+        f"/api/shops-to-prices/swap/{shop_to_price.id}?move_up=true", headers=employee_token_headers
+    )
+    assert response.status_code == 201
+
+    response = test_client.get(f"/api/shops-to-prices/{shop_to_price.id}")
+    shop_to_price_new = response.json()
+    assert shop_to_price_new["order_number"] == 0
+
+
+def test_shop_to_prices_swap_wrong_employee(test_client, shop_with_products, employee_token_headers_2):
+    shop_to_price = shop_with_products.shops_to_price[1]
+
+    response = test_client.patch(
+        f"/api/shops-to-prices/swap/{shop_to_price.id}?move_up=true", headers=employee_token_headers_2
+    )
+    assert response.status_code == 403
+
+
 def test_shop_to_prices_swap_up_max(test_client, shop_with_products, superuser_token_headers):
     shop_to_price = shop_with_products.shops_to_price[0]
 

@@ -40,7 +40,7 @@ def assign_shop_to_user(data: ShopUserCreate = Body(...)):
 
 
 @router.delete("/{relation_id}")
-def delete(relation_id: int):
+def delete(relation_id: UUID):
     shop_user = shop_user_crud.get(id=relation_id)
     if not shop_user:
         raise HTTPException(status_code=404, detail="Shop-User relation not found")

@@ -1,6 +1,6 @@
 import csv
 import uuid
-from typing import List, Union
+from typing import List, Union, Optional
 from uuid import UUID
 
 import structlog
@@ -112,12 +112,16 @@ def is_ip_allowed(request: Request, shop):
     return False
 
 
-def is_user_allowed_in_shop(user: UsersTable, shop: Shop, roles_allowed: List[str]):
+def is_user_allowed_in_shop(user: UsersTable, shop: Shop, roles_allowed: Optional[str] = None):
+    if roles_allowed is None:
+        roles_allowed = [""]
     for role_str in roles_allowed:
         role = role_crud.get_by_name(name=role_str)
         if user.roles.__contains__(role):
             return True
     if user.shops.__contains__(shop):
+        return True
+    if user.roles.__contains__(role_crud.get_by_name(name="admin")):
         return True
     else:
         return False

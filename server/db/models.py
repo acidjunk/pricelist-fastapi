@@ -71,7 +71,7 @@ class UtcTimestamp(TypeDecorator):
 
 class ShopsUsersTable(BaseModel):
     __tablename__ = "shops_users"
-    id = Column(Integer(), primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     user_id = Column("user_id", UUID(as_uuid=True), ForeignKey("user.id"))
     shop_id = Column("shop_id", UUID(as_uuid=True), ForeignKey("shops.id"))
 

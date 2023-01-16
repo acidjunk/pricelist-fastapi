@@ -97,12 +97,6 @@ def create(
     if not price or not shop:
         raise_status(HTTPStatus.NOT_FOUND, "Price or Shop not found")
 
-    # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop, roles_allowed=["admin"]):
-        raise HTTPException(
-            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
-        )
-
     if (product and kind) or not product and not kind:
         raise_status(HTTPStatus.BAD_REQUEST, "Either one Cannabis or one Horeca product has to be provided")
 
@@ -151,14 +145,6 @@ def update(
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
 
-    shop = shop_crud.get(shop_to_price.shop_id)
-
-    # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop, roles_allowed=["admin"]):
-        raise HTTPException(
-            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
-        )
-
     price = price_crud.get(item_in.price_id)
     shop = shop_crud.get(item_in.shop_id)
     kind = kind_crud.get(item_in.kind_id) or None
@@ -184,14 +170,6 @@ def update(
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
-    shop = shop_crud.get(shop_to_price.shop_id)
-
-    # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop, roles_allowed=["admin"]):
-        raise HTTPException(
-            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
-        )
-
     result = shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
@@ -205,14 +183,6 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
-
-    shop = shop_crud.get(shop_to_price.shop_id)
-
-    # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop, roles_allowed=["admin"]):
-        raise HTTPException(
-            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
-        )
 
     result = shop_to_price_crud.delete(id=shop_to_price_id)
     invalidateShopCache(shop_to_price.shop_id)
@@ -228,7 +198,7 @@ def swap_order_numbers(
     shop = shop_crud.get(shop_to_price.shop_id)
 
     # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop, roles_allowed=["admin"]):
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
         raise HTTPException(
             status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
         )

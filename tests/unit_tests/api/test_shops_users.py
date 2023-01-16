@@ -51,12 +51,3 @@ def test_delete(test_client, superuser_token_headers, user_admin):
 
     shops_users = response.json()
     assert 1 == len(shops_users)
-
-
-# Todo
-# def test_employee_with_shop_permissions(test_client, shop_with_products, employee_token_headers, user_employee):
-#     shop_to_price = shop_with_products.shops_to_price[1]
-#
-#     test_client.patch(f"/api/shops-to-prices/swap/{shop_to_price.id}?move_up=true",
-#                                  headers=employee_token_headers)
-#     # assert response.status_code == 201
