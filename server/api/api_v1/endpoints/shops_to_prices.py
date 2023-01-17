@@ -12,6 +12,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import invalidateShopCache
+from server.api.utils import is_user_allowed_in_shop
 from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
@@ -19,13 +20,13 @@ from server.crud.crud_product import product_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db import db
-from server.db.models import UsersTable, ShopToPrice
+from server.db.models import ShopToPrice, UsersTable
 from server.schemas.shop_to_price import (
     ShopToPriceAvailability,
     ShopToPriceCreate,
     ShopToPriceSchema,
-    ShopToPriceUpdate,
     ShopToPriceSwap,
+    ShopToPriceUpdate,
 )
 
 logger = structlog.get_logger(__name__)
@@ -140,7 +141,6 @@ def update(
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> ShopToPriceSchema:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
-
     logger.info("Updating shop_to_price", data=shop_to_price)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
@@ -169,6 +169,7 @@ def update(
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+
     result = shop_to_price_crud.update(
         db_obj=shop_to_price,
         obj_in=item_in,
@@ -182,6 +183,7 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
+
     result = shop_to_price_crud.delete(id=shop_to_price_id)
     invalidateShopCache(shop_to_price.shop_id)
     fix_sort(shop_to_price.category_id)
@@ -190,11 +192,16 @@ def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_c
 
 @router.patch("/swap/{shop_to_price_id}", status_code=HTTPStatus.CREATED)
 def swap_order_numbers(
-    shop_to_price_id: UUID,
-    move_up: bool,
-    # current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    shop_to_price_id: UUID, move_up: bool, current_user: UsersTable = Depends(deps.get_current_active_employee)
 ):
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+    shop = shop_crud.get(shop_to_price.shop_id)
+
+    # Check if user is allowed in shop
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
+        raise HTTPException(
+            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
+        )
 
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")

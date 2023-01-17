@@ -16,12 +16,13 @@
 from fastapi import Depends
 
 from server.api import deps
-from server.api.api_v1.endpoints import (
+from server.api.api_v1.endpoints import (  # forms,
     categories,
     category_images,
     flavors,
-    # forms,
+    forms,
     health,
+    images,
     kind_images,
     kinds,
     kinds_to_flavors,
@@ -35,12 +36,11 @@ from server.api.api_v1.endpoints import (
     products,
     shops,
     shops_to_prices,
+    shops_users,
     strains,
     tables,
     tags,
     users,
-    forms,
-    images,
 )
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
@@ -127,3 +127,9 @@ api_router.include_router(
     dependencies=[Depends(deps.get_current_active_user)],
 )
 api_router.include_router(images.router, prefix="/images", tags=["images"])
+api_router.include_router(
+    shops_users.router,
+    prefix="/shops-users",
+    tags=["shops-users"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)

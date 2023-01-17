@@ -13,6 +13,7 @@ from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import invalidateShopCache
 from server.crud.crud_kind import kind_crud
+from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db.models import UsersTable
 from server.schemas.kind import (
     KindCreate,
@@ -130,13 +131,16 @@ def update(
     if not kind:
         raise HTTPException(status_code=404, detail="Kind not found")
 
+    shops_to_prices = shop_to_price_crud.get_shops_to_prices_by_kind(kind_id=kind_id)
+
     kind = kind_crud.update(
         db_obj=kind,
         obj_in=item_in,
     )
 
-    # Todo fix for real
-    invalidateShopCache("19149768-691c-40d8-a08e-fe900fd23bc0")
+    for shop_to_price in shops_to_prices:
+        invalidateShopCache(shop_to_price.shop.id)
+
     return kind
 
 

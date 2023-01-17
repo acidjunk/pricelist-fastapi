@@ -1,11 +1,11 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import contains_eager, defer
 
-from server.db import db
 from server.api.models import transform_json
 from server.crud.base import CRUDBase
+from server.db import db
 from server.db.models import ShopToPrice
 from server.schemas.shop_to_price import ShopToPriceCreate, ShopToPriceUpdate
 from server.utils.json import json_dumps
@@ -58,6 +58,10 @@ class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate
             .all()
         )
         return products
+
+    def get_shops_to_prices_by_kind(self, *, kind_id: UUID) -> List[Optional[ShopToPrice]]:
+        query = ShopToPrice.query.filter_by(kind_id=kind_id).all()
+        return query
 
 
 shop_to_price_crud = CRUDShopToPrice(ShopToPrice)

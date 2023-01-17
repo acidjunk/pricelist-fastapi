@@ -2,11 +2,11 @@ from typing import Any
 
 import structlog
 from pydantic import conlist, validator
+
+from server.db.models import Kind, Strain
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, MigrationSummary
-
-from server.db.models import Kind, Strain
 
 logger = structlog.get_logger(__name__)
 

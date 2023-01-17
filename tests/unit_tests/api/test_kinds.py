@@ -20,7 +20,6 @@ def test_kinds_get_multi(kind_1, kind_2, test_client, superuser_token_headers):
 
 def test_kind_get_by_id(kind_1, test_client, superuser_token_headers):
     response = test_client.get(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
-    print(response.__dict__)
     assert HTTPStatus.OK == response.status_code
     kind = response.json()
     assert kind["name"] == "Indica"
@@ -53,6 +52,9 @@ def test_kind_update(kind_1, test_client, superuser_token_headers):
     response_updated = test_client.get(f"/api/kinds/{kind_1.id}", headers=superuser_token_headers)
     kind = response_updated.json()
     assert kind["name"] == "Updated Kind"
+
+
+# TODO: Unit test for kind with 2 shops
 
 
 def test_kind_delete(kind_1, test_client, superuser_token_headers):

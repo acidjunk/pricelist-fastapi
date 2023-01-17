@@ -15,6 +15,8 @@ import json
 import os
 from datetime import datetime
 from http import HTTPStatus
+from typing import List, Optional
+from uuid import UUID
 
 import boto3 as boto3
 from fastapi import HTTPException
@@ -24,13 +26,14 @@ from sqlalchemy.orm import Query
 from sqlalchemy.sql import expression
 from starlette.responses import Response
 from structlog import get_logger
-from typing import List, Optional
 
 from server.api.error_handling import raise_status
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.db.database import BaseModel
+from server.db.models import ShopsUsersTable
 from server.schemas import ShopUpdate
+from server.schemas.shop_user import ShopUserSchema
 from server.settings import app_settings
 
 logger = get_logger(__name__)
@@ -271,3 +274,13 @@ def delete_from_temporary_bucket():
         return {"message": "Deleted files from temporary bucket"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+
+def get_shops_by_user_id(*, user_id: UUID) -> List[Optional[ShopUserSchema]]:
+    query = ShopsUsersTable.query.filter_by(user_id=user_id).all()
+    return query
+
+
+def get_users_by_shop_id(*, shop_id: UUID) -> List[Optional[ShopUserSchema]]:
+    query = ShopsUsersTable.query.filter_by(shop_id=shop_id).all()
+    return query

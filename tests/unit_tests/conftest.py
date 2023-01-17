@@ -8,6 +8,7 @@ from os import listdir
 from typing import Dict, cast
 
 import pytest
+import respx
 import structlog
 from alembic import command
 from alembic.config import Config
@@ -21,7 +22,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 
-import respx
 from server.api.api_v1.api import api_router
 from server.api.error_handling import ProblemDetailException
 from server.db import db
@@ -43,8 +43,9 @@ from server.db.models import (
     Tag,
     UsersTable,
 )
-from server.exception_handlers.generic_exception_handlers import form_error_handler, problem_detail_handler
-from server.forms import FormException
+from server.exception_handlers.generic_exception_handlers import problem_detail_handler
+from server.pydantic_forms.exception_handlers.fastapi import form_error_handler
+from server.pydantic_forms.exceptions import FormException
 from server.security import get_password_hash
 from server.settings import app_settings
 from server.types import UUIDstr
@@ -228,18 +229,51 @@ def user_roles():
 
 
 @pytest.fixture
-def user_admin():
+def user_admin(shop_1, shop_2):
     admin = UsersTable(
         username="Admin",
         email="admin@admin",
         password=get_password_hash("admin"),
         active=True,
         roles=[RolesTable(name="admin", description="Admin Role")],
+        shops=[shop_1, shop_2],
     )
 
     db.session.add(admin)
     db.session.commit()
     return admin
+
+
+@pytest.fixture
+def user_employee(shop_1):
+    employee = UsersTable(
+        username="Employee",
+        email="employee@employee",
+        password=get_password_hash("employee"),
+        active=True,
+        roles=[RolesTable(name="employee", description="Employee Role")],
+        shops=[shop_1],
+    )
+
+    db.session.add(employee)
+    db.session.commit()
+    return employee
+
+
+@pytest.fixture
+def user_employee_2(shop_2):
+    employee = UsersTable(
+        username="Employee2",
+        email="employee@employee2",
+        password=get_password_hash("employee2"),
+        active=True,
+        roles=[RolesTable(name="employee", description="Employee Role")],
+        shops=[shop_2],
+    )
+
+    db.session.add(employee)
+    db.session.commit()
+    return employee
 
 
 @pytest.fixture
@@ -256,25 +290,35 @@ def superuser_token_headers(test_client, user_admin) -> Dict[str, str]:
 
 
 @pytest.fixture
-def customer_logged_in(customer):
-    user = UsersTable.query.filter(UsersTable.email == CUSTOMER_EMAIL).first()
-    # Todo: actually login/handle cookie
-    db.session.commit()
-    return user
-
-
-# @pytest.fixture
-# def employee_unconfirmed(user_roles):
-#     user = user_datastore.create_user(username="employee", password=EMPLOYEE_PASSWORD, email=EMPLOYEE_EMAIL)
-#     user_datastore.add_role_to_user(user, "employee")
-#     db.session.commit()
-#     return user
+def employee_token_headers(test_client, user_employee) -> Dict[str, str]:
+    login_data = {
+        "username": "Employee",
+        "password": "employee",
+    }
+    r = test_client.post("/api/login/access-token", data=login_data)
+    tokens = r.json()
+    a_token = tokens["access_token"]
+    headers = {"Authorization": f"Bearer {a_token}"}
+    return headers
 
 
 @pytest.fixture
-def employee(employee_unconfirmed):
-    user = UsersTable.query.filter(UsersTable.email == EMPLOYEE_EMAIL).first()
-    user.confirmed_at = datetime.datetime.utcnow()
+def employee_token_headers_2(test_client, user_employee_2) -> Dict[str, str]:
+    login_data = {
+        "username": "Employee2",
+        "password": "employee2",
+    }
+    r = test_client.post("/api/login/access-token", data=login_data)
+    tokens = r.json()
+    a_token = tokens["access_token"]
+    headers = {"Authorization": f"Bearer {a_token}"}
+    return headers
+
+
+@pytest.fixture
+def customer_logged_in(customer):
+    user = UsersTable.query.filter(UsersTable.email == CUSTOMER_EMAIL).first()
+    # Todo: actually login/handle cookie
     db.session.commit()
     return user
 
@@ -543,10 +587,14 @@ def product_3():
 
 @pytest.fixture
 def shop_with_products(shop_1, kind_1, kind_2, price_1, price_2, price_3, product_1, category_1):
-    shop_to_price1 = ShopToPrice(price_id=price_1.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_1.id)
-    shop_to_price2 = ShopToPrice(price_id=price_2.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_2.id)
+    shop_to_price1 = ShopToPrice(
+        price_id=price_1.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_1.id, order_number=0
+    )
+    shop_to_price2 = ShopToPrice(
+        price_id=price_2.id, shop_id=shop_1.id, category_id=category_1.id, kind_id=kind_2.id, order_number=1
+    )
     shop_to_price3 = ShopToPrice(
-        price_id=price_3.id, shop_id=shop_1.id, category_id=category_1.id, product_id=product_1.id
+        price_id=price_3.id, shop_id=shop_1.id, category_id=category_1.id, product_id=product_1.id, order_number=2
     )
     db.session.add(shop_to_price1)
     db.session.add(shop_to_price2)

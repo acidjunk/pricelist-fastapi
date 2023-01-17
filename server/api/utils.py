@@ -1,12 +1,16 @@
 import csv
 import uuid
-from typing import Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 import structlog
-from fastapi import Request
+from fastapi import HTTPException, Request
+
+from server.crud.crud_role import role_crud
+from server.db.models import Shop, UsersTable
 
 logger = structlog.get_logger(__name__)
+
 
 # import qrcode
 # from database import Price, db
@@ -68,7 +72,6 @@ def convert_price_string_to_float(price: str) -> Union[float, None]:
 
 
 def validate_uuid4(uuid_string):
-
     """
     Validate that a UUID string is in
     fact a valid uuid4.
@@ -107,3 +110,18 @@ def is_ip_allowed(request: Request, shop):
         return True
     logger.warning("IP is not allowed to order", shop_name=shop.name, shop_id=shop_id, ip=ip, allowed_ips=allowed_ips)
     return False
+
+
+def is_user_allowed_in_shop(user: UsersTable, shop: Shop, roles_allowed: Optional[str] = None):
+    if roles_allowed is None:
+        roles_allowed = [""]
+    for role_str in roles_allowed:
+        role = role_crud.get_by_name(name=role_str)
+        if user.roles.__contains__(role):
+            return True
+    if user.shops.__contains__(shop):
+        return True
+    if user.roles.__contains__(role_crud.get_by_name(name="admin")):
+        return True
+    else:
+        return False
