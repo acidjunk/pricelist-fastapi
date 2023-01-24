@@ -31,6 +31,7 @@ def upgrade() -> None:
             ["user_id"],
             ["user.id"],
         ),
+
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_shops_users_id"), "shops_users", ["id"], unique=False)
