@@ -21,10 +21,6 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-def get_relation(flavor_id: UUID, kind_id: UUID) -> Optional[KindToFlavor]:
-    return kind_to_flavor_crud.get_relation_by_kind_flavor(kind_id=kind_id, flavor_id=flavor_id)
-
-
 @router.get("/", response_model=List[KindToFlavorSchema])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[KindToFlavorSchema]:
     """List prices for a kind_to_flavor"""
@@ -72,15 +68,11 @@ def create(data: KindToFlavorCreate = Body(...)) -> None:
     if not flavor or not kind:
         raise_status(HTTPStatus.NOT_FOUND, "Flavor or kind not found")
 
-    # print("RELATION", kind_to_flavor_crud.get_relation_by_kind_flavor(kind_id=kind.id, flavor_id=flavor.id))
-
     if kind_to_flavor_crud.get_relation_by_kind_flavor(kind_id=kind.id, flavor_id=flavor.id):
         raise_status(HTTPStatus.BAD_REQUEST, "Relation already exists")
 
     if len(kind_to_flavor_crud.get_relations_by_kind(kind_id=kind.id)) >= 5:
         raise_status(HTTPStatus.BAD_REQUEST, "Cannot set more than 5 flavors")
-
-    # print("COUNT", len(kind_to_flavor_crud.get_relations_by_kind(kind_id=kind.id)))
 
     logger.info("Saving kind_to_flavor", data=data)
     return kind_to_flavor_crud.create(obj_in=data)
