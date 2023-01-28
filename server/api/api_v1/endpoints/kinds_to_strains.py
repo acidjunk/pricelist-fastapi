@@ -34,6 +34,24 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return query_result
 
 
+@router.get("/get_relation_id")
+def get_relation_id(strain_id: UUID, kind_id: UUID) -> None:
+    print("gets to here")
+    strain = strain_crud.get(strain_id)
+    kind = kind_crud.get(kind_id)
+
+    if not strain or not kind:
+        raise_status(HTTPStatus.NOT_FOUND, "Strain or kind not found")
+
+    relation = kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id)
+    print("RELATION", kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id))
+
+    if not relation:
+        raise_status(HTTPStatus.BAD_REQUEST, "Relation doesn't exist")
+
+    return relation.id
+
+
 @router.get("/{id}", response_model=KindToStrainSchema)
 def get_by_id(id: UUID) -> KindToStrainSchema:
     kind_to_strain = kind_to_strain_crud.get(id)
@@ -49,6 +67,9 @@ def create(data: KindToStrainCreate = Body(...)) -> None:
 
     if not strain or not kind:
         raise_status(HTTPStatus.NOT_FOUND, "Strain or kind not found")
+
+    if kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id):
+        raise_status(HTTPStatus.BAD_REQUEST, "Relation already exists")
 
     logger.info("Saving kind_to_strain", data=data)
 

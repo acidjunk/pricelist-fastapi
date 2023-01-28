@@ -35,9 +35,14 @@ def get_by_id(id: UUID) -> FlavorSchema:
     return flavor
 
 
+# Todo: unit tests
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: FlavorCreate = Body(...)) -> None:
     logger.info("Saving flavor", data=data)
+
+    if flavor_crud.get_flavor_by_name(name=data.name):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Flavor with this name already exists")
+
     flavor = flavor_crud.create(obj_in=data)
     return flavor
 
@@ -48,6 +53,9 @@ def update(*, flavor_id: UUID, item_in: FlavorUpdate) -> Any:
     logger.info("Updating flavor", data=flavor)
     if not flavor:
         raise HTTPException(status_code=404, detail="Flavor not found")
+
+    if flavor_crud.get_flavor_by_name(name=item_in.name):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Flavor with this name already exists")
 
     flavor = flavor_crud.update(
         db_obj=flavor,
