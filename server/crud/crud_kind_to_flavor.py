@@ -15,4 +15,5 @@ class CRUDKindToFlavor(CRUDBase[KindToFlavor, KindToFlavorCreate, KindToFlavorUp
     def get_relations_by_kind(self, *, kind_id) -> [Optional[KindToFlavor]]:
         return KindToFlavor.query.filter_by(kind_id=kind_id).all()
 
+
 kind_to_flavor_crud = CRUDKindToFlavor(KindToFlavor)

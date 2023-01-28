@@ -15,4 +15,5 @@ class CRUDKindToStrain(CRUDBase[KindToStrain, KindToStrainCreate, KindToStrainUp
     def get_relations_by_kind(self, *, kind_id) -> [Optional[KindToStrain]]:
         return KindToStrain.query.filter_by(kind_id=kind_id).all()
 
+
 kind_to_strain_crud = CRUDKindToStrain(KindToStrain)
