@@ -36,7 +36,6 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
 
 @router.get("/get_relation_id")
 def get_relation_id(strain_id: UUID, kind_id: UUID) -> None:
-    print("gets to here")
     strain = strain_crud.get(strain_id)
     kind = kind_crud.get(kind_id)
 
@@ -44,7 +43,6 @@ def get_relation_id(strain_id: UUID, kind_id: UUID) -> None:
         raise_status(HTTPStatus.NOT_FOUND, "Strain or kind not found")
 
     relation = kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id)
-    print("RELATION", kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id))
 
     if not relation:
         raise_status(HTTPStatus.BAD_REQUEST, "Relation doesn't exist")
@@ -70,6 +68,9 @@ def create(data: KindToStrainCreate = Body(...)) -> None:
 
     if kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id):
         raise_status(HTTPStatus.BAD_REQUEST, "Relation already exists")
+
+    if len(kind_to_strain_crud.get_relations_by_kind(kind_id=kind.id)) >= 5:
+        raise_status(HTTPStatus.BAD_REQUEST, "Cannot set more than 5 strains")
 
     logger.info("Saving kind_to_strain", data=data)
 

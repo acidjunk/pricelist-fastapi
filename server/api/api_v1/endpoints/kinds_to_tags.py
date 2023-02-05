@@ -33,6 +33,22 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return query_result
 
 
+@router.get("/get_relation_id")
+def get_relation_id(tag_id: UUID, kind_id: UUID) -> None:
+    tag = tag_crud.get(tag_id)
+    kind = kind_crud.get(kind_id)
+
+    if not tag or not kind:
+        raise_status(HTTPStatus.NOT_FOUND, "Tag or kind not found")
+
+    relation = kind_to_tag_crud.get_relation_by_kind_tag(kind_id=kind.id, tag_id=tag.id)
+
+    if not relation:
+        raise_status(HTTPStatus.BAD_REQUEST, "Relation doesn't exist")
+
+    return relation.id
+
+
 @router.get("/{id}", response_model=KindToTagSchema)
 def get_by_id(id: UUID) -> KindToTagSchema:
     kind_to_tag = kind_to_tag_crud.get(id)

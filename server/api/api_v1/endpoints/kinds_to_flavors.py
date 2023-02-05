@@ -36,7 +36,6 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
 
 @router.get("/get_relation_id")
 def get_relation_id(flavor_id: UUID, kind_id: UUID) -> None:
-    print("gets to here")
     flavor = flavor_crud.get(flavor_id)
     kind = kind_crud.get(kind_id)
 
@@ -44,7 +43,6 @@ def get_relation_id(flavor_id: UUID, kind_id: UUID) -> None:
         raise_status(HTTPStatus.NOT_FOUND, "Flavor or kind not found")
 
     relation = kind_to_flavor_crud.get_relation_by_kind_flavor(kind_id=kind.id, flavor_id=flavor.id)
-    print("RELATION", kind_to_flavor_crud.get_relation_by_kind_flavor(kind_id=kind.id, flavor_id=flavor.id))
 
     if not relation:
         raise_status(HTTPStatus.BAD_REQUEST, "Relation doesn't exist")
