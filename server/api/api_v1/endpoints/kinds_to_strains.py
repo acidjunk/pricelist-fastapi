@@ -69,8 +69,8 @@ def create(data: KindToStrainCreate = Body(...)) -> None:
     if kind_to_strain_crud.get_relation_by_kind_strain(kind_id=kind.id, strain_id=strain.id):
         raise_status(HTTPStatus.BAD_REQUEST, "Relation already exists")
 
-    if len(kind_to_strain_crud.get_relations_by_kind(kind_id=kind.id)) >= 5:
-        raise_status(HTTPStatus.BAD_REQUEST, "Cannot set more than 5 strains")
+    if len(kind_to_strain_crud.get_relations_by_kind(kind_id=kind.id)) >= 3:
+        raise_status(HTTPStatus.BAD_REQUEST, "Cannot set more than 3 strains")
 
     logger.info("Saving kind_to_strain", data=data)
 
