@@ -18,7 +18,7 @@ import structlog
 
 logger = structlog.getLogger(__name__)
 
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 
 
 def __getattr__(name: str) -> Optional[str]:
