@@ -35,6 +35,15 @@ def get_by_id(id: UUID) -> TagSchema:
     return tag
 
 
+@router.get("/name/{name}", response_model=TagSchema)
+def get_by_name(name: str) -> TagSchema:
+    tag = tag_crud.get_by_name(name=name)
+
+    if not tag:
+        raise_status(HTTPStatus.NOT_FOUND, f"Tag with name {name} not found")
+    return tag
+
+
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: TagCreate = Body(...)) -> None:
     logger.info("Saving tag", data=data)

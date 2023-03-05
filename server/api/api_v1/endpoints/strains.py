@@ -11,6 +11,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.crud.crud_strain import strain_crud
+from server.forms.new_product_form import validate_strain_name
 from server.schemas.strain import StrainCreate, StrainSchema, StrainUpdate
 
 logger = structlog.get_logger(__name__)
@@ -35,6 +36,15 @@ def get_by_id(id: UUID) -> StrainSchema:
     return strain
 
 
+@router.get("/name/{name}", response_model=StrainSchema)
+def get_by_name(name: str) -> StrainSchema:
+    strain = strain_crud.get_by_name(name=name)
+
+    if not strain:
+        raise_status(HTTPStatus.NOT_FOUND, f"Strain with name {name} not found")
+    return strain
+
+
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: StrainCreate = Body(...)) -> None:
     logger.info("Saving strain", data=data)
@@ -48,6 +58,11 @@ def update(*, strain_id: UUID, item_in: StrainUpdate) -> Any:
     logger.info("Updating strain", data=strain)
     if not strain:
         raise HTTPException(status_code=404, detail="Strain not found")
+
+    try:
+        validate_strain_name(strain_name=item_in.name, values={})
+    except Exception:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, detail="Strain with this name already exists")
 
     strain = strain_crud.update(
         db_obj=strain,
