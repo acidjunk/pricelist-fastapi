@@ -3,7 +3,7 @@ from typing import Any
 import structlog
 from pydantic import conlist, validator
 
-from server.db.models import Kind, Strain
+from server.db.models import Kind, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, MigrationSummary
@@ -29,6 +29,15 @@ def validate_strain_name(strain_name: str, values: State) -> str:
     return strain_name
 
 
+def validate_tag_name(tag_name: str, values: State) -> str:
+    """Check if tag already exists."""
+    tags = Tag.query.all()
+    tag_items = [item.name.lower() for item in tags]
+    if tag_name.lower() in tag_items:
+        raise ValueError("Deze tag bestaat al.")
+    return tag_name
+
+
 def create_strain_form(current_state: dict) -> FormGenerator:
     class StrainForm(FormPage):
         class Config:
@@ -38,6 +47,18 @@ def create_strain_form(current_state: dict) -> FormGenerator:
         _validate_strain_name: classmethod = validator("strain_name", allow_reuse=True)(validate_strain_name)
 
     user_input = yield StrainForm
+    return user_input.dict()
+
+
+def create_tag_form(current_state: dict) -> FormGenerator:
+    class TagForm(FormPage):
+        class Config:
+            title = "Nieuwe tag toevoegen"
+
+        tag_name: str
+        _validate_tag_name: classmethod = validator("tag_name", allow_reuse=True)(validate_tag_name)
+
+    user_input = yield TagForm
     return user_input.dict()
 
 
@@ -117,3 +138,4 @@ def create_product_form(current_state: dict) -> FormGenerator:
 
 register_form("create_product_form", create_product_form)
 register_form("create_strain_form", create_strain_form)
+register_form("create_tag_form", create_tag_form)
