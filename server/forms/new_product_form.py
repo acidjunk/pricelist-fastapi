@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import structlog
 from pydantic import conlist, validator
@@ -6,7 +6,15 @@ from pydantic import conlist, validator
 from server.db.models import Kind, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import FormGenerator, State, SummaryData
-from server.pydantic_forms.validators import Choice, MigrationSummary
+from server.pydantic_forms.validators import (
+    Choice,
+    ChoiceList,
+    ContactPersonName,
+    Label,
+    LongText,
+    MigrationSummary,
+    UniqueConstrainedList,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -27,6 +35,23 @@ def validate_strain_name(strain_name: str, values: State) -> str:
     if strain_name.lower() in strain_items:
         raise ValueError("Deze kruising bestaat al.")
     return strain_name
+
+
+def validate_multiple_strains(strain_names: List[str], values: State) -> List[str]:
+    """Check if strains already exist."""
+    strains = Strain.query.all()
+    strain_items = [item.name.lower() for item in strains]
+
+    invalid_strains = []
+
+    for strain_name in strain_names:
+        if strain_name.lower() in strain_items:
+            invalid_strains.append(strain_name)
+
+    if invalid_strains:
+        raise ValueError(f"The following strains already exist: {', '.join(invalid_strains)}")
+
+    return strain_names
 
 
 def validate_tag_name(tag_name: str, values: State) -> str:
@@ -95,6 +120,10 @@ def create_product_form(current_state: dict) -> FormGenerator:
         ),  # type: ignore
     )
 
+    StrainChoice2 = LongText(
+        "Example",
+    )
+
     # Todo: in future this could be implemented to pre-select a category in price template form
     # categories = Category.query.filter(Category.shop_id == UUID("19149768-691c-40d8-a08e-fe900fd23bc0")).all()
     #
@@ -112,9 +141,14 @@ def create_product_form(current_state: dict) -> FormGenerator:
 
         product_name: str
         product_type: ProductType
-        strain_choice: conlist(StrainChoice, min_items=1, max_items=3)
+        strain_choice: conlist(StrainChoice, min_items=0, max_items=3)
+        new_strain_from_name: bool = False
+        create_new_strains: conlist(str, min_items=0, max_items=3, unique_items=True)
         gebruiken: bool = True
         _validate_product_name: classmethod = validator("product_name", allow_reuse=True)(validate_product_name)
+        _validate_multiple_strains: classmethod = validator("create_new_strains", allow_reuse=True)(
+            validate_multiple_strains
+        )
 
     user_input = yield ProductForm
     user_input_dict = user_input.dict()
