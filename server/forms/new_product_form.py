@@ -6,15 +6,7 @@ from pydantic import conlist, validator
 from server.db.models import Kind, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import FormGenerator, State, SummaryData
-from server.pydantic_forms.validators import (
-    Choice,
-    ChoiceList,
-    ContactPersonName,
-    Label,
-    LongText,
-    MigrationSummary,
-    UniqueConstrainedList,
-)
+from server.pydantic_forms.validators import Choice, MigrationSummary
 
 logger = structlog.get_logger(__name__)
 
@@ -118,10 +110,6 @@ def create_product_form(current_state: dict) -> FormGenerator:
             [str(strain.id) for strain in strains],
             [(str(strain.id), strain.name) for strain in strains],
         ),  # type: ignore
-    )
-
-    StrainChoice2 = LongText(
-        "Example",
     )
 
     # Todo: in future this could be implemented to pre-select a category in price template form
