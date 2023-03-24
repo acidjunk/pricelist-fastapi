@@ -131,7 +131,7 @@ def create_product_form(current_state: dict) -> FormGenerator:
         product_type: ProductType
         strain_choice: conlist(StrainChoice, min_items=0, max_items=3)
         create_new_strains: conlist(str, min_items=0, max_items=3, unique_items=True)
-        new_strain_from_name: bool = False
+        new_strain_from_name: bool = True
         gebruiken: bool = True
         _validate_product_name: classmethod = validator("product_name", allow_reuse=True)(validate_product_name)
         _validate_multiple_strains: classmethod = validator("create_new_strains", allow_reuse=True)(
