@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, List
+from typing import Any, List, Optional
 from uuid import UUID
 
 import structlog
@@ -48,6 +48,11 @@ def get_by_name(name: str) -> StrainSchema:
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: StrainCreate = Body(...)) -> None:
     logger.info("Saving strain", data=data)
+    try:
+        validate_strain_name(strain_name=data.name, values={})
+    except Exception:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, detail="Strain with this name already exists")
+
     strain = strain_crud.create(obj_in=data)
     return strain
 
