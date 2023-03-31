@@ -1,12 +1,13 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 import structlog
 from pydantic import conlist, validator
+from pydantic.class_validators import root_validator
 
 from server.db.models import Kind, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import FormGenerator, State, SummaryData
-from server.pydantic_forms.validators import Choice, MigrationSummary
+from server.pydantic_forms.validators import Choice, LongText, MigrationSummary
 
 logger = structlog.get_logger(__name__)
 
@@ -44,6 +45,25 @@ def validate_multiple_strains(strain_names: List[str], values: State) -> List[st
         raise ValueError(f"The following strains already exist: {', '.join(invalid_strains)}")
 
     return strain_names
+
+
+def validate_combined_strains(cls, values):
+    # If the value the same as its default value it returns None
+    new_strain = (
+        values.get("new_strain_from_name")
+        if values.get("new_strain_from_name") is not None
+        else cls.Config.new_strain_from_name_default
+    )
+    strain_count = len(values.get("strain_choice", [])) + len(values.get("create_new_strains", []))
+
+    description_nl = values.get("product_description_nl") if values.get("product_description_nl") is not "" else None
+    description_en = values.get("product_description_en") if values.get("product_description_en") is not "" else None
+    has_full_description = bool(description_nl and description_en)
+
+    if (strain_count == 0) and not new_strain and not has_full_description:
+        raise ValueError(f'At least 1 strain required or check "New strain from name" or add EN/NL Descriptions')
+
+    return values
 
 
 def validate_tag_name(tag_name: str, values: State) -> str:
@@ -126,17 +146,23 @@ def create_product_form(current_state: dict) -> FormGenerator:
     class ProductForm(FormPage):
         class Config:
             title = "Nieuw cannabis product"
+            new_strain_from_name_default = True
+            gebruiken_default = True
 
         product_name: str
         product_type: ProductType
+        product_description_nl: Optional[LongText]
+        product_description_en: Optional[LongText]
         strain_choice: conlist(StrainChoice, min_items=0, max_items=3)
         create_new_strains: conlist(str, min_items=0, max_items=3, unique_items=True)
-        new_strain_from_name: bool = True
-        gebruiken: bool = True
+        new_strain_from_name: bool = Config.new_strain_from_name_default
+        gebruiken: bool = Config.gebruiken_default
+
         _validate_product_name: classmethod = validator("product_name", allow_reuse=True)(validate_product_name)
         _validate_multiple_strains: classmethod = validator("create_new_strains", allow_reuse=True)(
             validate_multiple_strains
         )
+        _validate_strains: classmethod = root_validator(pre=True, allow_reuse=True)(validate_combined_strains)
 
     user_input = yield ProductForm
     user_input_dict = user_input.dict()
