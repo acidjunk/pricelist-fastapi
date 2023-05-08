@@ -141,3 +141,12 @@ Currently, problems happened when:
 - when a build fails to deploy correctly (Noticed: when I added "-e requirement for pydantic-forms")
 
 Running the `set-env.py` sets vars immediately without the need to restart something.
+
+
+# Create a user
+
+Set up the ENV var for FIRST_USER and run this command:
+
+```bash
+PYTHONPATH=. python server/create_initial_user.py
+```
