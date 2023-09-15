@@ -21,4 +21,4 @@ pytest==7.1.2
 pytest-cov==3.0.0
 pytest-xdist==2.5.0
 pytest_benchmark==3.4.1
-respx==0.16.3
+respx==0.20.2
