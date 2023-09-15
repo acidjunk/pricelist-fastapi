@@ -1,17 +1,15 @@
-from fastapi import APIRouter
-
 from http import HTTPStatus
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 from uuid import UUID
+
+from fastapi import APIRouter
+from fastapi.param_functions import Body, Depends
 from starlette.responses import Response
 
-from fastapi.param_functions import Body, Depends
-from server.crud.crud_license import license_crud
-from server.api.error_handling import raise_status
-
 from server.api.deps import common_parameters
-
-from server.schemas.license import LicenseSchema, LicenseUpdate, LicenseCreate
+from server.api.error_handling import raise_status
+from server.crud.crud_license import license_crud
+from server.schemas.license import LicenseCreate, LicenseSchema, LicenseUpdate
 
 router = APIRouter()
 
@@ -53,10 +51,7 @@ def edit(id: UUID, data: LicenseUpdate) -> Any:
     license = license_crud.get(id)
     if not license:
         raise_status(HTTPStatus.NOT_FOUND, f"License with id {id} not found")
-    license = license_crud.update(
-        db_obj=license,
-        obj_in=data
-    )
+    license = license_crud.update(db_obj=license, obj_in=data)
     return license
 
 

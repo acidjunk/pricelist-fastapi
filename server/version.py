@@ -37,7 +37,7 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         return "v1"
     if os.environ.get("ENVIRONMENT") == "production":
         return VERSION

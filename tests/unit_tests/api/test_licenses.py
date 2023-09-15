@@ -40,7 +40,9 @@ def test_license_save(test_client, superuser_token_headers):
 
 def test_license_update(license_1, test_client, superuser_token_headers):
     body = {"name": "Updated License"}
-    response = test_client.put(f"/api/licenses/edit/{license_1.id}", data=json_dumps(body), headers=superuser_token_headers)
+    response = test_client.put(
+        f"/api/licenses/edit/{license_1.id}", data=json_dumps(body), headers=superuser_token_headers
+    )
     assert HTTPStatus.CREATED == response.status_code
 
     response_updated = test_client.get(f"/api/licenses/{license_1.id}", headers=superuser_token_headers)
