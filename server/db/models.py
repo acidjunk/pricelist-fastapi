@@ -404,4 +404,10 @@ class Strain(BaseModel):
     #     return self.name
 
 
+class License(BaseModel):
+    __tablename__ = "licenses"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    name = Column(String(255), nullable=False, unique=True, index=True)
+
+
 # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)

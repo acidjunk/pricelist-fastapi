@@ -28,6 +28,7 @@ from server.api.api_v1.endpoints import (  # forms,
     kinds_to_flavors,
     kinds_to_strains,
     kinds_to_tags,
+    licenses,
     login,
     main_categories,
     orders,
@@ -131,5 +132,12 @@ api_router.include_router(
     shops_users.router,
     prefix="/shops-users",
     tags=["shops-users"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)
+
+api_router.include_router(
+    licenses.router,
+    prefix="/licenses",
+    tags=["licenses"],
     dependencies=[Depends(deps.get_current_active_superuser)],
 )
