@@ -65,7 +65,13 @@ all needed data (e.g. examples etc.) and the Schema branch.
 
 ### Schema migration
 
-To create a new schema migration:
+Run this command prior to your first schema migration:
+
+```bash
+PYTHONPATH=. alembic upgrade heads
+```
+
+Then, to create a new schema migration:
 
 ```bash
 PYTHONPATH=. alembic revision --autogenerate -m "New schema" --head=schema@head

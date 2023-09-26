@@ -33,6 +33,7 @@ from server.db.models import (
     KindToFlavor,
     KindToStrain,
     KindToTag,
+    License,
     Order,
     Price,
     ProductsTable,
@@ -456,6 +457,22 @@ def strain_1():
 @pytest.fixture
 def strain_2():
     fixture = Strain(id=str(uuid.uuid4()), name="Kush")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def license_1():
+    fixture = License(id=str(uuid.uuid4()), name="john")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def license_2():
+    fixture = License(id=str(uuid.uuid4()), name="doe")
     db.session.add(fixture)
     db.session.commit()
     return fixture

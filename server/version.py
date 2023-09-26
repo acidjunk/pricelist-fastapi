@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import sys
 from subprocess import check_output  # noqa: S404
 from typing import Optional
 
@@ -36,6 +37,8 @@ def __getattr__(name: str) -> Optional[str]:
     Returns: current GIT commit SHA if any.
 
     """
+    if sys.platform == "win32":
+        return "v1"
     if os.environ.get("ENVIRONMENT") == "production":
         return VERSION
 

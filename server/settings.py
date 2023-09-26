@@ -113,8 +113,8 @@ class AppSettings(BaseSettings):
     EMAILS_FROM_NAME: Optional[str] = "Prijslijst Backend"
     EMAILS_CC: Optional[str] = "no-reply@prijslijst.info"
 
-    FIRST_SUPERUSER = "admin@banaan.org"
-    FIRST_SUPERUSER_PASSWORD = "CHANGEME"
+    FIRST_SUPERUSER = "NAME"
+    FIRST_SUPERUSER_PASSWORD = "JePass"
     FIRST_SUPERUSER_ROLE = "admin"
     FIRST_SUPERUSER_ROLE_DESCRIPTION = "God Mode!"
 
