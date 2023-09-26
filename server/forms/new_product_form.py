@@ -6,8 +6,8 @@ from pydantic.class_validators import root_validator
 
 from server.db.models import Kind, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
-from server.pydantic_forms.types import FormGenerator, State, SummaryData
-from server.pydantic_forms.validators import Choice, LongText, MigrationSummary
+from server.pydantic_forms.types import FormGenerator, State, SummaryData, AcceptItemType
+from server.pydantic_forms.validators import Choice, LongText, MigrationSummary, Timestamp, ListOfTwo
 
 logger = structlog.get_logger(__name__)
 
@@ -75,6 +75,15 @@ def validate_tag_name(tag_name: str, values: State) -> str:
     return tag_name
 
 
+def validate_kind_name(kind_name: str, values: State) -> str:
+    """Check if kind already exists."""
+    kinds = Kind.query.all()
+    kind_items = [item.name.lower() for item in kinds]
+    if kind_name.lower() in kind_items:
+        raise ValueError("Deze kind bestaat al.")
+    return kind_name
+
+
 def create_strain_form(current_state: dict) -> FormGenerator:
     class StrainForm(FormPage):
         class Config:
@@ -99,7 +108,7 @@ def create_tag_form(current_state: dict) -> FormGenerator:
     return user_input.dict()
 
 
-class ProductType(Choice):
+class KindType(Choice):
     """Product type as used in the create product form."""
 
     C = "CBD"
@@ -150,7 +159,7 @@ def create_product_form(current_state: dict) -> FormGenerator:
             gebruiken_default = True
 
         product_name: str
-        product_type: ProductType
+        product_type: KindType
         product_description_nl: Optional[LongText]
         product_description_en: Optional[LongText]
         strain_choice: conlist(StrainChoice, min_items=0, max_items=3)
@@ -184,6 +193,24 @@ def create_product_form(current_state: dict) -> FormGenerator:
     return user_input_dict
 
 
+def create_kind_form(current_state: dict) -> FormGenerator:
+    class KindForm(FormPage):
+        class Config:
+            title = "Nieuwe cannabis toevoegen"
+
+        kind_name: str
+        _validate_kind_name: classmethod = validator("kind_name", allow_reuse=True)(validate_kind_name)
+        short_description_nl: str
+        description_nl: Optional[LongText]
+        short_description_en: Optional[str]
+        description_en: Optional[LongText]
+        kind_type: KindType
+
+    user_input = yield KindForm
+    return user_input.dict()
+
+
 register_form("create_product_form", create_product_form)
 register_form("create_strain_form", create_strain_form)
 register_form("create_tag_form", create_tag_form)
+register_form("create_kind_form", create_kind_form)
