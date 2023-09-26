@@ -139,3 +139,7 @@ dmypy.json
 
 #macos
 .DS_Store
+
+#stage
+pricelist_prod.psql
+config.env
