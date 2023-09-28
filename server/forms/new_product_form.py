@@ -4,7 +4,7 @@ import structlog
 from pydantic import conlist, validator
 from pydantic.class_validators import root_validator
 
-from server.db.models import Kind, ProductsTable, Strain, Tag
+from server.db.models import Category, Kind, MainCategory, ProductsTable, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import AcceptItemType, FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MarkdownText, MigrationSummary, Timestamp
@@ -19,6 +19,15 @@ def validate_product_name(product_name: str, values: State) -> str:
     if product_name.lower() in product_items:
         raise ValueError("Dit product bestaat al.")
     return product_name
+
+
+def validate_category_name(category_name: str, values: State) -> str:
+    """Check if category already exists."""
+    categories = Category.query.all()
+    category_items = [item.name.lower() for item in categories]
+    if category_name.lower() in category_items:
+        raise ValueError("Dit categorie bestaat al.")
+    return category_name
 
 
 def validate_strain_name(strain_name: str, values: State) -> str:
@@ -115,6 +124,9 @@ class KindType(Choice):
     H = "Hybrid"
     I = "Indica"
     S = "Sativa"
+
+
+# class MainCategoryChoice(Choice):
 
 
 def create_kind_to_strains_categories_form(current_state: dict) -> FormGenerator:
@@ -226,8 +238,37 @@ def create_product_form(current_state: dict) -> FormGenerator:
     return user_input.dict()
 
 
+def create_category_form(current_state: dict) -> FormGenerator:
+    main_categories = MainCategory.query.all()
+
+    MainCategoryChoice = Choice(
+        "MainCategoryChoice",
+        zip(
+            [str(main_category.id) for main_category in main_categories],
+            [(str(main_category.id), main_category.name) for main_category in main_categories],
+        ),  # type: ignore
+    )
+
+    class ProductForm(FormPage):
+        class Config:
+            title = "Nieuwe categorie toevoegen"
+
+        category_name: str
+        _validate_category_name: classmethod = validator("category_name", allow_reuse=True)(validate_category_name)
+        name_en: Optional[str]
+        description: Optional[str]
+        main_category_id: Optional[MainCategoryChoice]
+        color: str
+        icon: Optional[str]
+        is_cannabis: bool
+
+    user_input = yield ProductForm
+    return user_input.dict()
+
+
 register_form("create_kind_to_strains_categories_form", create_kind_to_strains_categories_form)
 register_form("create_strain_form", create_strain_form)
 register_form("create_tag_form", create_tag_form)
 register_form("create_kind_form", create_kind_form)
 register_form("create_product_form", create_product_form)
+register_form("create_categorie_form", create_category_form)
