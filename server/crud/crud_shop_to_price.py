@@ -25,7 +25,7 @@ class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate
                 .order_by(ShopToPrice.order_number.desc())
                 .first()
             )
-            order_number = product.order_number + 1
+            order_number = (product.order_number + 1) if product is not None else 0
 
         obj_in_data["order_number"] = order_number
 
