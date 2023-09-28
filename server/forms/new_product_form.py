@@ -7,7 +7,7 @@ from pydantic.class_validators import root_validator
 from server.db.models import Kind, ProductsTable, Strain, Tag
 from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import AcceptItemType, FormGenerator, State, SummaryData
-from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MigrationSummary, Timestamp
+from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MarkdownText, MigrationSummary, Timestamp
 
 logger = structlog.get_logger(__name__)
 
@@ -201,9 +201,9 @@ def create_kind_form(current_state: dict) -> FormGenerator:
         kind_name: str
         _validate_kind_name: classmethod = validator("kind_name", allow_reuse=True)(validate_kind_name)
         short_description_nl: str
-        description_nl: Optional[LongText]
+        description_nl: Optional[MarkdownText]
         short_description_en: Optional[str]
-        description_en: Optional[LongText]
+        description_en: Optional[MarkdownText]
         kind_type: KindType
 
     user_input = yield KindForm
@@ -218,9 +218,9 @@ def create_product_form(current_state: dict) -> FormGenerator:
         product_name: str
         _validate_product_name: classmethod = validator("product_name", allow_reuse=True)(validate_product_name)
         short_description_nl: str
-        description_nl: Optional[LongText]
+        description_nl: Optional[MarkdownText]
         short_description_en: Optional[str]
-        description_en: Optional[LongText]
+        description_en: Optional[MarkdownText]
 
     user_input = yield ProductForm
     return user_input.dict()
