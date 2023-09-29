@@ -1,4 +1,5 @@
 from typing import Any, List, Optional
+from uuid import UUID
 
 import structlog
 from pydantic import conlist, validator
@@ -239,7 +240,9 @@ def create_product_form(current_state: dict) -> FormGenerator:
 
 
 def create_category_form(current_state: dict) -> FormGenerator:
-    main_categories = MainCategory.query.all()
+    main_categories = MainCategory.query.filter(
+        MainCategory.shop_id == UUID("19149768-691c-40d8-a08e-fe900fd23bc0")
+    ).all()
 
     MainCategoryChoice = Choice(
         "MainCategoryChoice",
@@ -260,7 +263,7 @@ def create_category_form(current_state: dict) -> FormGenerator:
         main_category_id: Optional[MainCategoryChoice]
         color: str
         icon: Optional[str]
-        is_cannabis: bool
+        is_cannabis: bool = False
 
     user_input = yield CategoryForm
     return user_input.dict()
