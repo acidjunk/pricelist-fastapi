@@ -241,7 +241,8 @@ def create_product_form(current_state: dict) -> FormGenerator:
 
 def create_category_form(current_state: dict) -> FormGenerator:
     main_categories = MainCategory.query.filter(
-        MainCategory.shop_id == UUID("19149768-691c-40d8-a08e-fe900fd23bc0")).all()
+        MainCategory.shop_id == UUID("19149768-691c-40d8-a08e-fe900fd23bc0")
+    ).all()
 
     MainCategoryChoice = Choice(
         "MainCategoryChoice",
