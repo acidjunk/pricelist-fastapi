@@ -26,7 +26,7 @@ def validate_category_name(category_name: str, values: State) -> str:
     categories = Category.query.all()
     category_items = [item.name.lower() for item in categories]
     if category_name.lower() in category_items:
-        raise ValueError("Dit categorie bestaat al.")
+        raise ValueError("Deze categorie bestaat al.")
     return category_name
 
 
@@ -249,7 +249,7 @@ def create_category_form(current_state: dict) -> FormGenerator:
         ),  # type: ignore
     )
 
-    class ProductForm(FormPage):
+    class CategoryForm(FormPage):
         class Config:
             title = "Nieuwe categorie toevoegen"
 
@@ -262,7 +262,7 @@ def create_category_form(current_state: dict) -> FormGenerator:
         icon: Optional[str]
         is_cannabis: bool
 
-    user_input = yield ProductForm
+    user_input = yield CategoryForm
     return user_input.dict()
 
 
