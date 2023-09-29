@@ -260,6 +260,16 @@ class LongText(str):
         yield str_validator
 
 
+class MarkdownText(str):
+    @classmethod
+    def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
+        field_schema.update(format="markdown", type="string")
+
+    @classmethod
+    def __get_validators__(cls) -> Generator:
+        yield str_validator
+
+
 class DisplaySubscription(DisplayOnlyFieldType):
     @classmethod
     def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
