@@ -78,4 +78,8 @@ def update(*, strain_id: UUID, item_in: StrainUpdate) -> Any:
 
 @router.delete("/{strain_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def delete(strain_id: UUID) -> None:
-    return strain_crud.delete(id=strain_id)
+    try:
+        strain_crud.delete(id=strain_id)
+    except Exception as e:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, detail=f"{e.__cause__}")
+    return
