@@ -44,6 +44,15 @@ def get_by_id(id: UUID) -> CategorySchema:
     return category
 
 
+@router.get("/name/{name}", response_model=CategorySchema)
+def get_by_name(name: str, shop_id: UUID) -> CategorySchema:
+    category = category_crud.get_by_name(name=name, shop_id=shop_id)
+
+    if not category:
+        raise_status(HTTPStatus.NOT_FOUND, f"Category with name {name} not found")
+    return category
+
+
 @router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
 def create(data: CategoryCreate = Body(...)) -> None:
     logger.info("Saving category", data=data)
