@@ -260,8 +260,8 @@ def create_category_form(current_state: dict) -> FormGenerator:
         _validate_category_name: classmethod = validator("category_name", allow_reuse=True)(validate_category_name)
         name_en: Optional[str]
         # description: Optional[str]
-        main_category_id: Optional[MainCategoryChoice]
-        color: str
+        main_category_id: MainCategoryChoice
+        color: str = "#000000"
         icon: Optional[str]
         is_cannabis: bool = False
 
