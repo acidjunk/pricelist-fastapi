@@ -64,7 +64,7 @@ class CRUDShopToPrice(CRUDBase[ShopToPrice, ShopToPriceCreate, ShopToPriceUpdate
         return query
 
     def get_shops_to_prices_by_category(self, *, category_id: UUID) -> List[Optional[ShopToPrice]]:
-        query = ShopToPrice.query.filter_by(category_id=category_id).all()
+        query = ShopToPrice.query.filter_by(category_id=category_id).count()
         return query
 
 
