@@ -53,3 +53,7 @@ class CategoryWithNames(CategoryInDBBase):
 
 class CategoryImageDelete(CategoryEmptyBase):
     image: str
+
+
+class CategoryIsDeletable(CategoryEmptyBase):
+    is_deletable: bool
