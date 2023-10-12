@@ -130,7 +130,7 @@ class KindType(Choice):
 # class MainCategoryChoice(Choice):
 
 
-def create_kind_to_strains_categories_form(current_state: dict) -> FormGenerator:
+def create_kind_to_strains_form(current_state: dict) -> FormGenerator:
     # Setup summary
     summary_fields = [
         "kind_name",
@@ -240,9 +240,7 @@ def create_product_form(current_state: dict) -> FormGenerator:
 
 
 def create_category_form(current_state: dict) -> FormGenerator:
-    main_categories = MainCategory.query.filter(
-        MainCategory.shop_id == UUID("19149768-691c-40d8-a08e-fe900fd23bc0")
-    ).all()
+    main_categories = MainCategory.query.filter(MainCategory.shop_id == current_state["extra_state"]["shop_id"]).all()
 
     MainCategoryChoice = Choice(
         "MainCategoryChoice",
@@ -269,7 +267,7 @@ def create_category_form(current_state: dict) -> FormGenerator:
     return user_input.dict()
 
 
-register_form("create_kind_to_strains_categories_form", create_kind_to_strains_categories_form)
+register_form("create_kind_to_strains_form", create_kind_to_strains_form)
 register_form("create_strain_form", create_strain_form)
 register_form("create_tag_form", create_tag_form)
 register_form("create_kind_form", create_kind_form)

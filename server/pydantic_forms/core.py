@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from copy import deepcopy
+from http import HTTPStatus
 from typing import Any, Callable, Dict, Generator, List, Optional, Union
 
 import structlog
@@ -19,6 +20,7 @@ from pydantic.error_wrappers import ValidationError
 from pydantic.fields import Field, ModelField, Undefined
 from pydantic.main import BaseModel
 
+from server.api.error_handling import raise_status
 from server.pydantic_forms.exceptions import FormNotCompleteError, FormValidationError
 from server.pydantic_forms.types import InputForm, State, StateInputFormGenerator
 from server.pydantic_forms.utils.json import json_dumps, json_loads
@@ -105,8 +107,7 @@ def start_form(
     form = get_form(form_key)
 
     if not form:
-        # raise_status(HTTPStatus.NOT_FOUND, "Form does not exist")
-        raise Exception(f"Form {form_key} does not exist.")  # TODO decide on exception to raise for this
+        raise_status(HTTPStatus.BAD_REQUEST, f"Form {form_key} does not exist.")
 
     initial_state = dict(form_key=form_key, **extra_state)
 
