@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi.routing import APIRouter
@@ -29,6 +29,7 @@ def get_forms() -> list[str]:
 async def new_form(
     form_key: str,
     json_data: list[dict[str, Any]],
+    shop_id: Optional[UUID] = None,
     # user: OIDCUserModel or None = Depends(),  # type: ignore
 ) -> dict[str, UUID]:
     # Todo: determine what to do with user?
@@ -41,6 +42,6 @@ async def new_form(
     #             form_key, user_inputs=user_inputs, user="Just a user", ticket_transition=ticket_transition
     #         )
     #     case _ as user_inputs:
-    state = start_form(form_key, user_inputs=json_data, user="Just a user")
+    state = start_form(form_key, user_inputs=json_data, user="Just a user", extra_state={"shop_id": shop_id})
 
     return state
