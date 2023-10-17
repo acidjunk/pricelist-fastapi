@@ -1,6 +1,6 @@
 from datetime import datetime
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -22,8 +22,8 @@ class LicenseCreate(LicenseBase):
 
 
 class LicenseUpdate(BoilerplateBaseModel):
-    seats: float
-    end_date: datetime
+    seats: Optional[float]
+    end_date: Optional[datetime]
 
 
 class LicenseInDB(LicenseBase):

@@ -463,16 +463,38 @@ def strain_2():
 
 
 @pytest.fixture
-def license_1():
-    fixture = License(id=str(uuid.uuid4()), name="john")
+def license_1(fake_order):
+    fixture = License(
+        id=str(uuid.uuid4()),
+        name="john",
+        order_id=fake_order.id,
+        is_recurring=True,
+        seats=20,
+        improviser_user=str(uuid.uuid4()),
+        start_date=datetime.utcnow(),
+        end_date=datetime.utcnow(),
+        created_at=datetime.utcnow(),
+        modified_at=datetime.utcnow(),
+    )
     db.session.add(fixture)
     db.session.commit()
     return fixture
 
 
 @pytest.fixture
-def license_2():
-    fixture = License(id=str(uuid.uuid4()), name="doe")
+def license_2(fake_order):
+    fixture = License(
+        id=str(uuid.uuid4()),
+        name="doe",
+        order_id=fake_order.id,
+        is_recurring=False,
+        seats=10,
+        improviser_user=str(uuid.uuid4()),
+        start_date=datetime.utcnow(),
+        end_date=datetime.utcnow(),
+        created_at=datetime.utcnow(),
+        modified_at=datetime.utcnow(),
+    )
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -803,3 +825,35 @@ def shop_with_mixed_orders(shop_with_products, kind_1, kind_2, price_1, price_2,
     db.session.add(order)
     db.session.commit()
     return shop_1
+
+
+@pytest.fixture
+def fake_order(shop_with_products, kind_1, kind_2, price_1, price_2):
+    items = [
+        {
+            "description": "1 gram",
+            "price": price_1.one,
+            "kind_id": str(kind_1.id),
+            "kind_name": kind_1.name,
+            "internal_product_id": "01",
+            "quantity": 2,
+        },
+        {
+            "description": "1 joint",
+            "price": price_2.joint,
+            "kind_id": str(kind_2.id),
+            "kind_name": kind_2.name,
+            "internal_product_id": "02",
+            "quantity": 1,
+        },
+    ]
+    order = Order(
+        id=str(uuid.uuid4()),
+        shop_id=str(shop_with_products.id),
+        order_info=items,
+        total=24.0,
+        customer_order_id=1,
+    )
+    db.session.add(order)
+    db.session.commit()
+    return order

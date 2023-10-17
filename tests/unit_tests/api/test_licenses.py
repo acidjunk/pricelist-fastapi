@@ -17,7 +17,6 @@ def test_license_get_multi(license_1, license_2, test_client, superuser_token_he
 
 def test_license_get_by_id(license_1, test_client, superuser_token_headers):
     response = test_client.get(f"/api/licenses/{license_1.id}", headers=superuser_token_headers)
-    print(response.__dict__)
     assert HTTPStatus.OK == response.status_code
     license = response.json()
     assert license["name"] == "john"
@@ -28,8 +27,16 @@ def test_license_get_by_id_404(license_1, test_client, superuser_token_headers):
     assert HTTPStatus.NOT_FOUND == response.status_code
 
 
-def test_license_save(test_client, superuser_token_headers):
-    body = {"name": "New License"}
+def test_license_save(test_client, superuser_token_headers, fake_order):
+    body = {
+        "name": "New License",
+        "start_date": "2023-10-17T14:34:45.720Z",
+        "end_date": "2023-10-17T14:34:45.720Z",
+        "improviser_user": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "is_recurring": True,
+        "seats": 15,
+        "order_id": fake_order.id,
+    }
 
     response = test_client.post("/api/licenses/create", data=json_dumps(body), headers=superuser_token_headers)
     print(response)
@@ -39,15 +46,15 @@ def test_license_save(test_client, superuser_token_headers):
 
 
 def test_license_update(license_1, test_client, superuser_token_headers):
-    body = {"name": "Updated License"}
+    body = {"seats": 40, "end_date": "2023-10-17T14:34:28.893Z"}
     response = test_client.put(
         f"/api/licenses/edit/{license_1.id}", data=json_dumps(body), headers=superuser_token_headers
     )
-    assert HTTPStatus.CREATED == response.status_code
+    assert HTTPStatus.OK == response.status_code
 
     response_updated = test_client.get(f"/api/licenses/{license_1.id}", headers=superuser_token_headers)
     license = response_updated.json()
-    assert license["name"] == "Updated License"
+    assert license["seats"] == 40
 
 
 def test_license_delete(license_1, test_client, superuser_token_headers):

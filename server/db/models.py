@@ -419,4 +419,5 @@ class License(BaseModel):
 
     order = relationship("Order", lazy=True)
 
+
 # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
