@@ -9,8 +9,6 @@ from server.schemas.base import BoilerplateBaseModel
 
 class LicenseBase(BoilerplateBaseModel):
     name: str
-    start_date: datetime
-    end_date: Optional[datetime]
     improviser_user: UUID
     is_recurring: bool
     seats: float
@@ -18,7 +16,7 @@ class LicenseBase(BoilerplateBaseModel):
 
 
 class LicenseCreate(LicenseBase):
-    pass
+    end_date: Optional[datetime]
 
 
 class LicenseUpdate(BoilerplateBaseModel):
@@ -30,6 +28,7 @@ class LicenseInDB(LicenseBase):
     id: UUID
     modified_at: datetime
     created_at: datetime
+    start_date: datetime
 
     class Config:
         orm_mode = True

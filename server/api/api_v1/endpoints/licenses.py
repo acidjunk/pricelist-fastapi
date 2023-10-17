@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import Any, List, Optional
 from uuid import UUID
@@ -42,6 +43,10 @@ def get_by_name(name: str) -> LicenseSchema:
 
 @router.post("/create", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: LicenseCreate) -> None:
+
+    if data.is_recurring and data.end_date is not None:
+        raise_status(HTTPStatus.UNPROCESSABLE_ENTITY, f"Recurring licenses cannot have an end_date")
+
     license = license_crud.create(obj_in=data)
     return license
 
@@ -51,6 +56,8 @@ def edit(id: UUID, data: LicenseUpdate) -> Any:
     license = license_crud.get(id)
     if not license:
         raise_status(HTTPStatus.NOT_FOUND, f"License with id {id} not found")
+    if license.is_recurring and data.end_date is not None:
+        raise_status(HTTPStatus.UNPROCESSABLE_ENTITY, f"Recurring licenses cannot have an end_date")
     license = license_crud.update(db_obj=license, obj_in=data)
     return license
 
