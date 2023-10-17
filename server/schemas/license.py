@@ -13,10 +13,11 @@ class LicenseBase(BoilerplateBaseModel):
     is_recurring: bool
     seats: float
     order_id: UUID
+    end_date: Optional[datetime]
 
 
 class LicenseCreate(LicenseBase):
-    end_date: Optional[datetime]
+    pass
 
 
 class LicenseUpdate(BoilerplateBaseModel):

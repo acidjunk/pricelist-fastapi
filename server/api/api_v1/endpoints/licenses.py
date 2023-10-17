@@ -41,7 +41,7 @@ def get_by_name(name: str) -> LicenseSchema:
     return license
 
 
-@router.post("/create", response_model=None, status_code=HTTPStatus.CREATED)
+@router.post("/create", response_model=LicenseSchema, status_code=HTTPStatus.CREATED)
 def create(data: LicenseCreate) -> None:
 
     if data.is_recurring and data.end_date is not None:
@@ -51,7 +51,7 @@ def create(data: LicenseCreate) -> None:
     return license
 
 
-@router.put("/edit/{id}", response_model=None)
+@router.put("/edit/{id}", response_model=LicenseSchema, status_code=HTTPStatus.OK)
 def edit(id: UUID, data: LicenseUpdate) -> Any:
     license = license_crud.get(id)
     if not license:
