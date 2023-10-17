@@ -407,7 +407,16 @@ class Strain(BaseModel):
 class License(BaseModel):
     __tablename__ = "licenses"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String(255), nullable=False, unique=True, index=True)
+    name = Column(String(255), nullable=False)
+    is_recurring = Column(Boolean, nullable=False)
+    start_date = Column(DateTime, nullable=False, default=datetime.utcnow)
+    end_date = Column(DateTime)
+    improviser_user = Column(UUID(as_uuid=True), nullable=False)
+    seats = Column(Integer, nullable=False)
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id"), index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    order = relationship("Order", lazy=True)
 
 # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)

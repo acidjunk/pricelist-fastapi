@@ -46,7 +46,7 @@ def create(data: LicenseCreate) -> None:
     return license
 
 
-@router.put("/edit/{id}", response_model=None, status_code=HTTPStatus.CREATED)
+@router.put("/edit/{id}", response_model=None)
 def edit(id: UUID, data: LicenseUpdate) -> Any:
     license = license_crud.get(id)
     if not license:
