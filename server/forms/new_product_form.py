@@ -6,11 +6,17 @@ from pydantic import conlist, validator
 from pydantic.class_validators import root_validator
 
 from server.db.models import Category, Kind, MainCategory, ProductsTable, Strain, Tag
-from server.pydantic_forms.core import FormPage, ReadOnlyField, register_form
+from server.pydantic_forms.core import DisplayOnlyFieldType, FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import AcceptItemType, FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MarkdownText, MigrationSummary, Timestamp
 
 logger = structlog.get_logger(__name__)
+
+
+class Hidden(DisplayOnlyFieldType):
+    @classmethod
+    def __modify_schema__(cls, field_schema: dict[str, Any]) -> None:
+        field_schema.update(format="hidden", type="string")
 
 
 def validate_product_name(product_name: str, values: State) -> str:
@@ -24,7 +30,7 @@ def validate_product_name(product_name: str, values: State) -> str:
 
 def validate_category_name(category_name: str, values: State) -> str:
     """Check if category already exists."""
-    categories = Category.query.all()
+    categories = Category.query.filter(Category.shop_id == values["shop_id"]).all()
     category_items = [item.name.lower() for item in categories]
     if category_name.lower() in category_items:
         raise ValueError("Deze categorie bestaat al.")
@@ -254,6 +260,7 @@ def create_category_form(current_state: dict) -> FormGenerator:
         class Config:
             title = "Nieuwe categorie toevoegen"
 
+        shop_id: Hidden = current_state["extra_state"]["shop_id"]
         category_name: str
         _validate_category_name: classmethod = validator("category_name", allow_reuse=True)(validate_category_name)
         name_en: Optional[str]
