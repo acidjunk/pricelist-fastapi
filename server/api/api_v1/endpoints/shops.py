@@ -111,7 +111,8 @@ def get_by_id(id: UUID, is_horeca: Optional[bool] = None):
             .join(ShopToPrice.price)
             .join(ShopToPrice.category)
             .order_by(
-                Category.name,
+                Category.pricelist_column,
+                Category.pricelist_row,
                 ShopToPrice.order_number,
                 Price.piece,
                 Price.joint,
@@ -137,6 +138,8 @@ def get_by_id(id: UUID, is_horeca: Optional[bool] = None):
             "category_order_number": pr.category.order_number,
             "category_image_1": pr.category.image_1,
             "category_image_2": pr.category.image_2,
+            "category_pricelist_column": pr.category.pricelist_column,
+            "category_pricelist_row": pr.category.pricelist_row,
             "main_category_id": pr.category.main_category.id if pr.category.main_category else "Unknown",
             "main_category_name": pr.category.main_category.name if pr.category.main_category else "Unknown",
             "main_category_name_en": pr.category.main_category.name_en if pr.category.main_category else "Unknown",

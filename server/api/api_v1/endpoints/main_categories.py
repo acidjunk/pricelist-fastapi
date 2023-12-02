@@ -43,13 +43,13 @@ def get_by_id(id: UUID) -> MainCategorySchema:
     return main_category
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: MainCategoryCreate = Body(...)) -> None:
     logger.info("Saving main_category", data=data)
     return main_category_crud.create(obj_in=data)
 
 
-@router.put("/{main_category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{main_category_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, main_category_id: UUID, item_in: MainCategoryUpdate) -> Any:
     main_category = main_category_crud.get(id=main_category_id)
     logger.info("Updating main_category", data=main_category)

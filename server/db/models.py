@@ -222,6 +222,8 @@ class Category(BaseModel):
     cannabis = Column(Boolean, default=False)
     image_1 = Column(String(255), unique=True, index=True)
     image_2 = Column(String(255), unique=True, index=True)
+    pricelist_column = Column(String, nullable=True)
+    pricelist_row = Column(Integer, default=0)
 
     shops_to_price = relationship("ShopToPrice", cascade="save-update, merge, delete")
 

@@ -21,6 +21,8 @@ class CategoryBase(BoilerplateBaseModel):
     cannabis: bool = False
     image_1: Union[Optional[dict], Optional[str]]
     image_2: Union[Optional[dict], Optional[str]]
+    pricelist_column: Optional[str]
+    pricelist_row: Optional[int]
 
 
 # Properties to receive via API on creation
