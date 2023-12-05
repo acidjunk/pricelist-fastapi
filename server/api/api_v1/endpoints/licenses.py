@@ -40,7 +40,6 @@ def get_by_id(id: UUID, current_user: UsersTable = Depends(deps.get_current_acti
 
 @router.get("/improviser/{improviser_user_id}", response_model=LicenseSchema)
 def get_by_improviser_user_id(improviser_user_id: str) -> LicenseSchema:
-    print("test")
     license = license_crud.get_by_improviser_user_id(improviser_user_id=improviser_user_id)
 
     if not license:
