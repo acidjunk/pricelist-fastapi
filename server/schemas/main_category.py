@@ -11,11 +11,12 @@ class MainCategoryBase(BoilerplateBaseModel):
     description: Optional[str] = None
     icon: Optional[str] = None
     order_number: Optional[int] = None
+    shop_id: UUID
 
 
 # Properties to receive via API on creation
 class MainCategoryCreate(MainCategoryBase):
-    pass
+    shop_id: UUID
 
 
 # Properties to receive via API on update

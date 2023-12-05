@@ -19,7 +19,7 @@ import structlog
 
 logger = structlog.getLogger(__name__)
 
-VERSION = "2.2.5"
+VERSION = "2.3.0"
 
 
 def __getattr__(name: str) -> Optional[str]:

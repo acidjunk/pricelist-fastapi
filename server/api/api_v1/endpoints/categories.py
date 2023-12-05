@@ -10,6 +10,7 @@ from starlette.responses import Response
 from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
+from server.api.helpers import invalidateShopCache
 from server.crud.crud_category import category_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.schemas.category import (
@@ -69,13 +70,13 @@ def get_by_name(name: str, shop_id: UUID) -> CategorySchema:
     return category
 
 
-@router.post("/", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: CategoryCreate = Body(...)) -> None:
     logger.info("Saving category", data=data)
     return category_crud.create(obj_in=data)
 
 
-@router.put("/{category_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
+@router.put("/{category_id}", response_model=None, status_code=HTTPStatus.CREATED)
 def update(*, category_id: UUID, item_in: CategoryUpdate) -> Any:
     category = category_crud.get(id=category_id)
     logger.info("Updating category", data=category)
@@ -86,6 +87,10 @@ def update(*, category_id: UUID, item_in: CategoryUpdate) -> Any:
         db_obj=category,
         obj_in=item_in,
     )
+
+    if category.shop_id is not None:
+        invalidateShopCache(category.shop_id)
+
     return category
 
 

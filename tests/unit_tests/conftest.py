@@ -34,6 +34,7 @@ from server.db.models import (
     KindToStrain,
     KindToTag,
     License,
+    MainCategory,
     Order,
     Price,
     ProductsTable,
@@ -383,16 +384,58 @@ def shop_2():
 
 
 @pytest.fixture
-def category_1(shop_1):
-    fixture = Category(id=str(uuid.uuid4()), name="Category 1", description="Category description", shop_id=shop_1.id)
+def main_category_1(shop_1):
+    fixture = MainCategory(
+        name="Main Category 1",
+        name_en="Main Category 1",
+        description="Category 1 description",
+        shop_id=shop_1.id,
+        order_number=0,
+        icon="main_1",
+    )
     db.session.add(fixture)
     db.session.commit()
     return fixture
 
 
 @pytest.fixture
-def category_2(shop_1):
-    fixture = Category(id=str(uuid.uuid4()), name="Category 2", description="Category description 2", shop_id=shop_1.id)
+def main_category_2(shop_1):
+    fixture = MainCategory(
+        name="Main Category 2",
+        name_en="Main Category 2",
+        description="Category 2 description",
+        shop_id=shop_1.id,
+        order_number=1,
+        icon="main_2",
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def category_1(shop_1, main_category_1):
+    fixture = Category(
+        id=str(uuid.uuid4()),
+        name="Category 1",
+        description="Category description",
+        shop_id=shop_1.id,
+        main_category_id=main_category_1.id,
+    )
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def category_2(shop_1, main_category_1):
+    fixture = Category(
+        id=str(uuid.uuid4()),
+        name="Category 2",
+        description="Category description 2",
+        shop_id=shop_1.id,
+        main_category_id=main_category_1.id,
+    )
     db.session.add(fixture)
     db.session.commit()
     return fixture
