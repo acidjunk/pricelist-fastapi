@@ -139,5 +139,4 @@ api_router.include_router(
     licenses.router,
     prefix="/licenses",
     tags=["licenses"],
-    dependencies=[Depends(deps.get_current_active_superuser)],
 )
