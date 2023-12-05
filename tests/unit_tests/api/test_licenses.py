@@ -58,9 +58,7 @@ def test_license_save_recurring_end_date(test_client, superuser_token_headers, f
 
 def test_license_update(license_2, test_client, superuser_token_headers):
     body = {"seats": 40, "end_date": "2023-10-17T14:34:28.893Z"}
-    response = test_client.put(
-        f"/api/licenses/{license_2.id}", data=json_dumps(body), headers=superuser_token_headers
-    )
+    response = test_client.put(f"/api/licenses/{license_2.id}", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.OK == response.status_code
 
     response_updated = test_client.get(f"/api/licenses/{license_2.id}", headers=superuser_token_headers)
@@ -70,9 +68,7 @@ def test_license_update(license_2, test_client, superuser_token_headers):
 
 def test_license_update_recurring_end_date(license_1, test_client, superuser_token_headers):
     body = {"seats": 40, "end_date": "2023-10-17T14:34:28.893Z"}
-    response = test_client.put(
-        f"/api/licenses/{license_1.id}", data=json_dumps(body), headers=superuser_token_headers
-    )
+    response = test_client.put(f"/api/licenses/{license_1.id}", data=json_dumps(body), headers=superuser_token_headers)
     assert HTTPStatus.UNPROCESSABLE_ENTITY == response.status_code
 
 

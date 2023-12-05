@@ -49,7 +49,6 @@ def get_by_improviser_user_id(improviser_user_id: str) -> LicenseSchema:
 
 @router.post("", response_model=LicenseSchema, status_code=HTTPStatus.CREATED)
 def create(data: LicenseCreate, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
-
     if data.is_recurring and data.end_date is not None:
         raise_status(HTTPStatus.UNPROCESSABLE_ENTITY, f"Recurring licenses cannot have an end_date")
 
