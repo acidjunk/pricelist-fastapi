@@ -19,6 +19,7 @@ from server.api import deps
 from server.api.api_v1.endpoints import (  # forms,
     categories,
     category_images,
+    downloads,
     flavors,
     forms,
     health,
@@ -139,4 +140,10 @@ api_router.include_router(
     licenses.router,
     prefix="/licenses",
     tags=["licenses"],
+)
+
+api_router.include_router(
+    downloads.router,
+    prefix="/downloads",
+    tags=["downloads"],
 )
