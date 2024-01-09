@@ -70,6 +70,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
         },
     )
 
+
 def send_download_link_email(email_to: str, link: str, shop_name: str) -> None:
     subject = f"{shop_name} - Product download"
     with open(Path(app_settings.EMAIL_TEMPLATES_DIR) / "send_download.html") as f:
@@ -81,7 +82,7 @@ def send_download_link_email(email_to: str, link: str, shop_name: str) -> None:
         environment={
             "shop_name": shop_name,
             "email": email_to,
-            "valid_days": '14',
+            "valid_days": "14",
             "link": link,
         },
     )
