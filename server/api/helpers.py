@@ -234,6 +234,18 @@ def create_presigned_url(object_name, expiration=7200):
     return response
 
 
+def create_download_url(object_name, expiration):
+    bucket_name = app_settings.S3_BUCKET_DOWNLOADS_NAME
+    try:
+        response = s3_client.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket_name, "Key": object_name}, ExpiresIn=expiration
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {e}")
+
+    return response
+
+
 def move_between_buckets():
     temp_bucket_name = app_settings.S3_BUCKET_TEMPORARY_NAME
     prod_bucket_name = app_settings.S3_BUCKET_IMAGES_NAME

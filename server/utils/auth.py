@@ -54,6 +54,7 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
     subject = f"{project_name} - Password recovery for user {email}"
     with open(Path(app_settings.EMAIL_TEMPLATES_DIR) / "reset_password.html") as f:
         template_str = f.read()
+    print(template_str)
     server_host = app_settings.GUI_URI
     link = f"{server_host}/reset-password?token={token}"
     send_email(
@@ -65,6 +66,22 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
             "username": email,
             "email": email_to,
             "valid_hours": app_settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
+            "link": link,
+        },
+    )
+
+def send_download_link_email(email_to: str, link: str, shop_name: str) -> None:
+    subject = f"{shop_name} - Product download"
+    with open(Path(app_settings.EMAIL_TEMPLATES_DIR) / "send_download.html") as f:
+        template_str = f.read()
+    send_email(
+        email_to=email_to,
+        subject_template=subject,
+        html_template=template_str,
+        environment={
+            "shop_name": shop_name,
+            "email": email_to,
+            "valid_days": '14',
             "link": link,
         },
     )
