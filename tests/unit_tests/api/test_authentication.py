@@ -24,6 +24,7 @@ EXCLUDED_ENDPOINTS = [
     {"path": "/api/images/move/", "name": "move_images", "method": "POST"},
     {"path": "/api/images/delete-temp/", "name": "delete_temporary_images", "method": "POST"},
     {"path": "/api/downloads/{file_name}/", "name": "get_signed_download_link", "method": "GET"},
+    {"path": "/api/downloads/send/", "name": "send_download_link_via_email", "method": "POST"},
 ]
 
 
