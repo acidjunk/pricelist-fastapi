@@ -62,6 +62,13 @@ s3_client = boto3.client(
     region_name="eu-central-1",
 )
 
+s3_client_downloads = boto3.client(
+    "s3",
+    aws_access_key_id=app_settings.S3_BUCKET_DOWNLOADS_ACCESS_KEY_ID,
+    aws_secret_access_key=app_settings.S3_BUCKET_DOWNLOADS_SECRET_ACCESS_KEY,
+    region_name="eu-central-1",
+)
+
 s3_temporary = boto3.resource(
     "s3",
     aws_access_key_id=app_settings.S3_TEMPORARY_ACCESS_KEY_ID,
@@ -237,7 +244,7 @@ def create_presigned_url(object_name, expiration=7200):
 def create_download_url(object_name, expiration):
     bucket_name = app_settings.S3_BUCKET_DOWNLOADS_NAME
     try:
-        response = s3_client.generate_presigned_url(
+        response = s3_client_downloads.generate_presigned_url(
             "get_object", Params={"Bucket": bucket_name, "Key": object_name}, ExpiresIn=expiration
         )
     except Exception as e:
