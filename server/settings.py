@@ -144,7 +144,7 @@ class AppSettings(BaseSettings):
     S3_BUCKET_IMAGES_SECRET_ACCESS_KEY: str = "CHANGEME"
     S3_BUCKET_IMAGES_NAME = "CHANGE_THIS_FOR_UPLOAD"  # used to store images and to generate signed URI's
 
-    S3_BUCKET_DOWNLOADS_NAME = "CHANGE_THIS_FOR_UPLOAD"  # used to store downloads and to generate signed URI's
+    S3_BUCKET_DOWNLOADS_NAME = "CHANGE_THIS_FOR_UPLOAD"
     S3_BUCKET_DOWNLOADS_ACCESS_KEY_ID: str = "CHANGEME"
     S3_BUCKET_DOWNLOADS_SECRET_ACCESS_KEY: str = "CHANGEME"
 
