@@ -46,6 +46,7 @@ def fix_sort(category_id):
     db.session.commit()
 
 
+# Todo: check security
 @router.get("/", response_model=List[ShopToPriceSchema])
 def get_multi(response: Response, common: dict = Depends(common_parameters)) -> List[ShopToPriceSchema]:
     """List prices for a shop"""
@@ -68,6 +69,7 @@ def get_multi(response: Response, common: dict = Depends(common_parameters)) -> 
     return query_result
 
 
+# Todo: check security
 @router.get("/{id}", response_model=ShopToPriceSchema)
 def get_by_id(id: UUID) -> ShopToPriceSchema:
     item = shop_to_price_crud.get(id)
@@ -85,7 +87,7 @@ def get_by_id(id: UUID) -> ShopToPriceSchema:
 
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(
-    data: ShopToPriceCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_superuser)
+    data: ShopToPriceCreate = Body(...), current_user: UsersTable = Depends(deps.get_current_active_employee)
 ) -> None:
     logger.info("Saving shop to price relation", data=data)
     price = price_crud.get(data.price_id)
@@ -93,6 +95,12 @@ def create(
     kind = kind_crud.get(data.kind_id) or None
     product = product_crud.get(data.product_id) or None
     category = category_crud.get(data.category_id) or None
+
+    # Check if user is allowed in shop
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
+        raise HTTPException(
+            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
+        )
 
     if not price or not shop:
         raise_status(HTTPStatus.NOT_FOUND, "Price or Shop not found")
@@ -138,9 +146,17 @@ def update(
     *,
     shop_to_price_id: UUID,
     item_in: ShopToPriceUpdate,
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_employee),
 ) -> ShopToPriceSchema:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+    shop = shop_crud.get(shop_to_price.shop_id)
+
+    # Check if user is allowed in shop
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
+        raise HTTPException(
+            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
+        )
+
     logger.info("Updating shop_to_price", data=shop_to_price)
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
@@ -166,9 +182,16 @@ def update(
     *,
     shop_to_price_id: UUID,
     item_in: ShopToPriceAvailability,
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_employee),
 ) -> Any:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+    shop = shop_crud.get(shop_to_price.shop_id)
+
+    # Check if user is allowed in shop
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
+        raise HTTPException(
+            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
+        )
 
     result = shop_to_price_crud.update(
         db_obj=shop_to_price,
@@ -179,8 +202,16 @@ def update(
 
 
 @router.delete("/{shop_to_price_id}", response_model=None, status_code=HTTPStatus.NO_CONTENT)
-def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_superuser)) -> None:
+def delete(shop_to_price_id: UUID, current_user: UsersTable = Depends(deps.get_current_active_employee)) -> None:
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
+    shop = shop_crud.get(shop_to_price.shop_id)
+
+    # Check if user is allowed in shop
+    if not is_user_allowed_in_shop(user=current_user, shop=shop):
+        raise HTTPException(
+            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
+        )
+
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")
 
