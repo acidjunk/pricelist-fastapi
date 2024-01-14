@@ -14,7 +14,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import _query_with_filters, invalidateCompletedOrdersCache, invalidatePendingOrdersCache
-from server.api.utils import is_ip_allowed, validate_uuid4
+from server.api.utils import is_ip_allowed, is_user_allowed_in_shop, validate_uuid4
 from server.crud.crud_order import order_crud
 from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
@@ -109,8 +109,10 @@ def show_all_pending_orders_per_shop(
     shop_id: UUID,
     response: Response,
     common: dict = Depends(common_parameters),
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_table_moderator),
 ) -> List[OrderSchema]:
+    is_user_allowed_in_shop(user=current_user, shop_id=shop_id)
+
     query = Order.query.filter(Order.shop_id == shop_id).filter(Order.status == "pending")
     orders, header_range = order_crud.get_multi(
         query_parameter=query,
@@ -128,8 +130,10 @@ def show_all_complete_orders_per_shop(
     shop_id: UUID,
     response: Response,
     common: dict = Depends(common_parameters),
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+    current_user: UsersTable = Depends(deps.get_current_active_table_moderator),
 ) -> List[OrderSchema]:
+    is_user_allowed_in_shop(user=current_user, shop_id=shop_id)
+
     query = Order.query.filter(Order.shop_id == shop_id).filter(
         or_(Order.status == "complete", Order.status == "cancelled")
     )
@@ -262,6 +266,7 @@ def patch(
     order = order_crud.get(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    is_user_allowed_in_shop(user=current_user, shop_id=order.shop_id)
 
     if (
         "complete" not in order.status

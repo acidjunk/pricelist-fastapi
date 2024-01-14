@@ -112,7 +112,7 @@ api_router.include_router(
     tags.router, prefix="/tags", tags=["tags"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_superuser)]
+    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_table_moderator)]
 )
 api_router.include_router(
     flavors.router, prefix="/flavors", tags=["flavors"], dependencies=[Depends(deps.get_current_active_superuser)]

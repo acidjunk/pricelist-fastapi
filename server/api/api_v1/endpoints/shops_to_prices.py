@@ -195,13 +195,8 @@ def swap_order_numbers(
     shop_to_price_id: UUID, move_up: bool, current_user: UsersTable = Depends(deps.get_current_active_employee)
 ):
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
-    shop = shop_crud.get(shop_to_price.shop_id)
 
-    # Check if user is allowed in shop
-    if not is_user_allowed_in_shop(user=current_user, shop=shop):
-        raise HTTPException(
-            status_code=403, detail=f"User {current_user.username} doesn't have permissions for shop {shop.name}"
-        )
+    is_user_allowed_in_shop(user=current_user, shop_id=shop_to_price.shop_id)
 
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")

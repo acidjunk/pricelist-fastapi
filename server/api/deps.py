@@ -69,3 +69,14 @@ def get_current_active_employee(
     if not user_crud.is_superuser(current_user) and not role_crud.get_by_name(name="employee") in current_user.roles:
         raise HTTPException(status_code=403, detail="The user does need at least employee permissions")
     return current_user
+
+
+def get_current_active_table_moderator(
+    current_user: UsersTable = Depends(get_current_user),
+) -> UsersTable:
+    if (
+        not user_crud.is_superuser(current_user)
+        and not role_crud.get_by_name(name="table_moderator") in current_user.roles
+    ):
+        raise HTTPException(status_code=403, detail="The user does need at least table_moderator permissions")
+    return current_user
