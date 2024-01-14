@@ -7,6 +7,7 @@ import structlog
 from fastapi import HTTPException, Request
 
 from server.crud.crud_role import role_crud
+from server.crud.crud_shop import shop_crud
 from server.db.models import Shop, UsersTable
 
 logger = structlog.get_logger(__name__)
@@ -112,16 +113,19 @@ def is_ip_allowed(request: Request, shop):
     return False
 
 
-def is_user_allowed_in_shop(user: UsersTable, shop: Shop, roles_allowed: Optional[str] = None):
+def is_user_allowed_in_shop(user: UsersTable, shop_id: UUID, roles_allowed: Optional[str] = None):
+    shop = shop_crud.get(shop_id)
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
     if roles_allowed is None:
         roles_allowed = [""]
     for role_str in roles_allowed:
         role = role_crud.get_by_name(name=role_str)
         if user.roles.__contains__(role):
-            return True
+            return
     if user.shops.__contains__(shop):
-        return True
+        return
     if user.roles.__contains__(role_crud.get_by_name(name="admin")):
-        return True
+        return
     else:
-        return False
+        raise HTTPException(status_code=403, detail=f"User {user.username} doesn't have permissions for this shop")
