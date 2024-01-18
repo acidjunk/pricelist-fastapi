@@ -16,5 +16,5 @@ def get_signed_download_link(file_name: str):
 
 @router.post("/send")
 def send_download_link_via_email(file_name: str, email: str, shop_name: str):
-    link = create_download_url(file_name, 1209600)
+    link = create_download_url(file_name, 604799)
     send_download_link_email(email, link, shop_name)
