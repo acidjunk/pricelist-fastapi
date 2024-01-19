@@ -12,7 +12,7 @@ from server.api.api_v1.router_fix import APIRouter
 from server.api.deps import common_parameters
 from server.api.error_handling import raise_status
 from server.api.helpers import invalidateShopCache
-from server.api.utils import is_user_allowed_in_shop
+from server.api.utils import is_user_allowed_in_shop, raise_on_user_is_allowed
 from server.crud.crud_category import category_crud
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_price import price_crud
@@ -196,7 +196,7 @@ def swap_order_numbers(
 ):
     shop_to_price = shop_to_price_crud.get(id=shop_to_price_id)
 
-    is_user_allowed_in_shop(user=current_user, shop_id=shop_to_price.shop_id)
+    raise_on_user_is_allowed(is_user_allowed_in_shop(user=current_user, shop_id=shop_to_price.shop_id))
 
     if not shop_to_price:
         raise HTTPException(status_code=404, detail="Shop to price not found")

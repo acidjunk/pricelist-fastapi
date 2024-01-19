@@ -122,10 +122,15 @@ def is_user_allowed_in_shop(user: UsersTable, shop_id: UUID, roles_allowed: Opti
     for role_str in roles_allowed:
         role = role_crud.get_by_name(name=role_str)
         if user.roles.__contains__(role):
-            return
+            return True
     if user.shops.__contains__(shop):
-        return
+        return True
     if user.roles.__contains__(role_crud.get_by_name(name="admin")):
-        return
+        return True
     else:
-        raise HTTPException(status_code=403, detail=f"User {user.username} doesn't have permissions for this shop")
+        return False
+
+
+def raise_on_user_is_allowed(is_allowed: bool):
+    if not is_allowed:
+        raise HTTPException(status_code=403, detail=f"User doesn't have permissions for this shop")
