@@ -41,6 +41,7 @@ from server.api.api_v1.endpoints import (  # forms,
     shops_users,
     strains,
     tables,
+    tables_shopping,
     tags,
     users,
 )
@@ -112,7 +113,13 @@ api_router.include_router(
     tags.router, prefix="/tags", tags=["tags"], dependencies=[Depends(deps.get_current_active_superuser)]
 )
 api_router.include_router(
-    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_table_moderator)]
+    tables.router, prefix="/tables", tags=["tables"], dependencies=[Depends(deps.get_current_active_superuser)]
+)
+api_router.include_router(
+    tables_shopping.router,
+    prefix="/tables-shopping",
+    tags=["tables-shopping"],
+    dependencies=[Depends(deps.get_current_active_table_moderator)],
 )
 api_router.include_router(
     flavors.router, prefix="/flavors", tags=["flavors"], dependencies=[Depends(deps.get_current_active_superuser)]
