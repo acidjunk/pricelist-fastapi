@@ -22,7 +22,7 @@ import pytz
 import sqlalchemy
 import structlog
 from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, TypeDecorator, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.engine import Dialect
 from sqlalchemy.exc import DontWrapMixin
 from sqlalchemy.orm import backref, relationship
@@ -281,6 +281,7 @@ class Price(BaseModel):
     five = Column("five", Float(), nullable=True)
     joint = Column("joint", Float(), nullable=True)
     piece = Column("piece", Float(), nullable=True)
+    shop_ids = Column(ARRAY(UUID(as_uuid=True)), nullable=True)  # New field to store shop_ids array
 
     def __repr__(self):
         return f"Price for product_id: {self.internal_product_id}"

@@ -142,4 +142,5 @@ dmypy.json
 
 #stage
 pricelist_prod.psql
+pricelist_staging.psql
 config.env
