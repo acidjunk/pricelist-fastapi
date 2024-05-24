@@ -48,7 +48,7 @@ class PriceInDBBase(PriceBase):
 
 # Additional properties to return via API
 class PriceSchema(PriceInDBBase):
-    pass
+    shop_ids: Optional[list[UUID]] = None
 
 
 # Made this to because Flask's kinds.get_multi() have prices with every field None and needed it to be 1:1

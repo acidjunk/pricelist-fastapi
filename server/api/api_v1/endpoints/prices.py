@@ -53,7 +53,11 @@ def get_by_id(id: UUID) -> PriceSchema:
 @router.post("/", response_model=None, status_code=HTTPStatus.CREATED)
 def create(data: PriceCreate = Body(...)) -> None:
     logger.info("Saving price", data=data)
-    price = price_crud.create(obj_in=data)
+    try:
+        price = price_crud.create(obj_in=data)
+    except Exception as e:
+        logger.error("Error saving price", error=e)
+        raise HTTPException(status_code=400, detail=str(e))
     return price
 
 
