@@ -25,6 +25,7 @@ class PriceBase(BoilerplateBaseModel):
     five: Optional[float]
     joint: Optional[float]
     piece: Optional[float]
+    shop_group_id: Optional[UUID] = None
 
 
 # Properties to receive via API on creation
@@ -48,7 +49,7 @@ class PriceInDBBase(PriceBase):
 
 # Additional properties to return via API
 class PriceSchema(PriceInDBBase):
-    shop_ids: Optional[list[UUID]] = None
+    pass
 
 
 # Made this to because Flask's kinds.get_multi() have prices with every field None and needed it to be 1:1

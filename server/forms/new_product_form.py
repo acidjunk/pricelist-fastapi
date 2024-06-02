@@ -17,7 +17,7 @@ import structlog
 from pydantic import conlist, validator
 from pydantic.class_validators import root_validator
 
-from server.db.models import Category, Kind, MainCategory, ProductsTable, Strain, Tag
+from server.db.models import Category, Kind, MainCategory, ProductsTable, Strain, Tag, ShopGroup
 from server.pydantic_forms.core import DisplayOnlyFieldType, FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import AcceptItemType, FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MarkdownText, MigrationSummary, Timestamp
@@ -56,6 +56,15 @@ def validate_strain_name(strain_name: str, values: State) -> str:
     if strain_name.lower() in strain_items:
         raise ValueError("Deze kruising bestaat al.")
     return strain_name
+
+
+def validate_shop_group_name(shop_group_name: str, values: State) -> str:
+    """Check if shop_group already exists."""
+    shop_groups = ShopGroup.query.all()
+    shop_group_items = [item.name.lower() for item in shop_groups]
+    if shop_group_name.lower() in shop_group_items:
+        raise ValueError("Deze shop group bestaat al.")
+    return shop_group_name
 
 
 def validate_multiple_strains(strain_names: List[str], values: State) -> List[str]:

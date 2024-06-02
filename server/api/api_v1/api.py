@@ -44,6 +44,7 @@ from server.api.api_v1.endpoints import (  # forms,
     tables_shopping,
     tags,
     users,
+    shop_groups,
 )
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat
@@ -56,6 +57,12 @@ api_router.include_router(health.router, prefix="/health", tags=["system"])
 api_router.include_router(shops.router, prefix="/shops", tags=["shops"])
 api_router.include_router(shops_to_prices.router, prefix="/shops-to-prices", tags=["shops-to-prices"])
 api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
+api_router.include_router(
+    shop_groups.router,
+    prefix="/shop-groups",
+    tags=["shop-groups"],
+    dependencies=[Depends(deps.get_current_active_superuser)],
+)
 api_router.include_router(
     main_categories.router,
     prefix="/main-categories",
