@@ -36,6 +36,7 @@ from server.api.api_v1.endpoints import (  # forms,
     prices,
     product_images,
     products,
+    shop_groups,
     shops,
     shops_to_prices,
     shops_users,
@@ -44,7 +45,6 @@ from server.api.api_v1.endpoints import (  # forms,
     tables_shopping,
     tags,
     users,
-    shop_groups,
 )
 from server.api.api_v1.router_fix import APIRouter
 from server.websockets import chat

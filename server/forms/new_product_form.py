@@ -17,7 +17,7 @@ import structlog
 from pydantic import conlist, validator
 from pydantic.class_validators import root_validator
 
-from server.db.models import Category, Kind, MainCategory, ProductsTable, Strain, Tag, ShopGroup
+from server.db.models import Category, Kind, MainCategory, ProductsTable, ShopGroup, Strain, Tag
 from server.pydantic_forms.core import DisplayOnlyFieldType, FormPage, ReadOnlyField, register_form
 from server.pydantic_forms.types import AcceptItemType, FormGenerator, State, SummaryData
 from server.pydantic_forms.validators import Choice, ListOfTwo, LongText, MarkdownText, MigrationSummary, Timestamp
