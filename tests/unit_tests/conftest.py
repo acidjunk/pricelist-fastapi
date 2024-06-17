@@ -40,6 +40,7 @@ from server.db.models import (
     ProductsTable,
     RolesTable,
     Shop,
+    ShopGroup,
     ShopToPrice,
     Strain,
     Tag,
@@ -900,3 +901,10 @@ def fake_order(shop_with_products, kind_1, kind_2, price_1, price_2):
     db.session.add(order)
     db.session.commit()
     return order
+
+
+def shop_group_1(shop_1, shop_2):
+    fixture = ShopGroup(id=str(uuid.uuid4()), name="ShopGroup1", shop_ids=[str(shop_1.id), str(shop_2.id)])
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture

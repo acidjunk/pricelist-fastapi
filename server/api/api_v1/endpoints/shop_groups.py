@@ -10,9 +10,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
 from http import HTTPStatus
-from typing import Any, List, Optional
+from typing import Any, List
 from uuid import UUID
 
 import structlog
@@ -27,7 +26,6 @@ from server.crud.crud_shop import shop_crud
 from server.crud.crud_shop_group import shop_group_crud
 from server.forms.new_product_form import validate_shop_group_name
 from server.schemas.shop_group import ShopGroupCreate, ShopGroupSchema, ShopGroupUpdate
-from server.utils.json import json_loads
 
 logger = structlog.get_logger(__name__)
 
@@ -68,7 +66,7 @@ def create(data: ShopGroupCreate = Body(...)) -> None:
     except Exception:
         raise HTTPException(HTTPStatus.BAD_REQUEST, detail="shop_group with this name already exists")
 
-    shop_group = shop_group_crud.create(obj_in=data)
+    shop_group = shop_group_crud.create_shop_group(obj_in=data)
     return shop_group
 
 
