@@ -25,7 +25,7 @@ class ShopGroupBase(BoilerplateBaseModel):
 
 
 class ShopGroupCreate(ShopGroupBase):
-    pass
+    shop_ids: Optional[List[str]] = None
 
 
 # Properties to receive via API on update
