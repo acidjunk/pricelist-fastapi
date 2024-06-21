@@ -385,6 +385,22 @@ def shop_2():
 
 
 @pytest.fixture
+def shop_3():
+    fixture = Shop(id=str(uuid.uuid4()), name="De Steeg", description="Shop description 3")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_4():
+    fixture = Shop(id=str(uuid.uuid4()), name="Pink", description="Shop description 4")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def main_category_1(shop_1):
     fixture = MainCategory(
         name="Main Category 1",
@@ -903,8 +919,17 @@ def fake_order(shop_with_products, kind_1, kind_2, price_1, price_2):
     return order
 
 
+@pytest.fixture
 def shop_group_1(shop_1, shop_2):
     fixture = ShopGroup(id=str(uuid.uuid4()), name="ShopGroup1", shop_ids=[str(shop_1.id), str(shop_2.id)])
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_group_2(shop_3, shop_4):
+    fixture = ShopGroup(id=str(uuid.uuid4()), name="ShopGroup2", shop_ids=[str(shop_3.id), str(shop_4.id)])
     db.session.add(fixture)
     db.session.commit()
     return fixture
