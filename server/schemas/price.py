@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from server.schemas.base import BoilerplateBaseModel
@@ -26,6 +26,8 @@ class PriceBase(BoilerplateBaseModel):
     joint: Optional[float]
     piece: Optional[float]
     shop_group_id: Optional[UUID] = None
+    edible: Optional[dict] = None
+    pre_rolled_joints: Optional[dict] = None
 
 
 # Properties to receive via API on creation
