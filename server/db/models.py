@@ -293,6 +293,8 @@ class Price(BaseModel):
     joint = Column("joint", Float(), nullable=True)
     piece = Column("piece", Float(), nullable=True)
     shop_group_id = Column(UUID(as_uuid=True), ForeignKey("shop_groups.id"), nullable=True)
+    edible = Column("edible", JSON, nullable=True)
+    pre_rolled_joints = Column("pre_rolled_joints", JSON, nullable=True)
 
     __table_args__ = (UniqueConstraint("internal_product_id", "shop_group_id", name="_internal_product_shop_group_uc"),)
 
