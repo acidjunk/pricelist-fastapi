@@ -351,6 +351,14 @@ def price_3():
 
 
 @pytest.fixture
+def price_4(shop_group_1):
+    fixture = Price(id=str(uuid.uuid4()), internal_product_id="04", piece=2.50, shop_group_id=shop_group_1.id)
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def shop_1():
     fixture = Shop(id=str(uuid.uuid4()), name="Mississippi", description="Shop description")
     db.session.add(fixture)
