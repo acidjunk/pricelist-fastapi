@@ -1,6 +1,6 @@
 echo "Dropping"
-dropdb pricelist_staging
+dropdb pricelist -f
 echo "Creating"
-createdb pricelist_staging
+createdb pricelist
 echo "Populating"
-psql -d pricelist_staging < pricelist_staging.psql
+psql -d pricelist < pricelist_staging.psql

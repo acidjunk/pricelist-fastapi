@@ -66,7 +66,7 @@ def create(data: ShopGroupCreate = Body(...)) -> None:
     except Exception:
         raise HTTPException(HTTPStatus.BAD_REQUEST, detail="shop_group with this name already exists")
 
-    shop_group = shop_group_crud.create_shop_group(obj_in=data)
+    shop_group = shop_group_crud.create(obj_in=data)
     return shop_group
 
 

@@ -42,4 +42,4 @@ class ShopGroupInDBBase(ShopGroupBase):
 
 # Additional properties to return via API
 class ShopGroupSchema(ShopGroupInDBBase):
-    pass
+    shop_ids: Optional[List[UUID]] = None

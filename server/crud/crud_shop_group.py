@@ -14,7 +14,7 @@ from typing import Optional
 
 from server.api.models import transform_json_without_clean
 from server.crud.base import CRUDBase
-from server.db.models import ShopGroup, db
+from server.db.models import ShopGroup
 from server.schemas.shop_group import ShopGroupCreate, ShopGroupUpdate
 
 
@@ -22,12 +22,12 @@ class CRUDShopGroup(CRUDBase[ShopGroup, ShopGroupCreate, ShopGroupUpdate]):
     def get_by_name(self, *, name: str) -> Optional[ShopGroup]:
         return ShopGroup.query.filter(ShopGroup.name == name).first()
 
-    def create_shop_group(self, *, obj_in: ShopGroupCreate) -> ShopGroupCreate:
+    def create(self, *, obj_in: ShopGroupCreate) -> ShopGroupCreate:
         obj_in_data = transform_json_without_clean(obj_in.dict())
         db_obj = self.model(**obj_in_data)
-        db.session.add(db_obj)
-        db.session.commit()
-        db.session.refresh(db_obj)
+        ShopGroup.query.session.add(db_obj)
+        ShopGroup.query.session.commit()
+        ShopGroup.query.session.refresh(db_obj)
         return obj_in
 
 
