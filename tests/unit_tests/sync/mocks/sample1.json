@@ -1,0 +1,55 @@
+{
+  "data": {
+    "#6": {
+      "aantal": 15,
+      "type": "gewicht_teller",
+      "naam": "Pink Elefant 1"
+    },
+    "#7": {
+      "aantal": 5,
+      "type": "gewicht_teller",
+      "naam": "Blue Cookies"
+    },
+    "#8": {
+      "aantal": 29.75,
+      "type": "gewicht_teller",
+      "naam": "WW"
+    },
+    "#344": {
+      "basis": 0,
+      "prijs": 52.5,
+      "type": "verkoop_artikel",
+      "naam": "Pink Elefant 1 5 gra",
+      "minimal": 0,
+      "aantal": 10
+    },
+    "#333": {
+      "basis": 0,
+      "prijs": 7,
+      "type": "verkoop_artikel",
+      "naam": "Pink Elefant 1 1 gram",
+      "minimal": 0,
+      "aantal": 8
+    },
+    "#107": {
+      "basis": 0,
+      "prijs": 9.5,
+      "type": "verkoop_artikel",
+      "naam": "WW 1 gram",
+      "minimal": 0,
+      "aantal": 3
+    },
+    "#108": {
+      "basis": 0,
+      "prijs": 19,
+      "type": "verkoop_artikel",
+      "naam": "WW 2 gram",
+      "minimal": 0,
+      "aantal": 7
+    }
+  },
+  "information": {
+    "lastUpdate": "2024-05-03T16:36:07",
+    "totalWeightId": 99
+  }
+}
