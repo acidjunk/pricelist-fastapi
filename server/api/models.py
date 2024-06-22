@@ -143,3 +143,16 @@ def transform_json(json_dict: Dict) -> Dict:
     cleanse_json(json_dict)
     parse_date_fields(json_dict)
     return json_dict
+
+
+def transform_json_without_clean(json_dict: Dict) -> Dict:
+    def _do_transform(items: Iterable[Tuple[str, Any]]) -> Dict:
+        return dict(map(_parse, items))
+
+    def _parse(item: Tuple[str, Any]) -> Tuple[str, Any]:
+        if isinstance(item[1], list):
+            cls = deserialization_mapping[item[0]]
+            return item[0], list(map(lambda i: cls(**_do_transform(i.items())), item[1]))
+        return item
+
+    return json_dict

@@ -38,6 +38,50 @@ def test_price_save(test_client, superuser_token_headers):
     assert 1 == len(prices)
 
 
+def test_price_save_with_json(test_client, superuser_token_headers):
+    body = {
+        "internal_product_id": "101",
+        "half": 5.50,
+        "one": 10.0,
+        "five": 45.0,
+        "joint": 4.50,
+        "edible": {"strong": 7.0, "medium": 6.0, "light": 5.0},
+        "pre_rolled_joints": {"small": 10.0, "big": 20.0},
+    }
+    response = test_client.post("/api/prices/", data=json_dumps(body), headers=superuser_token_headers)
+    assert HTTPStatus.CREATED == response.status_code
+    prices = test_client.get("/api/prices", headers=superuser_token_headers).json()
+    assert 1 == len(prices)
+
+
+def test_save_price_with_same_internal_product_id(test_client, price_4, superuser_token_headers):
+    body = {
+        "internal_product_id": "04",
+        "half": 5.50,
+        "one": 10.0,
+        "five": 45.0,
+        "joint": 4.50,
+        "shop_group_id": str(price_4.shop_group_id),
+    }
+    response = test_client.post("/api/prices/", data=json_dumps(body), headers=superuser_token_headers)
+    assert HTTPStatus.BAD_REQUEST == response.status_code
+
+
+def test_save_price_same_internal_product_id_different_shop_group(
+    test_client, price_4, shop_group_2, superuser_token_headers
+):
+    body = {
+        "internal_product_id": "04",
+        "half": 5.50,
+        "one": 10.0,
+        "five": 45.0,
+        "joint": 4.50,
+        "shop_group_id": str(shop_group_2.id),
+    }
+    response = test_client.post("/api/prices/", data=json_dumps(body), headers=superuser_token_headers)
+    assert HTTPStatus.CREATED == response.status_code
+
+
 def test_price_update(price_1, test_client, superuser_token_headers):
     body = {"internal_product_id": "01", "half": 6.50, "one": 10.0, "five": 45.0, "joint": 4.50}
     response = test_client.put(f"/api/prices/{price_1.id}", data=json_dumps(body), headers=superuser_token_headers)
