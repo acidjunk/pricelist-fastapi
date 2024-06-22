@@ -9,6 +9,7 @@ from sync.de_steeg.schemas import Product, Price
 from sync.de_steeg.settings import sync_settings
 
 from server.db import db
+from server.db.models import Price as PriceModel
 
 logger = structlog.get_logger(__name__)
 
@@ -131,10 +132,42 @@ class Parser:
                 # db.session.add(record)
                 # record = KindToStrain(id=str(uuid.uuid4()), kind_id=fixture_id, strain_id=strain_1.id)
 
+    def sync_prices(self):
+        for product in self.products:
+            prices = [p for p in self.prices if p.product_id == product.product_id]
+            logger.info(f"Syncing prices for {product.name} to database", prices=len(prices))
+
+            # Todo
+            # check if price exists:
+            # Todo: check which flags and prices or only product_id (not sure if that will be unique enough)
+
+            # Create a price
+            price_id = str(uuid.uuid4())
+            price = PriceModel(
+                id=price_id,
+                internal_product_id=product.product_id,
+                one=next((p.price for p in prices if p.one), None),
+                # Todo: use new price model; for now storing it in two five
+                two_five=next((p.price for p in prices if p.two), None),
+                five=next((p.price for p in prices if p.five), None),
+                joint=next((p.price for p in prices if p.joint), None),
+            )
+            db.session.add(price)
+            db.session.commit()
+            logger.info(
+                f"Synced prices for {product.name} to database",
+                id=str(price.id),
+                internal_product_id=price.internal_product_id,
+                one=price.one,
+                two_five=price.two_five,
+                five=price.five,
+                joint=price.joint,
+            )
+
 
 if __name__ == "__main__":
     with open(sync_settings.JSON_FILE_LOCATION, "r") as file:
         data = json.load(file)
     parser = Parser(data)
-    # parser.sync_products()
     parser.sync_products()
+    parser.sync_prices()
