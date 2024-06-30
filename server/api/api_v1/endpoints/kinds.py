@@ -16,7 +16,7 @@ from uuid import UUID
 
 import structlog
 from fastapi import HTTPException
-from fastapi.param_functions import Body, Depends
+from fastapi.param_functions import Body, Depends, Query
 from starlette.responses import Response
 
 from server.api import deps
@@ -27,6 +27,7 @@ from server.api.helpers import invalidateShopCache
 from server.crud.crud_kind import kind_crud
 from server.crud.crud_shop_to_price import shop_to_price_crud
 from server.db.models import UsersTable
+from server.schemas import KindSchema
 from server.schemas.kind import (
     KindCreate,
     KindSchema,
@@ -41,17 +42,7 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=List[KindWithDefaultPrice])
-def get_multi(
-    response: Response,
-    common: dict = Depends(common_parameters),
-    current_user: UsersTable = Depends(deps.get_current_active_superuser),
-) -> List[KindWithDefaultPrice]:
-    kinds, header_range = kind_crud.get_multi(
-        skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
-    )
-    response.headers["Content-Range"] = header_range
-
+def format_kind_details(kinds: List[KindSchema]) -> list[KindSchema]:
     for kind in kinds:
         kind.tags = [
             {"id": tag.id, "name": f"{tag.tag.name}: {tag.amount}", "amount": tag.amount} for tag in kind.kind_to_tags
@@ -68,6 +59,36 @@ def get_multi(
         for i in [1, 2, 3, 4, 5, 6]:
             if getattr(kind, f"image_{i}"):
                 kind.images_amount += 1
+
+    return kinds
+
+
+@router.get("/", response_model=List[KindWithDefaultPrice])
+def get_multi(
+    response: Response,
+    only_global: Optional[bool] = Query(
+        True,
+        description="Flag to indicate if only global products (shop_group_id is None) should be fetched.",
+    ),
+    shop_group_id: Optional[UUID] = None,
+    common: dict = Depends(common_parameters),
+    current_user: UsersTable = Depends(deps.get_current_active_superuser),
+) -> list[KindSchema]:
+    if shop_group_id:
+        kinds_by_shop_group = kind_crud.get_all_by_shop_group_id(shop_group_id=shop_group_id)
+        format_kind_details(kinds_by_shop_group)
+        return kinds_by_shop_group
+
+    kinds, header_range = kind_crud.get_multi(
+        skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
+    )
+    response.headers["Content-Range"] = header_range
+    kinds = format_kind_details(kinds)
+
+    # Filtering by None value currently doesn't work. So preferably to use this now with limit 0
+    if only_global:
+        global_kinds = [kind for kind in kinds if kind.shop_group_id is None]
+        return global_kinds
 
     return kinds
 

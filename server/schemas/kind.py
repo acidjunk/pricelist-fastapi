@@ -33,6 +33,7 @@ class KindBase(BoilerplateBaseModel):
     i: bool = False
     s: bool = False
     complete: bool = False
+    shop_group_id: Optional[UUID] = None
     image_1: Union[Optional[dict], Optional[str]]
     image_2: Union[Optional[dict], Optional[str]]
     image_3: Union[Optional[dict], Optional[str]]

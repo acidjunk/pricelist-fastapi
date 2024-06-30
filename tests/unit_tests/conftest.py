@@ -40,6 +40,7 @@ from server.db.models import (
     ProductsTable,
     RolesTable,
     Shop,
+    ShopGroup,
     ShopToPrice,
     Strain,
     Tag,
@@ -350,6 +351,14 @@ def price_3():
 
 
 @pytest.fixture
+def price_4(shop_group_1):
+    fixture = Price(id=str(uuid.uuid4()), internal_product_id="04", piece=2.50, shop_group_id=shop_group_1.id)
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
 def shop_1():
     fixture = Shop(id=str(uuid.uuid4()), name="Mississippi", description="Shop description")
     db.session.add(fixture)
@@ -378,6 +387,22 @@ def shop_with_custom_ip():
 @pytest.fixture
 def shop_2():
     fixture = Shop(id=str(uuid.uuid4()), name="Head Shop", description="Shop description 2")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_3():
+    fixture = Shop(id=str(uuid.uuid4()), name="De Steeg", description="Shop description 3")
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_4():
+    fixture = Shop(id=str(uuid.uuid4()), name="Pink", description="Shop description 4")
     db.session.add(fixture)
     db.session.commit()
     return fixture
@@ -900,3 +925,19 @@ def fake_order(shop_with_products, kind_1, kind_2, price_1, price_2):
     db.session.add(order)
     db.session.commit()
     return order
+
+
+@pytest.fixture
+def shop_group_1(shop_1, shop_2):
+    fixture = ShopGroup(id=str(uuid.uuid4()), name="ShopGroup1", shop_ids=[str(shop_1.id), str(shop_2.id)])
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture
+
+
+@pytest.fixture
+def shop_group_2(shop_3, shop_4):
+    fixture = ShopGroup(id=str(uuid.uuid4()), name="ShopGroup2", shop_ids=[str(shop_3.id), str(shop_4.id)])
+    db.session.add(fixture)
+    db.session.commit()
+    return fixture

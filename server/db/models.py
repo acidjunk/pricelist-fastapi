@@ -21,8 +21,19 @@ from xmlrpc.client import DateTime
 import pytz
 import sqlalchemy
 import structlog
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, TypeDecorator, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    TypeDecorator,
+    UniqueConstraint,
+)
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.engine import Dialect
 from sqlalchemy.exc import DontWrapMixin
 from sqlalchemy.orm import backref, relationship
@@ -255,6 +266,7 @@ class Kind(BaseModel):
     kind_to_tags = relationship("KindToTag", cascade="save-update, merge, delete")
     kind_flavors = relationship("Flavor", secondary="kinds_to_flavors")
     kind_to_flavors = relationship("KindToFlavor", cascade="save-update, merge, delete")
+    shop_group_id = Column(UUID(as_uuid=True), ForeignKey("shop_groups.id"), nullable=True)
     image_1 = Column(String(255), unique=True, index=True)
     image_2 = Column(String(255), unique=True, index=True)
     image_3 = Column(String(255), unique=True, index=True)
@@ -274,16 +286,28 @@ class Kind(BaseModel):
 class Price(BaseModel):
     __tablename__ = "prices"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    internal_product_id = Column("internal_product_id", String(), unique=True)
+    internal_product_id = Column("internal_product_id", String(), unique=False)
     half = Column("half", Float(), nullable=True)
     one = Column("one", Float(), nullable=True)
     two_five = Column("two_five", Float(), nullable=True)
     five = Column("five", Float(), nullable=True)
     joint = Column("joint", Float(), nullable=True)
     piece = Column("piece", Float(), nullable=True)
+    shop_group_id = Column(UUID(as_uuid=True), ForeignKey("shop_groups.id"), nullable=True)
+    edible = Column("edible", JSON, nullable=True)
+    pre_rolled_joints = Column("pre_rolled_joints", JSON, nullable=True)
+
+    __table_args__ = (UniqueConstraint("internal_product_id", "shop_group_id", name="_internal_product_shop_group_uc"),)
 
     def __repr__(self):
         return f"Price for product_id: {self.internal_product_id}"
+
+
+class ShopGroup(BaseModel):
+    __tablename__ = "shop_groups"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    name = Column(String(255), nullable=False, unique=True, index=True)
+    shop_ids = Column(ARRAY(UUID(as_uuid=True)), nullable=True)
 
 
 class Order(BaseModel):
@@ -359,6 +383,7 @@ class ProductsTable(BaseModel):
     approved = Column("approved", Boolean(), default=False)
     approved_by = Column("approved_by", UUID(as_uuid=True), ForeignKey("user.id"), nullable=True)
     disapproved_reason = Column(String())
+    shop_group_id = Column(UUID(as_uuid=True), ForeignKey("shop_groups.id"), nullable=True)
     image_1 = Column(String(255), unique=True, index=True)
     image_2 = Column(String(255), unique=True, index=True)
     image_3 = Column(String(255), unique=True, index=True)
