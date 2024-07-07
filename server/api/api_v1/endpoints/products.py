@@ -50,30 +50,21 @@ def format_product_details(products: List[ProductSchema]) -> List[ProductSchema]
 @router.get("/", response_model=List[ProductWithDefaultPrice])
 def get_multi(
     response: Response,
-    only_global: Optional[bool] = Query(
-        True,
-        description="Flag to indicate if only global products (shop_group_id is None) should be fetched.",
+    shop_group_id: Optional[UUID] = Query(
+        None, description="If a shop group id is not provided, only global products will be fetched."
     ),
-    shop_group_id: Optional[UUID] = None,
     common: dict = Depends(common_parameters),
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
-) -> List[ProductSchema]:
-    if shop_group_id:
-        products_by_shop_group = product_crud.get_all_by_shop_group_id(shop_group_id=shop_group_id)
-        format_product_details(products_by_shop_group)
-        return products_by_shop_group
-
-    products, header_range = product_crud.get_multi(
-        skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
+) -> list[ProductSchema]:
+    products_by_shop_group, header_range = product_crud.get_multi_by_shop_group_id(
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
+        shop_group_id=shop_group_id,
     )
-    response.headers["Content-Range"] = header_range
-    products = format_product_details(products)
-
-    if only_global:
-        global_products = [product for product in products if product.shop_group_id is None]
-        return global_products
-
-    return products
+    format_product_details(products_by_shop_group)
+    return products_by_shop_group
 
 
 @router.get("/{id}", response_model=ProductWithDetailsAndPrices)
