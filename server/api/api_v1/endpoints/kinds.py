@@ -66,31 +66,21 @@ def format_kind_details(kinds: List[KindSchema]) -> list[KindSchema]:
 @router.get("/", response_model=List[KindWithDefaultPrice])
 def get_multi(
     response: Response,
-    only_global: Optional[bool] = Query(
-        True,
-        description="Flag to indicate if only global products (shop_group_id is None) should be fetched.",
+    shop_group_id: Optional[UUID] = Query(
+        None, description="If a shop group id is not provided, only global kinds will be fetched."
     ),
-    shop_group_id: Optional[UUID] = None,
     common: dict = Depends(common_parameters),
     current_user: UsersTable = Depends(deps.get_current_active_superuser),
 ) -> list[KindSchema]:
-    if shop_group_id:
-        kinds_by_shop_group = kind_crud.get_all_by_shop_group_id(shop_group_id=shop_group_id)
-        format_kind_details(kinds_by_shop_group)
-        return kinds_by_shop_group
-
-    kinds, header_range = kind_crud.get_multi(
-        skip=common["skip"], limit=common["limit"], filter_parameters=common["filter"], sort_parameters=common["sort"]
+    kinds_by_shop_group, header_range = kind_crud.get_multi_by_shop_group_id(
+        skip=common["skip"],
+        limit=common["limit"],
+        filter_parameters=common["filter"],
+        sort_parameters=common["sort"],
+        shop_group_id=shop_group_id,
     )
-    response.headers["Content-Range"] = header_range
-    kinds = format_kind_details(kinds)
-
-    # Filtering by None value currently doesn't work. So preferably to use this now with limit 0
-    if only_global:
-        global_kinds = [kind for kind in kinds if kind.shop_group_id is None]
-        return global_kinds
-
-    return kinds
+    format_kind_details(kinds_by_shop_group)
+    return kinds_by_shop_group
 
 
 @router.get("/{id}", response_model=KindWithDetailsAndPrices)

@@ -67,7 +67,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             f"Filter and Sort parameters model={self.model}, sort_parameters={sort_parameters}, filter_parameters={filter_parameters}",
         )
         conditions = []
-
+        # move to functions ?
         if filter_parameters:
             for filter_parameter in filter_parameters:
                 key, *value = filter_parameter.split(":", 1)
@@ -120,6 +120,32 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             # Limit is 0: unlimited
             response_range = "{}s {}/{}".format(self.model.__name__.lower(), skip, count)
             return query.offset(skip).all(), response_range
+
+    def get_multi_by_shop_group_id(
+        self,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+        filter_parameters: Optional[List[str]],
+        sort_parameters: Optional[List[str]],
+        shop_group_id: str,
+        query_parameter: Optional[Any] = None,
+    ) -> Tuple[List[ModelType], str]:
+        query = query_parameter
+        if query is None:
+            if shop_group_id is None:
+                query = db.session.query(self.model).filter(self.model.shop_group_id.is_(None))
+            else:
+                query = db.session.query(self.model).filter(
+                    or_(self.model.shop_group_id == shop_group_id, self.model.shop_group_id.is_(None))
+                )
+        return self.get_multi(
+            skip=skip,
+            limit=limit,
+            filter_parameters=filter_parameters,
+            sort_parameters=sort_parameters,
+            query_parameter=query,
+        )
 
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = transform_json(obj_in.dict())
