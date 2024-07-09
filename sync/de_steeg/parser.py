@@ -5,7 +5,7 @@ import structlog
 from more_itertools import one
 
 from server.db.models import Kind
-from sync.de_steeg.schemas import Product, Price
+from sync.de_steeg.schemas import Product, Price, Weight
 from sync.de_steeg.settings import sync_settings
 
 from server.db import db
@@ -40,39 +40,55 @@ class Parser:
         self.products = []
         self.prices = []
         self.prices_without_product = []
+        self.price_names_skipped = []
+        self.categories = []
         self.parse()
 
     def parse(self):
         logger.info("Parsing data", number_of_items=len(self.json_data["data"]))
         for key, item in self.json_data["data"].items():
             if item["type"] == "gewicht_teller":
-                product = Product(product_id=key, name=item["naam"], amount=item["aantal"])
+                product = Product(product_id=int(key.replace("#", "")), name=item["naam"], amount=item["aantal"])
                 self.products.append(product)
 
         for key, item in self.json_data["data"].items():
             price_flavor_warning = None
             if item["type"] == "verkoop_artikel":
+                gewicht=item["gewicht"]
+                assert len(gewicht) == 3, "All items should have 3 weight indicators"
+                if gewicht[0]["gewichtLink1"] == 0:
+                    if sync_settings.LOG_PRODUCT_WARNINGS:
+                        logger.warning("Skipping product", product=item["naam"])
+                    self.price_names_skipped.append(item["naam"])
+                    continue
                 price = Price(
                     price_id=key,
+                    category=item["omzetgroep"],
                     name=item["naam"],
                     base=item["basis"],
                     minimal=item["minimal"],
                     price=item["prijs"],
                     amount=item["aantal"],
+                    weight=[
+                        Weight(product_id=gewicht[0]["gewichtLink1"], weight=gewicht[0]["grammen"]),
+                        Weight(product_id=gewicht[1]["gewichtLink2"], weight=gewicht[0]["grammen"]),
+                        Weight(product_id=gewicht[2]["gewichtLink3"], weight=gewicht[0]["grammen"]),
+                    ]
                 )
-                # try to find the amount
+                # try to find the amount, not needed anymore for wiet
                 if check_endings(price.name, ONE_GRAM_ENDINGS):
                     price.one = True
                 elif check_endings(price.name, TWO_GRAM_ENDINGS):
                     price.two = True
                 elif check_endings(price.name, FIVE_GRAM_ENDINGS):
                     price.five = True
+                # this will be handy: as we don't have a good way to find joints
                 elif check_endings(price.name, JOINT_ENDINGS):
                     price.joint = True
                 else:
                     price_flavor_warning = f"Couldn't parse {price.name} to a correct price_flavor"
                 # try to resolve the product, so Prices "know" to which product they belong
-                product_id = self.get_product_id(item["naam"])
+                product_id = self.get_product_id(price)
                 if product_id:
                     if price_flavor_warning and sync_settings.LOG_PRODUCT_WARNINGS:
                         logger.warning(price_flavor_warning)
@@ -81,27 +97,32 @@ class Parser:
                     self.prices.append(price)
                 else:
                     self.prices_without_product.append(price)
+
+        self.categories = list(set([price.category for price in self.prices]))
+        self.parsed = True
         logger.info(
             "Parsed data",
+            categories=self.categories,
             products=len(self.products),
             prices=len(self.prices),
             prices_without_product=len(self.prices_without_product),
+            prices_skipped=len(self.price_names_skipped),
         )
-        self.parsed = True
         if sync_settings.LOG_PRODUCT_WARNINGS:
             logger.warning(
                 "Prices without a root product",
                 prices_without_product=self.prices_without_product,
                 number_of_prices_without_product=len(self.prices_without_product),
+                names_skipped=self.price_names_skipped,
             )
 
-    def get_product_id(self, name: str):
+    def get_product_id(self, price: Price):
         for product in self.products:
-            if name.startswith(product.name):
+            if product.product_id == price.weight[0].product_id:
                 return product.product_id
         if sync_settings.ALLOW_ROOTLESS_PRODUCTS:
             return None
-        raise ProductNotFoundException(f"Could not find product with name {name}")
+        raise ProductNotFoundException(f"Could not find product with name {price.name}")
 
     def sync_products(self):
         for product in self.products:
@@ -141,6 +162,8 @@ class Parser:
             # check if price exists:
             # Todo: check which flags and prices or only product_id (not sure if that will be unique enough)
 
+            # Todo: flag "#23" -> Edibles
+
             # Create a price
             price_id = str(uuid.uuid4())
             price = PriceModel(
@@ -169,5 +192,5 @@ if __name__ == "__main__":
     with open(sync_settings.JSON_FILE_LOCATION, "r") as file:
         data = json.load(file)
     parser = Parser(data)
-    parser.sync_products()
-    parser.sync_prices()
+    # parser.sync_products()
+    # parser.sync_prices()
