@@ -20,7 +20,7 @@ class SyncSettings(BaseSettings):
     SHOP_GROUP_ID: str = "655f89b0-a456-413c-b14a-412038088f2d"
     DEFAULT_CATEGORY_ID: str = "6b559b9a-bee7-4e24-b8ce-7f59e10249e9"
     ALLOW_ROOTLESS_PRODUCTS: bool = True
-    LOG_PRODUCT_WARNINGS: bool = False
+    LOG_PRODUCT_WARNINGS: bool = True
 
 
 sync_settings = SyncSettings()
