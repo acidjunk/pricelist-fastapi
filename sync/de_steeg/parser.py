@@ -4,8 +4,8 @@ import uuid
 import structlog
 from more_itertools import one
 
-from server.db.models import Kind
-from sync.de_steeg.schemas import Product, Price, Weight
+from server.db.models import Kind, Category
+from sync.de_steeg.schemas import Product, Price, Weight, JsonPriceField
 from sync.de_steeg.settings import sync_settings
 
 from server.db import db
@@ -18,9 +18,6 @@ class ProductNotFoundException(Exception):
     pass
 
 
-ONE_GRAM_ENDINGS = ["1 g", "1 gr", "1 gra", "1 gram"]
-TWO_GRAM_ENDINGS = ["2 g", "2 gr", "2 gra", "2 gram"]
-FIVE_GRAM_ENDINGS = ["5 g", "5 gr", "5 gra", "5 gram"]
 JOINT_ENDINGS = ["j", "join", "joint"]
 
 
@@ -29,6 +26,24 @@ def check_endings(name: str, endings: list[str]) -> bool:
         if name.lower().endswith(ending):
             return True
     return False
+
+
+def float_to_label(quantity: float) -> str:
+    if quantity.is_integer():
+        return str(int(quantity))
+    else:
+        # Otherwise, convert the float to a string and replace the decimal point with a comma
+        return str(quantity).replace(".", ",")
+
+
+def get_price_field(price: Price, pre_rolled: bool = False) -> JsonPriceField:
+    quantity = price.weight[0].weight
+    label = "joint"
+    if not pre_rolled:
+        # Todo: sum weights ?
+        label = f"{float_to_label(quantity)} gram"
+    price_field = JsonPriceField(price=price.price, label=label, quantity=quantity, active=True)
+    return price_field
 
 
 # noinspection PyPackageRequirements
@@ -54,7 +69,7 @@ class Parser:
         for key, item in self.json_data["data"].items():
             price_flavor_warning = None
             if item["type"] == "verkoop_artikel":
-                gewicht=item["gewicht"]
+                gewicht = item["gewicht"]
                 assert len(gewicht) == 3, "All items should have 3 weight indicators"
                 if gewicht[0]["gewichtLink1"] == 0:
                     if sync_settings.LOG_PRODUCT_WARNINGS:
@@ -73,20 +88,12 @@ class Parser:
                         Weight(product_id=gewicht[0]["gewichtLink1"], weight=gewicht[0]["grammen"]),
                         Weight(product_id=gewicht[1]["gewichtLink2"], weight=gewicht[0]["grammen"]),
                         Weight(product_id=gewicht[2]["gewichtLink3"], weight=gewicht[0]["grammen"]),
-                    ]
+                    ],
                 )
-                # try to find the amount, not needed anymore for wiet
-                if check_endings(price.name, ONE_GRAM_ENDINGS):
-                    price.one = True
-                elif check_endings(price.name, TWO_GRAM_ENDINGS):
-                    price.two = True
-                elif check_endings(price.name, FIVE_GRAM_ENDINGS):
-                    price.five = True
-                # this will be handy: as we don't have a good way to find joints
-                elif check_endings(price.name, JOINT_ENDINGS):
+                if check_endings(price.name, JOINT_ENDINGS):
                     price.joint = True
-                else:
-                    price_flavor_warning = f"Couldn't parse {price.name} to a correct price_flavor"
+                # Todo: find out how to handle edibles
+
                 # try to resolve the product, so Prices "know" to which product they belong
                 product_id = self.get_product_id(price)
                 if product_id:
@@ -125,6 +132,7 @@ class Parser:
         raise ProductNotFoundException(f"Could not find product with name {price.name}")
 
     def sync_products(self):
+        logger.info(f"Syncing products to database", products=len(self.products))
         for product in self.products:
             # check if product exists:
             if len(Kind.query.filter_by(name=product.name).all()) == 1:
@@ -153,10 +161,39 @@ class Parser:
                 # db.session.add(record)
                 # record = KindToStrain(id=str(uuid.uuid4()), kind_id=fixture_id, strain_id=strain_1.id)
 
+    def sync_categories(self):
+        logger.info(f"Syncing categories to database", categories=len(self.categories))
+        for category in self.categories:
+            # check if category exists:
+            if len(Category.query.filter_by(name=category).all()) == 1:
+                logger.info(f"Skipping category {category}: already exists")
+            else:
+                logger.info(f"Adding category {category} to database")
+                category_id = str(uuid.uuid4())
+                record = Category(
+                    id=category_id,
+                    main_category_id=sync_settings.DEFAULT_CATEGORY_ID,
+                    name=category,
+                    name_en=category,
+                    description=category,
+                    shop_id=sync_settings.SHOP_ID,
+                    cannabis=True,
+                )
+                db.session.add(record)
+                db.session.commit()
+
     def sync_prices(self):
+        logger.info(f"Syncing prices to database", categories=len(self.products))
         for product in self.products:
             prices = [p for p in self.prices if p.product_id == product.product_id]
-            logger.info(f"Syncing prices for {product.name} to database", prices=len(prices))
+
+            # handle all price variations
+            pre_rolled = [get_price_field(p, pre_rolled=True) for p in prices if p.joint]
+            cannabis = [get_price_field(p) for p in prices if not p.joint]
+            # todo: edibles, they are now added to the cannabis field
+            edibles = []
+
+            logger.info(f"Syncing prices for {product.name} to database", pre_rolled=pre_rolled, cannabis=cannabis)
 
             # Todo
             # check if price exists:
@@ -169,28 +206,28 @@ class Parser:
             price = PriceModel(
                 id=price_id,
                 internal_product_id=product.product_id,
-                one=next((p.price for p in prices if p.one), None),
-                # Todo: use new price model; for now storing it in two five
-                two_five=next((p.price for p in prices if p.two), None),
-                five=next((p.price for p in prices if p.five), None),
-                joint=next((p.price for p in prices if p.joint), None),
+                pre_rolled_joints=[p.dict() for p in pre_rolled],
+                cannabis=[p.dict() for p in cannabis],
+                edible=[p.dict() for p in edibles],
+                shop_group_id=sync_settings.SHOP_GROUP_ID,
             )
             db.session.add(price)
             db.session.commit()
-            logger.info(
-                f"Synced prices for {product.name} to database",
-                id=str(price.id),
-                internal_product_id=price.internal_product_id,
-                one=price.one,
-                two_five=price.two_five,
-                five=price.five,
-                joint=price.joint,
-            )
+            # logger.info(
+            #     f"Synced prices for {product.name} to database",
+            #     id=str(price.id),
+            #     internal_product_id=price.internal_product_id,
+            #     one=price.one,
+            #     two_five=price.two_five,
+            #     five=price.five,
+            #     joint=price.joint,
+            # )
 
 
 if __name__ == "__main__":
     with open(sync_settings.JSON_FILE_LOCATION, "r") as file:
         data = json.load(file)
     parser = Parser(data)
-    # parser.sync_products()
-    # parser.sync_prices()
+    parser.sync_products()
+    parser.sync_categories()
+    parser.sync_prices()

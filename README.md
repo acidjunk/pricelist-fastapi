@@ -74,7 +74,7 @@ PYTHONPATH=. alembic upgrade heads
 Then, to create a new schema migration:
 
 ```bash
-PYTHONPATH=. alembic revision --autogenerate -m "New schema" --head=schema@head
+PYTHONPATH=. alembic revision --autogenerate -m "New schema"
 ```
 
 This opens a new migration in `/migrations/versions/`
@@ -90,7 +90,7 @@ PYTHONPATH=. alembic revision --autogenerate -m "Initial scheme" --head=schema@h
 To create a data migration do the following:
 
 ```bash
-PYTHONPATH=. alembic revision --message "Name of the migration" --head=general@head
+PYTHONPATH=. alembic revision --message "Name of the migration"
 ```
 
 This will also create a new revision file where normal SQL can be written like so:

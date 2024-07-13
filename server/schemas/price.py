@@ -14,6 +14,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
+from pydantic import BaseModel
+
 from server.schemas.base import BoilerplateBaseModel
 
 
@@ -26,8 +28,9 @@ class PriceBase(BoilerplateBaseModel):
     joint: Optional[float]
     piece: Optional[float]
     shop_group_id: Optional[UUID] = None
-    edible: Optional[dict] = None
-    pre_rolled_joints: Optional[dict] = None
+    edible: Optional[list] = []  # this might be a list of JsonPriceFields
+    pre_rolled_joints: Optional[list] = []  # this might be a list of JsonPriceFields
+    cannabis: Optional[list] = []  # this might be a list of JsonPriceFields
 
 
 # Properties to receive via API on creation
