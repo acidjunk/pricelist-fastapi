@@ -18,9 +18,9 @@ class SyncSettings(BaseSettings):
     JSON_FILE_LOCATION: str = "sync/de_steeg/data/csj1.json"
     SHOP_ID: str = "470f3f5a-e7b9-43a5-bbfd-2ffce8c161e4"
     SHOP_GROUP_ID: str = "655f89b0-a456-413c-b14a-412038088f2d"
-    DEFAULT_CATEGORY_ID: str = "6b559b9a-bee7-4e24-b8ce-7f59e10249e9"
+    DEFAULT_CATEGORY_ID: str = "549ced87-e698-4100-83ca-b95c0a0275f7"
     ALLOW_ROOTLESS_PRODUCTS: bool = True
-    LOG_PRODUCT_WARNINGS: bool = True
+    LOG_PRODUCT_WARNINGS: bool = False
 
 
 sync_settings = SyncSettings()

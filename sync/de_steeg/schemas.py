@@ -7,6 +7,7 @@ class Weight(BaseModel):
     product_id: int
     weight: float
 
+
 class Price(BaseModel):
     price_id: str
     category: str
@@ -16,17 +17,24 @@ class Price(BaseModel):
     base: float = None
     price: float = None
     joint: Optional[bool] = None
-    one: Optional[bool] = None
-    two: Optional[bool] = None
-    five: Optional[bool] = None
-    joint: Optional[bool] = None
     product_name: Optional[str] = None
     product_id: Optional[int] = None
     weight: list[Weight]
-
 
 
 class Product(BaseModel):
     product_id: int
     name: str
     amount: float
+
+
+class JsonPriceField(BaseModel):
+    """the fields that can be used in the dynamic priceFields columns.
+
+    Note: this is only used by the parser for now. Storing it to the DB as a list of dictionaries.
+    """
+
+    price: float
+    label: str
+    quantity: float
+    active: bool
