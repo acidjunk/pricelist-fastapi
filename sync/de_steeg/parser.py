@@ -4,12 +4,11 @@ import uuid
 import structlog
 from more_itertools import one
 
-from server.db.models import Kind, Category
-from sync.de_steeg.schemas import Product, Price, Weight, JsonPriceField
-from sync.de_steeg.settings import sync_settings
-
 from server.db import db
+from server.db.models import Category, Kind
 from server.db.models import Price as PriceModel
+from sync.de_steeg.schemas import JsonPriceField, Price, Product, Weight
+from sync.de_steeg.settings import sync_settings
 
 logger = structlog.get_logger(__name__)
 
