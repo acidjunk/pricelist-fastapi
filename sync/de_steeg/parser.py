@@ -202,10 +202,11 @@ class Parser:
             # Todo: flag "#23" -> Edibles
 
             # Create a price
+            # Todo: it might be smart to create 3 prices, one with only canna, one with joints, one with all prices enabled
             price_id = str(uuid.uuid4())
             price = PriceModel(
                 id=price_id,
-                internal_product_id=product.product_id,
+                internal_product_id=product.product_id,  # if we add prices multiple times -> add a string here
                 pre_rolled_joints=[p.dict() for p in pre_rolled],
                 cannabis=[p.dict() for p in cannabis],
                 edible=[p.dict() for p in edibles],
