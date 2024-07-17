@@ -72,3 +72,16 @@ class DefaultPrice(BoilerplateBaseModel):
     five: Optional[float] = None
     joint: Optional[float] = None
     piece: Optional[float] = None
+
+
+class JsonPriceField(BaseModel):
+    """the fields that can be used in the dynamic priceFields columns.
+
+    Note: this is only used by the parser for now. Storing it to the DB as a list of dictionaries.
+    """
+
+    product_link: Optional[str] = None
+    price: float
+    label: str
+    quantity: float
+    active: bool

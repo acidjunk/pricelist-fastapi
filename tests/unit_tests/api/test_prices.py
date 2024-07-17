@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import structlog
 
+from server.schemas.price import JsonPriceField
 from server.utils.json import json_dumps
 
 logger = structlog.getLogger(__name__)
@@ -45,11 +46,12 @@ def test_price_save_with_json(test_client, superuser_token_headers):
         "one": 10.0,
         "five": 45.0,
         "joint": 4.50,
-        "edible": {"strong": 7.0, "medium": 6.0, "light": 5.0},
-        "pre_rolled_joints": {"small": 10.0, "big": 20.0},
+        "cannabis": [JsonPriceField(price=1.2, label="Test label", quantity=50.2, active=False).dict()],
+        "edible": [{"strong": 7.0, "medium": 6.0, "light": 5.0}],
+        "pre_rolled_joints": [{"small": 10.0, "big": 20.0}],
     }
     response = test_client.post("/api/prices/", data=json_dumps(body), headers=superuser_token_headers)
-    assert HTTPStatus.CREATED == response.status_code
+    assert HTTPStatus.CREATED == response.status_code, response.json()
     prices = test_client.get("/api/prices", headers=superuser_token_headers).json()
     assert 1 == len(prices)
 
