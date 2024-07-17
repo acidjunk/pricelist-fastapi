@@ -4,9 +4,11 @@ import uuid
 import structlog
 from more_itertools import one
 
+from server.apis.v1.helpers import save
 from server.db import db
 from server.db.models import Category, Kind
 from server.db.models import Price as PriceModel
+from server.db.models import ShopToPrice
 from server.schemas.price import JsonPriceField
 from sync.de_steeg.schemas import Price, Product, Weight
 from sync.de_steeg.settings import sync_settings
@@ -42,8 +44,20 @@ def get_price_field(price: Price, pre_rolled: bool = False) -> JsonPriceField:
     if not pre_rolled:
         # Todo: sum weights ?
         label = f"{float_to_label(quantity)} gram"
-    price_field = JsonPriceField(price=price.price, label=label, quantity=quantity, active=True)
+    price_field = JsonPriceField(
+        price=price.price, label=label, quantity=quantity, active=True, product_link=f"#{price.product_id}"
+    )
     return price_field
+
+
+def get_category_id(category: str) -> uuid.UUID:
+    category = Category.query.filter_by(name=category).first()
+    return category.id
+
+
+def get_kind_id(name: str) -> uuid.UUID:
+    kind = Kind.query.filter_by(name=name).first()
+    return kind.id
 
 
 # noinspection PyPackageRequirements
@@ -179,41 +193,86 @@ class Parser:
                     shop_id=sync_settings.SHOP_ID,
                     cannabis=True,
                 )
-                db.session.add(record)
-                db.session.commit()
+                save(record)
 
     def sync_prices(self):
         logger.info(f"Syncing prices to database", categories=len(self.products))
         for product in self.products:
-            prices = [p for p in self.prices if p.product_id == product.product_id]
+            for category in self.categories:
+                prices = [p for p in self.prices if p.product_id == product.product_id and p.category == category]
 
-            # handle all price variations
-            pre_rolled = [get_price_field(p, pre_rolled=True) for p in prices if p.joint]
-            cannabis = [get_price_field(p) for p in prices if not p.joint]
-            # todo: edibles, they are now added to the cannabis field
-            edibles = []
+                # handle all price variations
+                pre_rolled = [get_price_field(p, pre_rolled=True) for p in prices if p.joint]
+                cannabis = [get_price_field(p) for p in prices if not p.joint]
+                # Todo: edibles, they are now added to the cannabis field
+                # Todo: flag "#23" -> Edibles
+                edibles = []
 
-            logger.info(f"Syncing prices for {product.name} to database", pre_rolled=pre_rolled, cannabis=cannabis)
+                internal_product_id = f"#{product.product_id} {category}"
+                pre_rolled_joints_data = [p.dict() for p in pre_rolled]
+                cannabis_data = [p.dict() for p in cannabis]
+                edible_data = [p.dict() for p in edibles]
+                skip_shop_to_price = False
+                if len(PriceModel.query.filter_by(internal_product_id=internal_product_id).all()) == 1:
+                    # update all fields
+                    # Todo refactor so the else doesn't contain duplicate code?
+                    price = PriceModel.query.filter_by(internal_product_id=internal_product_id).first()
+                    price.pre_rolled_joints = pre_rolled_joints_data
+                    price.cannabis = cannabis_data
+                    price.edible = edible_data
+                    price.shop_group_id = sync_settings.SHOP_GROUP_ID
+                    save(price)
+                    logger.info(
+                        f'UPDATED Prices in "{category}" for "{product.name}"',
+                        pre_rolled=[i.dict() for i in pre_rolled],
+                        cannabis=[i.dict() for i in cannabis],
+                        edibles=[i.dict() for i in edibles],
+                        category=category,
+                    )
 
-            # Todo
-            # check if price exists:
-            # Todo: check which flags and prices or only product_id (not sure if that will be unique enough)
+                else:
+                    # create a new price with all needed prices for this category
+                    if any([pre_rolled_joints_data, cannabis_data, edible_data]):
+                        price = PriceModel(
+                            id=str(uuid.uuid4()),
+                            internal_product_id=internal_product_id,
+                            pre_rolled_joints=pre_rolled_joints_data,
+                            cannabis=cannabis_data,
+                            edible=edible_data,
+                            shop_group_id=sync_settings.SHOP_GROUP_ID,
+                        )
+                        save(price)
+                        logger.info(
+                            f'CREATED Prices in "{category}" for "{product.name}"',
+                            pre_rolled=[i.dict() for i in pre_rolled],
+                            cannabis=[i.dict() for i in cannabis],
+                            edibles=[i.dict() for i in edibles],
+                            category=category,
+                        )
+                    else:
+                        # We skip empty price records
+                        skip_shop_to_price = True
 
-            # Todo: flag "#23" -> Edibles
+                if not skip_shop_to_price:
+                    # create price to shop relation
+                    shop_to_price = ShopToPrice(
+                        id=str(uuid.uuid4()),
+                        active=True,  # Todo make this dependant on weight for auto stock control
+                        shop_id=sync_settings.SHOP_ID,
+                        # Two inefficient DB lookups, but this makes it possible to rerun only price update
+                        category_id=get_category_id(category),
+                        kind_id=get_kind_id(product.name),
+                        price_id=price.id,  # should be safe her, but ugly
+                        # Set OLD price cols to False
+                        use_half=False,
+                        use_one=False,
+                        use_two_five=False,
+                        use_five=False,
+                        use_joint=False,
+                        use_piece=False,
+                    )
+                    save(shop_to_price)
 
-            # Create a price
-            # Todo: it might be smart to create 3 prices, one with only canna, one with joints, one with all prices enabled
-            price_id = str(uuid.uuid4())
-            price = PriceModel(
-                id=price_id,
-                internal_product_id=product.product_id,  # if we add prices multiple times -> add a string here
-                pre_rolled_joints=[p.dict() for p in pre_rolled],
-                cannabis=[p.dict() for p in cannabis],
-                edible=[p.dict() for p in edibles],
-                shop_group_id=sync_settings.SHOP_GROUP_ID,
-            )
-            db.session.add(price)
-            db.session.commit()
             # logger.info(
             #     f"Synced prices for {product.name} to database",
             #     id=str(price.id),
