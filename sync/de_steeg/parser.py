@@ -179,7 +179,7 @@ class Parser:
         logger.info(f"Syncing categories to database", categories=len(self.categories))
         for category in self.categories:
             # check if category exists:
-            if len(Category.query.filter_by(name=category).all()) == 1:
+            if len(Category.query.filter_by(name=category).filter_by(shop_id=sync_settings.SHOP_ID).all()) == 1:
                 logger.info(f"Skipping category {category}: already exists")
             else:
                 logger.info(f"Adding category {category} to database")
