@@ -178,6 +178,7 @@ def get_by_id(id: UUID, is_horeca: Optional[bool] = None):
             "five": pr.price.five if pr.use_five else None,
             "joint": pr.price.joint if pr.use_joint else None,
             "piece": pr.price.piece if pr.use_piece else None,
+            "json_prices": pr.price.cannabis if pr.price.cannabis else pr.price.pre_rolled_joints,
             "created_at": pr.created_at,
             "modified_at": pr.modified_at,
             "order_number": pr.order_number,
